@@ -1,0 +1,36 @@
+[
+  {
+    "userName": "Informaticien ACV",
+    "userEmail": "info@acv.fr",
+    "action": "login",
+    "entity": "auth",
+    "entityId": "user_staff_fr",
+    "details": "Connexion réussie (Rôle: super-admin)",
+    "timestamp": "2026-10-21T09:22:21.883Z",
+    "ipAddress": "127.0.0.1",
+    "id": "1792574541883_chabt",
+    "createdAt": "2026-10-21T09:22:21.883Z",
+    "updatedAt": "2026-10-21T09:22:21.883Z"
+  },
+  {
+    "id": "log_1",
+    "userName": "Berthollet Munihire",
+    "userEmail": "bertholletmunihire@gmail.com",
+    "action": "login",
+    "entity": "auth",
+    "details": "Super-admin authenticated successfully from Goma office",
+    "timestamp": "2026-10-21T07:45:00Z",
+    "ipAddress": "197.157.240.12"
+  },
+  {
+    "id": "log_2",
+    "userName": "Berthollet Munihire",
+    "userEmail": "bertholletmunihire@gmail.com",
+    "action": "update",
+    "entity": "programs",
+    "entityId": "pillar_nature",
+    "details": "Updated verified tree planting milestone to 10,000+ units",
+    "timestamp": "2026-10-21T08:00:00Z",
+    "ipAddress": "197.157.240.12"
+  }
+]

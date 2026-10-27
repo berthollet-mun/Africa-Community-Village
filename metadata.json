@@ -1,0 +1,6 @@
+{
+  "name": "Africa Community Village (ACV)",
+  "description": "Official platform of Africa Community Village (ACV) — a youth-led grassroots non-profit in Eastern DR Congo (Goma, North Kivu) driving community resilience through education, environmental conservation, agro-ecology, health, and economic empowerment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

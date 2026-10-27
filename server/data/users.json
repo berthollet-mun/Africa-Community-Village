@@ -1,0 +1,47 @@
+[
+  {
+    "id": "user_super_admin",
+    "name": "Berthollet Munihire",
+    "email": "bertholletmunihire@gmail.com",
+    "password": "1 penguin",
+    "role": "super-admin",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+    "status": "active",
+    "lastLogin": "2026-10-21T08:15:00Z",
+    "createdAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "user_founder_admin",
+    "name": "Elie Bwira",
+    "email": "elie.bwira@acv-drc.org",
+    "password": "admin2026!",
+    "role": "admin",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+    "status": "active",
+    "lastLogin": "2026-10-20T14:30:00Z",
+    "createdAt": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "user_editor",
+    "name": "Goma Field Comms",
+    "email": "info@acv-drc.org",
+    "password": "admin2026!",
+    "role": "editor",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    "status": "active",
+    "lastLogin": "2026-10-19T09:00:00Z",
+    "createdAt": "2026-02-15T00:00:00Z"
+  },
+  {
+    "id": "user_staff_fr",
+    "name": "Informaticien ACV",
+    "email": "info@acv.fr",
+    "password": "acvstaff",
+    "role": "super-admin",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+    "status": "active",
+    "lastLogin": "2026-10-21T09:22:21.882Z",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-10-21T09:22:21.882Z"
+  }
+]

@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-label: 'Space Grotesk', monospace, sans-serif;
+
+  /* 2.1. Primary: Rouge Profond / Bordeaux (Dominant) */
+  --color-primary: #690C07;
+  --color-primary-hover: #520905;
+  --color-primary-light: #8B1510;
+  --color-primary-subtle: #F9EBEA;
+
+  /* 2.2. Canvas Base / Neutral Light: Sable (Warm Neutral) */
+  --color-neutral-light: #F3EDE1;
+  --color-neutral-sand: #F3EDE1;
+  --color-neutral-card: #FAF6EF;
+  --color-neutral-border: #E2D7C3;
+  --color-neutral-white: #FFFFFF;
+
+  /* 2.3. Secondary / Accent: Orange / Ambre */
+  --color-secondary: #EFA62B;
+  --color-secondary-hover: #D98E16;
+  --color-secondary-light: #FDF3E3;
+
+  /* 2.4. Tertiary: Teal (Bleu Canard) */
+  --color-tertiary: #0E7490;
+  --color-tertiary-hover: #095368;
+  --color-tertiary-light: #E0F2FE;
+
+  /* 2.5. Neutral Dark: Charbon */
+  --color-neutral-dark: #232826;
+  --color-neutral-muted: #4B5550;
+
+  /* 2.6. Success / Validation: Teal (aligné sur l'image) */
+  --color-success: #0E7490;
+  --color-success-light: #E0F2FE;
+  --color-success-dark: #095368;
+
+  /* Backward compatibility aliases remapped to new palette */
+  --color-acv-green: #690C07;
+  --color-acv-green-dark: #520905;
+  --color-acv-green-light: #F9EBEA;
+
+  --color-acv-amber: #EFA62B;
+  --color-acv-amber-dark: #D98E16;
+  --color-acv-amber-light: #FDF3E3;
+
+  --color-acv-cyan: #0E7490;
+  --color-acv-cyan-dark: #095368;
+  --color-acv-cyan-light: #E0F2FE;
+
+  --color-acv-charcoal: #232826;
+  --color-acv-sand: #F3EDE1;
+  --color-acv-surface: #F3EDE1;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background-color: #F3EDE1;
+  color: #232826;
+  overflow-x: hidden;
+}
+
+.font-label {
+  font-family: 'Space Grotesk', monospace, sans-serif;
+}
+
+/* Custom Warm Earth Shadow */
+.shadow-earth {
+  box-shadow: 0 8px 24px -4px rgba(35, 40, 38, 0.08), 0 2px 6px -1px rgba(35, 40, 38, 0.05);
+}
+
+.shadow-earth-lg {
+  box-shadow: 0 20px 35px -8px rgba(35, 40, 38, 0.15), 0 1px 3px 0 rgba(35, 40, 38, 0.05);
+}
+
+/* African textile motif pattern background with Charcoal base */
+.bg-chevron-pattern {
+  background-color: #232826;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(243, 237, 225, 0.04) 0,
+    rgba(243, 237, 225, 0.04) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+/* Horizontal African flag / ribbon border aligned with new palette */
+.african-ribbon-border {
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    #690C07 0px,
+    #690C07 18px,
+    #EFA62B 18px,
+    #EFA62B 36px,
+    #0E7490 36px,
+    #0E7490 54px,
+    #232826 54px,
+    #232826 72px
+  );
+}
