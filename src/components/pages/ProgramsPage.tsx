@@ -91,11 +91,11 @@ export const ProgramsPage: React.FC = () => {
   const getPillarImage = (p: ProgramPillar): string => {
     if (p.image) return p.image;
     const slug = p.slug || p.id;
-    if (slug.includes('education')) return '/public/assets/aistudio/8_5185b9b0.PNG';
-    if (slug.includes('nature')) return '/public/assets/aistudio/7_ee54323c.PNG';
-    if (slug.includes('agri')) return '/public/assets/aistudio/4_289670c0.PNG';
-    if (slug.includes('health')) return '/public/assets/aistudio/15_f71655f6.jpeg';
-    return '/public/assets/aistudio/10_702700e4.PNG';
+    if (slug.includes('education')) return '/assets/aistudio/8_5185b9b0.PNG';
+    if (slug.includes('nature')) return '/assets/aistudio/7_ee54323c.PNG';
+    if (slug.includes('agri')) return '/assets/aistudio/4_289670c0.PNG';
+    if (slug.includes('health')) return '/assets/aistudio/15_f71655f6.jpeg';
+    return '/assets/aistudio/10_702700e4.PNG';
   };
 
   const getPillarRoute = (p: ProgramPillar): string => {
@@ -125,12 +125,12 @@ export const ProgramsPage: React.FC = () => {
         ];
 
     const galleryImages = currentProgram.gallery || [
-      '/public/assets/aistudio/8_5185b9b0.PNG',
-      '/public/assets/aistudio/7_ee54323c.PNG',
-      '/public/assets/aistudio/4_289670c0.PNG',
-      '/public/assets/aistudio/15_f71655f6.jpeg',
-      '/public/assets/aistudio/10_702700e4.PNG',
-      '/public/assets/aistudio/5_f8a812a7.PNG'
+      '/assets/aistudio/8_5185b9b0.PNG',
+      '/assets/aistudio/7_ee54323c.PNG',
+      '/assets/aistudio/4_289670c0.PNG',
+      '/assets/aistudio/15_f71655f6.jpeg',
+      '/assets/aistudio/10_702700e4.PNG',
+      '/assets/aistudio/5_f8a812a7.PNG'
     ];
 
     return (

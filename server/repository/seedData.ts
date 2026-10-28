@@ -23,7 +23,6 @@ export const seedUsers: AdminUser[] = [
     id: 'user_super_admin',
     name: 'Berthollet Munihire',
     email: 'bertholletmunihire@gmail.com',
-    password: '1 penguin', // Plain text for demo phase as requested in prompt
     role: 'super-admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     status: 'active',
@@ -34,7 +33,6 @@ export const seedUsers: AdminUser[] = [
     id: 'user_founder_admin',
     name: 'Elie Bwira',
     email: 'elie.bwira@acv-drc.org',
-    password: 'admin2026!',
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     status: 'active',
@@ -45,7 +43,6 @@ export const seedUsers: AdminUser[] = [
     id: 'user_editor',
     name: 'Goma Field Comms',
     email: 'info@acv-drc.org',
-    password: 'admin2026!',
     role: 'editor',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
     status: 'active',
@@ -56,7 +53,6 @@ export const seedUsers: AdminUser[] = [
     id: 'user_staff_fr',
     name: 'Informaticien ACV',
     email: 'info@acv.fr',
-    password: 'acvstaff',
     role: 'super-admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     status: 'active',
@@ -85,7 +81,7 @@ export const seedSiteSettings: SiteSettings = {
   legalNoticeFr: 'Africa Community Village est une organisation sans but lucratif (ASBL) dirigée par des jeunes, officiellement reconnue en République Démocratique du Congo.',
   privacyPolicyEn: 'We adhere to strict data privacy principles in compliance with international safeguarding standards.',
   privacyPolicyFr: 'Nous appliquons une politique de confidentialité stricte conforme aux chartes éthiques et humanitaires.',
-  defaultOgImage: '/public/assets/aistudio/screen_ab258318.png',
+  defaultOgImage: '/assets/brand/acv-logo.jpeg',
   bannerSpeedMs: 6500,
   createdAt: '2026-01-01T00:00:00Z'
 };
@@ -101,7 +97,7 @@ export const seedPages: PageItem[] = [
     subtitleFr: 'Régénération civique et écologique portée par la jeunesse à Goma et aux abords des Virunga.',
     contentEn: 'Africa Community Village is an autonomous grassroots movement operating in Eastern DR Congo.',
     contentFr: 'Africa Community Village est une organisation citoyenne autonome ancrée dans l’Est de la RDC.',
-    coverImage: '/public/assets/aistudio/4_289670c0.PNG',
+    coverImage: '/assets/aistudio/4_289670c0.PNG',
     status: 'published',
     order: 1
   },
@@ -115,7 +111,7 @@ export const seedPages: PageItem[] = [
     subtitleFr: 'Fondée à Goma par de jeunes professionnels dévoués à une souveraineté congolaise pérenne.',
     contentEn: 'Our mission is to empower youth and vulnerable communities through interconnected programs.',
     contentFr: 'Notre mission est de renforcer le pouvoir d’action des jeunes et des populations vulnérables.',
-    coverImage: '/public/assets/aistudio/15_f71655f6.jpeg',
+    coverImage: '/assets/aistudio/15_f71655f6.jpeg',
     status: 'published',
     order: 2
   },
@@ -129,7 +125,7 @@ export const seedPages: PageItem[] = [
     subtitleFr: 'Dépasser l’assistanat d’urgence pour construire une souveraineté agroécologique pérenne.',
     contentEn: 'We implement community listening, regenerative agroforestry, and intergenerational consensus.',
     contentFr: 'Nous combinons écoute villageoise, agroforesterie régénérative et consensus intergénérationnel.',
-    coverImage: '/public/assets/aistudio/7_ee54323c.PNG',
+    coverImage: '/assets/aistudio/7_ee54323c.PNG',
     status: 'published',
     order: 3
   },
@@ -141,7 +137,7 @@ export const seedPages: PageItem[] = [
     titleFr: 'Cinq Piliers, Un Modèle Communautaire Intégré',
     subtitleEn: 'Education, environment, agriculture, health and livelihoods reinforcing each other.',
     subtitleFr: 'Éducation, environnement, agriculture, santé et économie se renforçant mutuellement.',
-    coverImage: '/public/assets/aistudio/8_5185b9b0.PNG',
+    coverImage: '/assets/aistudio/8_5185b9b0.PNG',
     status: 'published',
     order: 4
   },
@@ -153,7 +149,7 @@ export const seedPages: PageItem[] = [
     titleFr: 'Actualités & Récits du Terrain',
     subtitleEn: 'Direct reports and essays from our team members across North Kivu.',
     subtitleFr: 'Reportages directs et analyses de nos équipes sur le terrain au Nord-Kivu.',
-    coverImage: '/public/assets/aistudio/8_5185b9b0.PNG',
+    coverImage: '/assets/aistudio/8_5185b9b0.PNG',
     status: 'published',
     order: 5
   },
@@ -165,7 +161,7 @@ export const seedPages: PageItem[] = [
     titleFr: 'Contacter notre Secrétariat Général à Goma',
     subtitleEn: 'Questions, volunteer applications (#support), and institutional partnerships (#partner).',
     subtitleFr: 'Correspondance, candidatures bénévoles (#support) et partenariats institutionnels (#partner).',
-    coverImage: '/public/assets/aistudio/14_a89ea47f.jpeg',
+    coverImage: '/assets/aistudio/14_a89ea47f.jpeg',
     status: 'published',
     order: 6
   },
@@ -177,7 +173,7 @@ export const seedPages: PageItem[] = [
     titleFr: 'Solidarité Directe : Financer l’Action des Jeunes',
     subtitleEn: '100% of contributions flow directly into native seedlings, classrooms, and health kits.',
     subtitleFr: '100% des fonds sont injectés dans les pépinières, les écoles et les kits médicaux.',
-    coverImage: '/public/assets/aistudio/7_ee54323c.PNG',
+    coverImage: '/assets/aistudio/7_ee54323c.PNG',
     status: 'published',
     order: 7
   }
@@ -422,7 +418,7 @@ export const seedPrograms: ProgramPillar[] = [
     shortDescFr: 'Doter les jeunes de compétences civiques, numériques et écologiques pour agir localement.',
     fullDescEn: 'Displacement and disrupted school systems in Eastern DRC leave brilliant youth without platforms. ACV creates practical leadership bootcamps, school green clubs, and digital labs to activate latent youth potential.',
     fullDescFr: 'Les crises successives au Nord-Kivu privent de nombreux jeunes d’opportunités. ACV déploie des académies de leadership civique, des clubs écologiques en milieu scolaire et des tiers-lieux numériques solaires.',
-    image: '/public/assets/aistudio/8_5185b9b0.PNG',
+    image: '/assets/aistudio/8_5185b9b0.PNG',
     icon: 'school',
     order: 1,
     status: 'published',
@@ -442,9 +438,9 @@ export const seedPrograms: ProgramPillar[] = [
       'Offrir un mentorat continu aux diplômés déployant leurs micro-projets'
     ],
     gallery: [
-      '/public/assets/aistudio/8_5185b9b0.PNG',
-      '/public/assets/aistudio/5_f8a812a7.PNG',
-      '/public/assets/aistudio/11_7fb309d3.PNG'
+      '/assets/aistudio/8_5185b9b0.PNG',
+      '/assets/aistudio/5_f8a812a7.PNG',
+      '/assets/aistudio/11_7fb309d3.PNG'
     ]
   },
   {
@@ -458,7 +454,7 @@ export const seedPrograms: ProgramPillar[] = [
     shortDescFr: 'Régénérer les zones tampons des Virunga par des pépinières citoyennes et la veille écologique.',
     fullDescEn: 'The Goma Restoration project is our spearhead against deforestation and volcanic soil degradation. We engage border communities to plant native indigenous trees, combat charcoal depletion, and protect biodiversity.',
     fullDescFr: 'Le projet phare Goma Restoration combat la déforestation accélérée et l’érosion des terres volcaniques. Nous mobilisons les villages pour planter des essences indigènes et promouvoir des alternatives durables au charbon de bois.',
-    image: '/public/assets/aistudio/7_ee54323c.PNG',
+    image: '/assets/aistudio/7_ee54323c.PNG',
     icon: 'forest',
     order: 2,
     status: 'published',
@@ -478,9 +474,9 @@ export const seedPrograms: ProgramPillar[] = [
       'Structurer des comités villageois de veille écologique équipés d’outils GPS'
     ],
     gallery: [
-      '/public/assets/aistudio/7_ee54323c.PNG',
-      '/public/assets/aistudio/12_b8c87cf0.PNG',
-      '/public/assets/aistudio/13_68afc347.PNG'
+      '/assets/aistudio/7_ee54323c.PNG',
+      '/assets/aistudio/12_b8c87cf0.PNG',
+      '/assets/aistudio/13_68afc347.PNG'
     ]
   },
   {
@@ -494,7 +490,7 @@ export const seedPrograms: ProgramPillar[] = [
     shortDescFr: 'Agroécologie régénérative, potagers bio et banque de semences indigènes.',
     fullDescEn: 'Conflict and land degradation severely impact food sovereignty in North Kivu. ACV trains youth and women farmers in permaculture, natural pest management, bio-compost, and seed multiplication.',
     fullDescFr: 'Les perturbations climatiques et foncières menacent la souveraineté alimentaire au Nord-Kivu. ACV forme les agricultrices et jeunes maraîchers aux biopesticides naturels, au compost organique et à la multiplication semencière.',
-    image: '/public/assets/aistudio/4_289670c0.PNG',
+    image: '/assets/aistudio/4_289670c0.PNG',
     icon: 'sprout',
     order: 3,
     status: 'published',
@@ -514,9 +510,9 @@ export const seedPrograms: ProgramPillar[] = [
       'Connecter les coopératives maraîchères aux marchés urbains équitables de Goma'
     ],
     gallery: [
-      '/public/assets/aistudio/4_289670c0.PNG',
-      '/public/assets/aistudio/14_a89ea47f.jpeg',
-      '/public/assets/aistudio/15_f71655f6.jpeg'
+      '/assets/aistudio/4_289670c0.PNG',
+      '/assets/aistudio/14_a89ea47f.jpeg',
+      '/assets/aistudio/15_f71655f6.jpeg'
     ]
   },
   {
@@ -530,7 +526,7 @@ export const seedPrograms: ProgramPillar[] = [
     shortDescFr: 'Accès à l’eau saine, prévention de l’hygiène et soutien psychosocial holistique.',
     fullDescEn: 'Health and resilience are indivisible. ACV works with frontline health promoters to install bio-sand water filtration units, conduct menstrual hygiene bootcamps, and run trauma-informed listening circles.',
     fullDescFr: 'La santé est le socle de toute souveraineté. ACV déploie des unités de filtration d’eau par sable biologique, organise des ateliers de santé reproductive et anime des cercles d’écoute psychosociale.',
-    image: '/public/assets/aistudio/15_f71655f6.jpeg',
+    image: '/assets/aistudio/15_f71655f6.jpeg',
     icon: 'heart',
     order: 4,
     status: 'published',
@@ -550,9 +546,9 @@ export const seedPrograms: ProgramPillar[] = [
       'Déstigmatiser la santé mentale à travers des cercles de parole intergénérationnels'
     ],
     gallery: [
-      '/public/assets/aistudio/15_f71655f6.jpeg',
-      '/public/assets/aistudio/10_702700e4.PNG',
-      '/public/assets/aistudio/1_6a0a7e99.PNG'
+      '/assets/aistudio/15_f71655f6.jpeg',
+      '/assets/aistudio/10_702700e4.PNG',
+      '/assets/aistudio/1_6a0a7e99.PNG'
     ]
   },
   {
@@ -566,7 +562,7 @@ export const seedPrograms: ProgramPillar[] = [
     shortDescFr: 'Associations villageoises d’épargne (AVEC), micro-entreprises vertes et artisanat.',
     fullDescEn: 'We break the cycle of chronic vulnerability through community-owned micro-finance (AVEC/VSLA). Women and youth pool collective savings to fund eco-businesses, solar repairs, and value-added crop processing.',
     fullDescFr: 'Nous brisons la dépendance par l’épargne solidaire autogérée (AVEC). Les femmes et jeunes mettent en commun leurs ressources pour financer des ateliers de transformation agroalimentaire et des micro-entreprises vertes.',
-    image: '/public/assets/aistudio/10_702700e4.PNG',
+    image: '/assets/aistudio/10_702700e4.PNG',
     icon: 'briefcase',
     order: 5,
     status: 'published',
@@ -586,9 +582,9 @@ export const seedPrograms: ProgramPillar[] = [
       'Enseigner la gestion financière transparente et la gouvernance coopérative'
     ],
     gallery: [
-      '/public/assets/aistudio/10_702700e4.PNG',
-      '/public/assets/aistudio/4_289670c0.PNG',
-      '/public/assets/aistudio/7_ee54323c.PNG'
+      '/assets/aistudio/10_702700e4.PNG',
+      '/assets/aistudio/4_289670c0.PNG',
+      '/assets/aistudio/7_ee54323c.PNG'
     ]
   }
 ];
@@ -604,7 +600,7 @@ export const seedTeam: TeamMember[] = [
     bioFr: 'Coordonnateur communautaire engagé dans l’action climatique citoyenne, l’autonomisation des jeunes et la coopération stratégique au Nord-Kivu.',
     email: 'bertholletmunihire@gmail.com',
     linkedin: 'https://linkedin.com/in/berthollet-munihire',
-    photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=85',
     category: 'Direction',
     order: 1,
     status: 'visible'
@@ -618,7 +614,7 @@ export const seedTeam: TeamMember[] = [
     bioEn: 'Specialist in agroecology and sustainable project monitoring across Lake Kivu agricultural corridors.',
     bioFr: 'Agronome de formation, spécialiste du suivi-évaluation et de l’agroforesterie dans les couloirs du lac Kivu.',
     email: 'elie.bwira@acv-drc.org',
-    photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.02_57fee977.jpeg',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=85',
     category: 'Direction',
     order: 2,
     status: 'visible'
@@ -689,7 +685,7 @@ export const seedFounders: Founder[] = [
     roleFr: 'Fondateur & Représentant Légal',
     bioEn: 'Born and raised in Goma, Berthollet established Africa Community Village to prove that Congolese youth are the primary architects of regional peace and environmental regeneration.',
     bioFr: 'Né et grandi à Goma, Berthollet a fondé ACV avec la certitude que la jeunesse congolaise est le moteur souverain de la résilience communautaire et de la régénération écologique.',
-    photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=85',
     yearsActive: '2023 – Présent',
     quoteEn: '“When young people lead, communities transform. When communities thrive, Africa rises.”',
     quoteFr: '« Quand les jeunes prennent l’initiative, les communautés se métamorphosent. Quand les communautés prospèrent, l’Afrique s’élève. »',
@@ -703,7 +699,7 @@ export const seedFounders: Founder[] = [
     roleFr: 'Co-Fondateur & Responsable des Opérations',
     bioEn: 'Passionate about agroecology and youth empowerment, Elie has co-architected ACV’s 5 core pillars and field-level monitoring methodologies.',
     bioFr: 'Passionné d’agroécologie et de développement participatif, Elie a co-conçu les 5 piliers stratégiques d’ACV et les méthodologies de terrain.',
-    photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.02_57fee977.jpeg',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=85',
     yearsActive: '2023 – Présent',
     quoteEn: '“Dignity is built from the soil up, with our own hands.”',
     quoteFr: '« La dignité s’édifie à partir de notre terre, avec nos propres mains. »',
@@ -760,7 +756,7 @@ export const seedGovernance: GovernanceMember[] = [
     mandateYears: '2024 – 2027',
     bioEn: 'Composed of 7 elected representatives (including 4 women and 3 youth delegates) ensuring strict alignment with village priorities.',
     bioFr: 'Composé de 7 délégués élus (dont 4 femmes et 3 jeunes) garantissant le respect strict des intérêts villageois.',
-    photoUrl: '/public/assets/aistudio/10_702700e4.PNG',
+    photoUrl: '/assets/aistudio/10_702700e4.PNG',
     documentPdfUrl: '/uploads/acv_safeguarding_charter.pdf',
     documentTitleEn: 'Community Safeguarding Charter',
     documentTitleFr: 'Charte Communautaire de Protection & Transparence',
@@ -775,7 +771,7 @@ export const seedGovernance: GovernanceMember[] = [
     mandateYears: '2025 – 2028',
     bioEn: 'Independent review body publishing open financial reports and reviewing every disbursement above $1,000.',
     bioFr: 'Organe de contrôle indépendant publiant les bilans financiers et vérifiant toute dépense supérieure à 1 000 USD.',
-    photoUrl: '/public/assets/aistudio/4_289670c0.PNG',
+    photoUrl: '/assets/aistudio/4_289670c0.PNG',
     documentPdfUrl: '/uploads/acv_financial_policy.pdf',
     documentTitleEn: 'Financial Transparency Policy',
     documentTitleFr: 'Politique de Gestion Comptable et Anti-Fraude',
@@ -794,7 +790,7 @@ export const seedArticles: Article[] = [
     excerptFr: 'Des cendres volcaniques aux micro-forêts fertiles : de jeunes agronomes congolais régénèrent la terre autour du lac Kivu.',
     contentEn: 'In Eastern Democratic Republic of the Congo, climate action cannot be separated from daily survival. Over the past twelve months, the youth brigades of Africa Community Village have set up four community nurseries in the hills of Goma. By combining indigenous seed conservation with bio-compost derived from domestic kitchen peelings, survival rates of saplings reached a groundbreaking 85%.',
     contentFr: 'À l’Est de la République Démocratique du Congo, l’action pour le climat est inséparable de la dignité quotidienne. Durant les douze derniers mois, les brigades de jeunes d’Africa Community Village ont installé quatre pépinières communautaires sur les hauteurs de Goma. En associant semences indigènes et compost organique, le taux de reprise des jeunes pousses a atteint 85%.',
-    coverImage: '/public/assets/aistudio/7_ee54323c.PNG',
+    coverImage: '/assets/aistudio/7_ee54323c.PNG',
     author: 'Pascal Murhula & Berthollet Munihire',
     category: 'Environment & Climate',
     tags: ['Goma Restoration', 'Reforestation', 'Virunga', 'Agroecology'],
@@ -813,7 +809,7 @@ export const seedArticles: Article[] = [
     excerptFr: 'Comment douze coopératives d’épargne permettent aux familles déplacées de créer des activités durables.',
     contentEn: 'Rather than relying on sporadic humanitarian handouts, over 300 mothers and youth in Mugunga have gathered weekly to pool their savings through ACV’s AVEC initiative. The capital raised funds local manioc processing, solar battery recharge stations, and school supplies.',
     contentFr: 'Plutôt que d’attendre une aide humanitaire aléatoire, plus de 300 mères et jeunes de Mugunga se réunissent chaque semaine pour mettre en commun leurs économies à travers le programme AVEC d’ACV.',
-    coverImage: '/public/assets/aistudio/10_702700e4.PNG',
+    coverImage: '/assets/aistudio/10_702700e4.PNG',
     author: 'Clarisse Kavira',
     category: 'Socio-Economic',
     tags: ['AVEC', 'Women Empowerment', 'Microfinance', 'Goma'],
@@ -832,7 +828,7 @@ export const seedArticles: Article[] = [
     excerptFr: '40 nouveaux lauréats prêts à animer l’éducation climatique et la veille civique dans leurs milieux.',
     contentEn: 'Graduates spent 8 weeks mastering participatory mapping, tree nursery engineering, and non-violent civic mobilization. Each graduate left with a peer-reviewed micro-project ready for local execution.',
     contentFr: 'Les participants ont suivi 8 semaines intensives de cartographie participative, d’ingénierie agroforestière et de mobilisation citoyenne.',
-    coverImage: '/public/assets/aistudio/8_5185b9b0.PNG',
+    coverImage: '/assets/aistudio/8_5185b9b0.PNG',
     author: 'Justin Paluku',
     category: 'Youth Leadership',
     tags: ['Leadership', 'Education', 'Civic Action'],
@@ -849,7 +845,7 @@ export const seedMedia: MediaItem[] = [
     id: 'med_1',
     title: 'ACV Official Horizontal Banner Emblem',
     filename: 'WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg',
-    url: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg',
+    url: '/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg',
     type: 'image',
     mimeType: 'image/jpeg',
     sizeBytes: 142000,
@@ -861,7 +857,7 @@ export const seedMedia: MediaItem[] = [
     id: 'med_2',
     title: 'Goma Restoration Nursery Field Work',
     filename: '7_ee54323c.PNG',
-    url: '/public/assets/aistudio/7_ee54323c.PNG',
+    url: '/assets/aistudio/7_ee54323c.PNG',
     type: 'image',
     mimeType: 'image/png',
     sizeBytes: 854000,
@@ -873,7 +869,7 @@ export const seedMedia: MediaItem[] = [
     id: 'med_3',
     title: 'Youth Leadership Academy Workshop',
     filename: '8_5185b9b0.PNG',
-    url: '/public/assets/aistudio/8_5185b9b0.PNG',
+    url: '/assets/aistudio/8_5185b9b0.PNG',
     type: 'image',
     mimeType: 'image/png',
     sizeBytes: 742000,
@@ -885,7 +881,7 @@ export const seedMedia: MediaItem[] = [
     id: 'med_4',
     title: 'Sustainable Bio-Farming Bed Demonstration',
     filename: '4_289670c0.PNG',
-    url: '/public/assets/aistudio/4_289670c0.PNG',
+    url: '/assets/aistudio/4_289670c0.PNG',
     type: 'image',
     mimeType: 'image/png',
     sizeBytes: 680000,
@@ -899,7 +895,7 @@ export const seedPartners: Partner[] = [
   {
     id: 'part_1',
     name: 'Miti Alliance Network',
-    logoUrl: '/public/assets/aistudio/8_a0add9a7.PNG',
+    logoUrl: '/assets/aistudio/8_a0add9a7.PNG',
     type: 'Technique',
     websiteUrl: 'https://acv-drc.org',
     descriptionEn: 'Regional school greening and environmental education consortium.',
@@ -910,7 +906,7 @@ export const seedPartners: Partner[] = [
   {
     id: 'part_2',
     name: 'Kivu Youth Agroecological Hub',
-    logoUrl: '/public/assets/aistudio/11_ea7cde85.PNG',
+    logoUrl: '/assets/aistudio/11_ea7cde85.PNG',
     type: 'Financier',
     websiteUrl: 'https://acv-drc.org',
     descriptionEn: 'Youth cooperative seed funds for indigenous agroforestry in North Kivu.',
@@ -921,7 +917,7 @@ export const seedPartners: Partner[] = [
   {
     id: 'part_3',
     name: 'Goma Civil Society Solidarity Platform',
-    logoUrl: '/public/assets/aistudio/27_9f2dff87.PNG',
+    logoUrl: '/assets/aistudio/27_9f2dff87.PNG',
     type: 'Institutionnel',
     websiteUrl: 'https://acv-drc.org',
     descriptionEn: 'Coalition of grassroots civic associations advocating for peace and youth rights.',

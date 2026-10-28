@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { BrandLogo } from './BrandLogo';
 
 interface StartupLoaderProps {
   onComplete?: () => void;
@@ -87,9 +88,11 @@ export const StartupLoader: React.FC<StartupLoaderProps> = ({
 
               {/* Crisp White Logo Base */}
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white ring-4 ring-[#690C07]/40 shadow-2xl p-1.5 flex items-center justify-center overflow-hidden">
-                <img
-                  src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+                <BrandLogo
                   alt="Africa Community Village (ACV)"
+                  priority
+                  size={128}
+                  sizes="(max-width: 640px) 80px, 96px"
                   className="w-full h-full object-contain rounded-full"
                 />
               </div>

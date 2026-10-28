@@ -37,7 +37,7 @@ export const BlogPage: React.FC = () => {
 
   // Helper getters for properties that might have dual naming
   const getPostImage = (p: BlogPost) =>
-    p.image || p.imageUrl || '/public/assets/aistudio/8_5185b9b0.PNG';
+    p.image || p.imageUrl || '/assets/aistudio/8_5185b9b0.PNG';
   const getPostDate = (p: BlogPost) =>
     p.date || p.publishedDate || '2026';
   const getPostTags = (p: BlogPost) =>

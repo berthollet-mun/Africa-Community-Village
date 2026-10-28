@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
-  Lock,
   X,
   AlertCircle,
   KeyRound,
   Mail,
   UserCheck,
-  ShieldAlert,
-  Sparkles,
   ArrowRight
 } from 'lucide-react';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const AdminLoginModal: React.FC = () => {
   const {
@@ -25,8 +23,8 @@ export const AdminLoginModal: React.FC = () => {
   } = useApp();
   const isFr = language === 'fr';
 
-  const [email, setEmail] = useState('bertholletmunihire@gmail.com');
-  const [password, setPassword] = useState('1 penguin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -56,23 +54,6 @@ export const AdminLoginModal: React.FC = () => {
     }
   };
 
-  const handleQuickFill = (role: 'super' | 'founder' | 'editor' | 'staff') => {
-    setError(null);
-    if (role === 'staff') {
-      setEmail('info@acv.fr');
-      setPassword('acvstaff');
-    } else if (role === 'super') {
-      setEmail('bertholletmunihire@gmail.com');
-      setPassword('1 penguin');
-    } else if (role === 'founder') {
-      setEmail('elie.bwira@acv-drc.org');
-      setPassword('admin2026!');
-    } else {
-      setEmail('info@acv-drc.org');
-      setPassword('admin2026!');
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
       <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-stone-200 overflow-hidden animate-fade-in">
@@ -86,8 +67,8 @@ export const AdminLoginModal: React.FC = () => {
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-              <Lock className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center border border-white/20 overflow-hidden shadow-md p-0.5">
+              <BrandLogo size={72} sizes="48px" className="w-full h-full object-contain rounded-lg" priority />
             </div>
             <div>
               <span className="text-[10px] font-label uppercase font-bold tracking-widest text-amber-400">
@@ -194,50 +175,11 @@ export const AdminLoginModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quick Fill presets for evaluation */}
-              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/80 space-y-2">
-                <span className="text-[10px] font-label uppercase tracking-widest text-stone-500 font-bold block">
-                  {isFr ? 'Rôles pré-configurés pour la démo :' : 'Preset Demo Credentials:'}
-                </span>
-                <div className="grid grid-cols-4 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('staff')}
-                    className="py-1.5 px-1.5 bg-white hover:bg-[#F3EDE1] text-[#690C07] rounded border border-[#E2D7C3] text-[10px] font-label font-bold uppercase truncate cursor-pointer text-center"
-                    title="info@acv.fr / acvstaff"
-                  >
-                    Staff/Info
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('super')}
-                    className="py-1.5 px-1.5 bg-[#690C07] text-white hover:bg-[#520905] rounded border border-[#690C07] text-[10px] font-label font-bold uppercase truncate cursor-pointer text-center"
-                    title="bertholletmunihire@gmail.com / 1 penguin"
-                  >
-                    Super-Admin
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('founder')}
-                    className="py-1.5 px-1.5 bg-white hover:bg-[#FDF3E3] text-[#EFA62B] rounded border border-[#EFA62B]/50 text-[10px] font-label font-bold uppercase truncate cursor-pointer text-center"
-                    title="elie.bwira@acv-drc.org / admin2026!"
-                  >
-                    Fondateur
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('editor')}
-                    className="py-1.5 px-1.5 bg-white hover:bg-[#E0F2FE] text-[#0E7490] rounded border border-[#0E7490]/40 text-[10px] font-label font-bold uppercase truncate cursor-pointer text-center"
-                    title="info@acv-drc.org / admin2026!"
-                  >
-                    Éditeur
-                  </button>
-                </div>
-                <div className="text-[10px] text-stone-500 space-y-0.5">
-                  <div><strong>Staff / Informaticien :</strong> <code className="bg-stone-200 px-1 py-0.5 rounded">info@acv.fr</code> / <code className="bg-stone-200 px-1 py-0.5 rounded">acvstaff</code></div>
-                  <div><strong>Super-Admin :</strong> <code className="bg-stone-200 px-1 py-0.5 rounded">bertholletmunihire@gmail.com</code> / <code className="bg-stone-200 px-1 py-0.5 rounded">1 penguin</code></div>
-                </div>
-              </div>
+              <p className="text-[11px] text-stone-500 leading-relaxed">
+                {isFr
+                  ? 'Utilisez les identifiants sécurisés fournis par l’administrateur ACV.'
+                  : 'Use the secure credentials supplied by the ACV administrator.'}
+              </p>
 
               <button
                 type="submit"

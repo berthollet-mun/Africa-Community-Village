@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 export interface CircleProgressIndicatorProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -116,9 +117,9 @@ export const CircleProgressIndicator: React.FC<CircleProgressIndicatorProps> = (
                 height: config.diameter * 0.58
               }}
             >
-              <img
-                src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+              <BrandLogo
                 alt="ACV"
+                size={96}
                 className="w-full h-full object-contain rounded-full"
               />
             </div>

@@ -1,15 +1,16 @@
 /**
  * Centralized API service for Africa Community Village (ACV)
- * Connects the React client with the Node.js / Express backend endpoints
+ * Browser-side controller client for the Next.js Route Handlers.
  */
 
 const BASE_URL = '/api';
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem('acv_auth_token');
+  return typeof window === 'undefined' ? null : localStorage.getItem('acv_auth_token');
 }
 
 export function setAuthToken(token: string | null): void {
+  if (typeof window === 'undefined') return;
   if (token) {
     localStorage.setItem('acv_auth_token', token);
   } else {

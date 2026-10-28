@@ -215,7 +215,7 @@ export const ApproachPage: React.FC = () => {
               <div className="lg:col-span-5">
                 <div className="rounded-2xl overflow-hidden border border-stone-700 shadow-xl aspect-4/3">
                   <img
-                    src="/public/assets/aistudio/7_ee54323c.PNG"
+                    src="/assets/aistudio/7_ee54323c.PNG"
                     alt="Goma Restoration"
                     className="w-full h-full object-cover"
                   />
