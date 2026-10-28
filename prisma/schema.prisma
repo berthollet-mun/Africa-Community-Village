@@ -1,0 +1,355 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "mysql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  externalId   String     @unique @map("external_id") @db.VarChar(191)
+  name         String     @db.VarChar(191)
+  email        String     @unique @db.VarChar(191)
+  passwordHash String     @map("password_hash") @db.VarChar(255)
+  role         String     @default("editor") @db.VarChar(32)
+  status       String     @default("active") @db.VarChar(32)
+  avatar       String?    @db.Text
+  lastLogin    DateTime?  @map("last_login")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  articles     Article[]  @relation("ArticleAuthor")
+  media        Media[]    @relation("MediaUploader")
+  auditLogs    AuditLog[]
+
+  @@index([role, status])
+  @@map("users")
+}
+
+model Page {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  route      String   @unique @db.VarChar(191)
+  slug       String   @unique @db.VarChar(191)
+  titleEn    String   @map("title_en") @db.VarChar(255)
+  titleFr    String   @map("title_fr") @db.VarChar(255)
+  subtitleEn String?  @map("subtitle_en") @db.Text
+  subtitleFr String?  @map("subtitle_fr") @db.Text
+  contentEn  String?  @map("content_en") @db.LongText
+  contentFr  String?  @map("content_fr") @db.LongText
+  coverImage String?  @map("cover_image") @db.Text
+  seoMeta    Json?    @map("seo_meta")
+  status     String   @default("draft") @db.VarChar(32)
+  orderIndex Int      @default(0) @map("order_index")
+  data       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  banners    Banner[]
+
+  @@index([status, orderIndex])
+  @@map("pages")
+}
+
+model Banner {
+  id         Int       @id @default(autoincrement())
+  externalId String    @unique @map("external_id") @db.VarChar(191)
+  pageId     Int?      @map("page_id")
+  pageRoute  String    @map("page_route") @db.VarChar(191)
+  imageUrl   String    @map("image_url") @db.Text
+  titleEn    String    @map("title_en") @db.VarChar(255)
+  titleFr    String    @map("title_fr") @db.VarChar(255)
+  subtitleEn String?   @map("subtitle_en") @db.Text
+  subtitleFr String?   @map("subtitle_fr") @db.Text
+  ctaTextEn  String?   @map("cta_text_en") @db.VarChar(191)
+  ctaTextFr  String?   @map("cta_text_fr") @db.VarChar(191)
+  ctaLink    String?   @map("cta_link") @db.Text
+  altTextEn  String?   @map("alt_text_en") @db.VarChar(255)
+  altTextFr  String?   @map("alt_text_fr") @db.VarChar(255)
+  orderIndex Int       @default(0) @map("order_index")
+  isActive   Boolean   @default(true) @map("is_active")
+  startDate  DateTime? @map("start_date")
+  endDate    DateTime? @map("end_date")
+  data       Json?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  page       Page?     @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([pageId, isActive, orderIndex])
+  @@index([pageRoute, isActive])
+  @@map("banners")
+}
+
+model Program {
+  id            Int      @id @default(autoincrement())
+  externalId    String   @unique @map("external_id") @db.VarChar(191)
+  slug          String   @unique @db.VarChar(191)
+  titleEn       String   @map("title_en") @db.VarChar(255)
+  titleFr       String   @map("title_fr") @db.VarChar(255)
+  descriptionEn String?  @map("description_en") @db.LongText
+  descriptionFr String?  @map("description_fr") @db.LongText
+  icon          String?  @db.VarChar(100)
+  imageUrl      String?  @map("image_url") @db.Text
+  status        String   @default("draft") @db.VarChar(32)
+  orderIndex    Int      @default(0) @map("order_index")
+  metrics       Json?
+  objectivesEn  Json?    @map("objectives_en")
+  objectivesFr  Json?    @map("objectives_fr")
+  gallery       Json?
+  data          Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([status, orderIndex])
+  @@map("programs")
+}
+
+model TeamMember {
+  id          Int       @id @default(autoincrement())
+  externalId  String    @unique @map("external_id") @db.VarChar(191)
+  name        String    @db.VarChar(191)
+  roleEn      String    @map("role_en") @db.VarChar(255)
+  roleFr      String    @map("role_fr") @db.VarChar(255)
+  bioEn       String?   @map("bio_en") @db.LongText
+  bioFr       String?   @map("bio_fr") @db.LongText
+  photoUrl    String?   @map("photo_url") @db.Text
+  category    String    @default("Staff") @db.VarChar(64)
+  socialLinks Json?     @map("social_links")
+  status      String    @default("visible") @db.VarChar(32)
+  orderIndex  Int       @default(0) @map("order_index")
+  data        Json?
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([category, status, orderIndex])
+  @@index([deletedAt])
+  @@map("team_members")
+}
+
+model Article {
+  id          Int       @id @default(autoincrement())
+  externalId  String    @unique @map("external_id") @db.VarChar(191)
+  titleEn     String    @map("title_en") @db.VarChar(255)
+  titleFr     String    @map("title_fr") @db.VarChar(255)
+  slug        String    @unique @db.VarChar(191)
+  excerptEn   String?   @map("excerpt_en") @db.Text
+  excerptFr   String?   @map("excerpt_fr") @db.Text
+  contentEn   String    @map("content_en") @db.LongText
+  contentFr   String    @map("content_fr") @db.LongText
+  coverImage  String?   @map("cover_image") @db.Text
+  authorId    Int?      @map("author_id")
+  authorName  String?   @map("author_name") @db.VarChar(191)
+  category    String    @db.VarChar(100)
+  status      String    @default("draft") @db.VarChar(32)
+  readTime    String?   @map("read_time") @db.VarChar(50)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  tags        Json?
+  views       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  data        Json?
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  author      User?     @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([category, status])
+  @@index([authorId])
+  @@index([deletedAt])
+  @@map("articles")
+}
+
+model Media {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  title      String   @db.VarChar(255)
+  fileName   String   @map("file_name") @db.VarChar(255)
+  fileUrl    String   @map("file_url") @db.Text
+  fileType   String   @map("file_type") @db.VarChar(50)
+  mimeType   String?  @map("mime_type") @db.VarChar(100)
+  fileSize   BigInt   @default(0) @map("file_size")
+  altTextEn  String?  @map("alt_text_en") @db.VarChar(255)
+  altTextFr  String?  @map("alt_text_fr") @db.VarChar(255)
+  uploadedBy Int?     @map("uploaded_by")
+  data       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  uploader   User?    @relation("MediaUploader", fields: [uploadedBy], references: [id], onDelete: SetNull)
+
+  @@index([fileType, createdAt])
+  @@index([uploadedBy])
+  @@map("media")
+}
+
+model Partner {
+  id            Int      @id @default(autoincrement())
+  externalId    String   @unique @map("external_id") @db.VarChar(191)
+  name          String   @db.VarChar(191)
+  logoUrl       String?  @map("logo_url") @db.Text
+  websiteUrl    String?  @map("website_url") @db.Text
+  descriptionEn String?  @map("description_en") @db.Text
+  descriptionFr String?  @map("description_fr") @db.Text
+  type          String?  @db.VarChar(64)
+  status        String   @default("active") @db.VarChar(32)
+  orderIndex    Int      @default(0) @map("order_index")
+  data          Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([status, orderIndex])
+  @@map("partners")
+}
+
+model Setting {
+  id           Int      @id @default(autoincrement())
+  settingKey   String   @unique @map("setting_key") @db.VarChar(191)
+  settingValue Json     @map("setting_value")
+  groupName    String   @default("general") @map("group_name") @db.VarChar(64)
+  isPublic     Boolean  @default(true) @map("is_public")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([groupName, isPublic])
+  @@map("settings")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  userId     Int?     @map("user_id")
+  userName   String?  @map("user_name") @db.VarChar(191)
+  userEmail  String?  @map("user_email") @db.VarChar(191)
+  action     String   @db.VarChar(64)
+  tableName  String   @map("table_name") @db.VarChar(64)
+  recordId   String?  @map("record_id") @db.VarChar(191)
+  details    String?  @db.Text
+  ipAddress  String?  @map("ip_address") @db.VarChar(64)
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([tableName, recordId])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model Donation {
+  id               Int      @id @default(autoincrement())
+  externalId       String   @unique @map("external_id") @db.VarChar(191)
+  donorName        String?  @map("donor_name") @db.VarChar(191)
+  donorEmail       String?  @map("donor_email") @db.VarChar(191)
+  donorType        String?  @map("donor_type") @db.VarChar(64)
+  amount           Decimal  @db.Decimal(12, 2)
+  currency         String   @default("USD") @db.Char(3)
+  frequency        String   @default("one-time") @db.VarChar(32)
+  pillarAllocation String?  @map("pillar_allocation") @db.VarChar(191)
+  paymentMethod    String?  @map("payment_method") @db.VarChar(100)
+  isAnonymous      Boolean  @default(false) @map("is_anonymous")
+  status           String   @default("pledged") @db.VarChar(32)
+  notes            String?  @db.Text
+  donatedAt        DateTime @default(now()) @map("donated_at")
+  data             Json?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([status, donatedAt])
+  @@index([donorEmail])
+  @@map("donations")
+}
+
+model ContactSubmission {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  name       String   @db.VarChar(191)
+  email      String   @db.VarChar(191)
+  phone      String?  @db.VarChar(64)
+  category   String?  @db.VarChar(100)
+  subject    String?  @db.VarChar(255)
+  message    String   @db.LongText
+  status     String   @default("new") @db.VarChar(32)
+  isRead     Boolean  @default(false) @map("is_read")
+  data       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([status, isRead, createdAt])
+  @@index([email])
+  @@map("contact_submissions")
+}
+
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+  externalId  String   @unique @map("external_id") @db.VarChar(191)
+  quoteEn     String   @map("quote_en") @db.Text
+  quoteFr     String   @map("quote_fr") @db.Text
+  author      String   @db.VarChar(191)
+  roleEn      String?  @map("role_en") @db.VarChar(191)
+  roleFr      String?  @map("role_fr") @db.VarChar(191)
+  location    String?  @db.VarChar(191)
+  photoUrl    String?  @map("photo_url") @db.Text
+  programSlug String?  @map("program_slug") @db.VarChar(191)
+  status      String   @default("visible") @db.VarChar(32)
+  orderIndex  Int      @default(0) @map("order_index")
+  data        Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([status, orderIndex])
+  @@map("testimonials")
+}
+
+model ImpactStat {
+  id          Int      @id @default(autoincrement())
+  externalId  String   @unique @map("external_id") @db.VarChar(191)
+  labelEn     String   @map("label_en") @db.VarChar(255)
+  labelFr     String   @map("label_fr") @db.VarChar(255)
+  value       String   @db.VarChar(100)
+  unit        String?  @db.VarChar(50)
+  iconName    String?  @map("icon_name") @db.VarChar(100)
+  displayPage String   @map("display_page") @db.VarChar(191)
+  status      String   @default("active") @db.VarChar(32)
+  orderIndex  Int      @default(0) @map("order_index")
+  data        Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([displayPage, status, orderIndex])
+  @@map("impact_stats")
+}
+
+model PolicyDocument {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  titleEn    String   @map("title_en") @db.VarChar(255)
+  titleFr    String   @map("title_fr") @db.VarChar(255)
+  contentEn  String   @map("content_en") @db.LongText
+  contentFr  String   @map("content_fr") @db.LongText
+  status     String   @default("published") @db.VarChar(32)
+  data       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("policy_documents")
+}
+
+model FieldNote {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique @map("external_id") @db.VarChar(191)
+  titleEn    String   @map("title_en") @db.VarChar(255)
+  titleFr    String   @map("title_fr") @db.VarChar(255)
+  captionEn  String?  @map("caption_en") @db.Text
+  captionFr  String?  @map("caption_fr") @db.Text
+  location   String?  @db.VarChar(191)
+  pillar     String?  @db.VarChar(100)
+  noteDate   DateTime @map("note_date")
+  status     String   @default("published") @db.VarChar(32)
+  data       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([status, noteDate])
+  @@map("field_notes")
+}

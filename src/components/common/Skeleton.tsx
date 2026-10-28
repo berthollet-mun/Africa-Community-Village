@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { BrandLogo } from './BrandLogo';
 
 // Base shimmering block
 export const SkeletonBlock: React.FC<{
@@ -162,9 +163,11 @@ export const GlobalPageLoader: React.FC<{ message?: string }> = ({
         <div className="relative">
           <div className="absolute -inset-4 rounded-full bg-[#EFA62B]/25 animate-ping opacity-75" />
           <div className="absolute -inset-2 rounded-full bg-[#690C07]/20 animate-pulse" />
-          <img
-            src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+          <BrandLogo
             alt="ACV Logo Loader"
+            priority
+            size={128}
+            sizes="(max-width: 640px) 80px, 96px"
             className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-full shadow-xl border-2 border-white animate-[bounce_2s_infinite]"
           />
         </div>

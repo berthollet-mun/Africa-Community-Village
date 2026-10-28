@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
+import { BrandLogo } from './BrandLogo';
 import {
   MapPin,
   Mail,
@@ -44,9 +45,10 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3.5">
               <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white ring-2 ring-[#690C07]/60 p-1 shadow-md shrink-0 flex items-center justify-center overflow-hidden">
-                <img
-                  src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+                <BrandLogo
                   alt="ACV Africa Community Village"
+                  size={96}
+                  sizes="56px"
                   className="w-full h-full object-contain rounded-full"
                 />
               </div>

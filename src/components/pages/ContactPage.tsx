@@ -481,7 +481,7 @@ export const ContactPage: React.FC = () => {
             <div className="lg:col-span-5">
               <div className="rounded-2xl overflow-hidden border border-amber-200 shadow-md aspect-4/3">
                 <img
-                  src="/public/assets/aistudio/15_f71655f6.jpeg"
+                  src="/assets/aistudio/15_f71655f6.jpeg"
                   alt="Volunteer Support"
                   className="w-full h-full object-cover"
                 />
@@ -498,7 +498,7 @@ export const ContactPage: React.FC = () => {
             <div className="lg:col-span-5 order-2 lg:order-1">
               <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-md aspect-4/3">
                 <img
-                  src="/public/assets/aistudio/4_289670c0.PNG"
+                  src="/assets/aistudio/4_289670c0.PNG"
                   alt="Partnership"
                   className="w-full h-full object-cover"
                 />

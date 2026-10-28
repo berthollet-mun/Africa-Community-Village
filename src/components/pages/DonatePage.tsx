@@ -178,7 +178,7 @@ export const DonatePage: React.FC = () => {
                 <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src="/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg"
+                      src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg"
                       alt="ACV Logo"
                       className="h-10 w-auto object-contain"
                     />

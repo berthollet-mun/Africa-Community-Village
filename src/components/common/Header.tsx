@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
 import { Button } from './Button';
+import { BrandLogo } from './BrandLogo';
 import {
   ChevronDown,
   Menu,
@@ -74,9 +75,11 @@ export const Header: React.FC = () => {
         >
           {/* Enhanced high-contrast, large logo badge for high visibility */}
           <div className="relative w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full bg-white ring-2 ring-[#690C07]/35 shadow-sm flex items-center justify-center p-0.5 shrink-0 overflow-hidden group-hover:ring-[#690C07] group-hover:shadow-md transition-all duration-200">
-            <img
-              src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+            <BrandLogo
               alt="Africa Community Village Logo (ACV)"
+              priority
+              size={96}
+              sizes="(max-width: 640px) 44px, 56px"
               className="w-full h-full object-contain rounded-full"
             />
           </div>
@@ -334,9 +337,10 @@ export const Header: React.FC = () => {
                 {/* Mobile Drawer Brand Header for clear visibility */}
                 <div className="flex items-center gap-3 p-3 mb-2 rounded-xl bg-[#FAF6EF] border border-[#E2D7C3]">
                   <div className="w-12 h-12 rounded-full bg-white ring-2 ring-[#690C07]/40 p-0.5 shadow-xs shrink-0 flex items-center justify-center overflow-hidden">
-                    <img
-                      src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+                    <BrandLogo
                       alt="Logo ACV"
+                      size={96}
+                      sizes="48px"
                       className="w-full h-full object-contain rounded-full"
                     />
                   </div>

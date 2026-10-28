@@ -21,6 +21,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { SkeletonCard } from '../common/Skeleton';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const HomePage: React.FC = () => {
   const { language, navigateTo, programs, blogPosts, isLoading } = useApp();
@@ -163,9 +164,10 @@ export const HomePage: React.FC = () => {
               <div className="flex items-center justify-center py-6">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full border-4 border-[#D97706]/60 bg-white p-1.5 shadow-xl flex items-center justify-center">
-                    <img
-                      src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg"
+                    <BrandLogo
                       alt="Ubuntu Emblem"
+                      size={128}
+                      sizes="96px"
                       className="w-full h-full rounded-full object-contain"
                     />
                   </div>

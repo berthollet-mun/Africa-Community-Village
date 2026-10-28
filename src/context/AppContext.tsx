@@ -32,7 +32,7 @@ import {
   initialBlogPosts,
   initialFieldNotes
 } from '../data/mockData';
-import { api, setAuthToken, getAuthToken } from '../services/api';
+import { api, getAuthToken } from '../services/api';
 
 export interface AppContextType {
   language: Language;
@@ -158,9 +158,12 @@ export interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: string }> = ({
+  children,
+  initialRoute = '/'
+}) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('acv_lang');
+    const saved = typeof window === 'undefined' ? null : localStorage.getItem('acv_lang');
     return saved === 'fr' || saved === 'en' ? saved : 'en';
   });
 
@@ -169,26 +172,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('acv_lang', lang);
   };
 
-  const [currentRoute, setCurrentRoute] = useState<PageRoute | string>(() => {
-    const hash = window.location.hash.replace('#', '');
-    return hash || '/';
-  });
+  const [currentRoute, setCurrentRoute] = useState<PageRoute | string>(initialRoute);
 
   const navigateTo = (route: PageRoute | string) => {
     setCurrentRoute(route);
-    window.location.hash = route === '/' ? '' : route;
+    window.history.pushState({}, '', route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash && hash !== currentRoute && !hash.startsWith('support') && !hash.startsWith('partner')) {
-        setCurrentRoute(hash);
-      }
+    const handleRouteChange = () => {
+      const nextRoute = window.location.pathname || '/';
+      if (nextRoute !== currentRoute) setCurrentRoute(nextRoute);
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
   }, [currentRoute]);
 
   // Loading indicator
@@ -234,7 +232,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Admin Auth state
   const [isAdminModalOpen, setAdminModalOpen] = useState(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
-    const saved = localStorage.getItem('acv_admin_session');
+    const saved = typeof window === 'undefined' ? null : localStorage.getItem('acv_admin_session');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -397,27 +395,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return true;
       }
     } catch (err) {
-      console.warn('Server auth failed, testing mock check:', err);
-    }
-
-    // Fallback credential check for resilience
-    const cleanEmail = email.trim().toLowerCase();
-    const isSuperAdmin = cleanEmail === 'bertholletmunihire@gmail.com' && pass === '1 penguin';
-    const isStaff = (cleanEmail === 'info@acv-drc.org' || cleanEmail === 'elie.bwira@acv-drc.org') &&
-                    (pass === 'admin2026!' || pass === 'acvLeader2026!');
-
-    if (isSuperAdmin || isStaff) {
-      const userObj: AdminUser = {
-        id: isSuperAdmin ? 'user_super_admin' : 'user_staff',
-        name: isSuperAdmin ? 'Berthollet Munihire' : 'Elie Bwira',
-        email: cleanEmail,
-        role: isSuperAdmin ? 'super-admin' : 'admin',
-        status: 'active'
-      };
-      setAdminUser(userObj);
-      setAuthToken(`mock_token_${Date.now()}`);
-      localStorage.setItem('acv_admin_session', JSON.stringify(userObj));
-      return true;
+      console.warn('Admin authentication failed:', err);
     }
 
     return false;
@@ -562,7 +540,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       shortDescFr: item.shortDescFr || '',
       fullDescEn: item.fullDescEn || '',
       fullDescFr: item.fullDescFr || '',
-      image: item.image || '/public/assets/aistudio/4_289670c0.PNG',
+      image: item.image || '/assets/aistudio/4_289670c0.PNG',
       icon: item.icon || 'leaf',
       order: programs.length + 1,
       status: item.status || 'published',
@@ -652,7 +630,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       roleFr: item.roleFr || 'Co-Fondateur',
       bioEn: item.bioEn || '',
       bioFr: item.bioFr || '',
-      photoUrl: item.photoUrl || '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg',
+      photoUrl: item.photoUrl || '/assets/brand/acv-logo.jpeg',
       yearsActive: item.yearsActive || '2023 - Présent',
       order: founders.length + 1,
       status: 'visible',
@@ -738,7 +716,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       mandateYears: item.mandateYears || '2024 - 2027',
       bioEn: item.bioEn || '',
       bioFr: item.bioFr || '',
-      photoUrl: item.photoUrl || '/public/assets/aistudio/10_702700e4.PNG',
+      photoUrl: item.photoUrl || '/assets/aistudio/10_702700e4.PNG',
       order: governance.length + 1,
       status: 'active',
       ...item
@@ -843,7 +821,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newP: Partner = {
       id: `part_${Date.now()}`,
       name: item.name || 'Partner Org',
-      logoUrl: item.logoUrl || '/public/assets/aistudio/8_a0add9a7.PNG',
+      logoUrl: item.logoUrl || '/assets/aistudio/8_a0add9a7.PNG',
       type: item.type || 'Technique',
       order: partners.length + 1,
       status: 'active',

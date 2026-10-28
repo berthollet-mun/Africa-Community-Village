@@ -99,7 +99,11 @@ const AppContent: React.FC = () => {
   );
 };
 
-export default function App() {
+interface AppProps {
+  initialRoute?: string;
+}
+
+export default function App({ initialRoute = '/' }: AppProps) {
   const [startupDone, setStartupDone] = React.useState(() => {
     // Show splash startup loader on session start
     return typeof window !== 'undefined' && sessionStorage.getItem('acv_startup_completed') === 'true';
@@ -111,7 +115,7 @@ export default function App() {
   };
 
   return (
-    <AppProvider>
+    <AppProvider initialRoute={initialRoute}>
       <ToastProvider>
         {!startupDone && (
           <StartupLoader

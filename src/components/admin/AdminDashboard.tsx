@@ -218,6 +218,13 @@ export const AdminDashboard: React.FC = () => {
     showToast(isFr ? 'URL copiée dans le presse-papiers !' : 'URL copied to clipboard!');
   };
 
+  const unreadMessages = contactSubmissions.filter((submission) => submission.read !== true).length;
+  const draftArticles = articles.filter((article) => article.status !== 'published').length;
+  const inactiveBanners = banners.filter(
+    (banner) => banner.active === false || banner.isActive === false
+  ).length;
+  const pendingActions = unreadMessages + draftArticles + inactiveBanners;
+
   return (
     <div className="bg-[#F3EDE1] min-h-screen flex flex-col font-sans">
       {/* Toast Notification */}
@@ -482,17 +489,21 @@ export const AdminDashboard: React.FC = () => {
               <div className="space-y-6">
                 {/* Metric Summary Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('inbox')}
+                    className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs text-left transition-all hover:-translate-y-0.5 hover:border-[#690C07]/30 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#690C07]"
+                  >
                     <span className="text-[10px] font-label uppercase font-bold text-stone-400">
-                      {isFr ? '5 Piliers Stratégiques' : 'Active Pillars'}
+                      {isFr ? 'Messages non lus' : 'Unread Messages'}
                     </span>
                     <div className="text-3xl font-extrabold font-label text-[#690C07] mt-1">
-                      {programs.length}
+                      {unreadMessages}
                     </div>
                     <div className="text-[11px] text-stone-500 mt-0.5">
-                      {programs.reduce((acc, p) => acc + (p.metrics?.length || 0), 0)} {isFr ? 'indicateurs KPI' : 'KPI metrics'}
+                      {contactSubmissions.length} {isFr ? 'messages reçus' : 'messages received'}
                     </div>
-                  </div>
+                  </button>
 
                   <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
                     <span className="text-[10px] font-label uppercase font-bold text-stone-400">
@@ -531,23 +542,67 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Translation Coverage Warning Banner */}
-                <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 text-amber-900 flex items-start gap-4">
-                  <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
-                  <div className="flex-1">
+                {/* Operational Priorities */}
+                <div
+                  className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start gap-4 ${
+                    pendingActions > 0
+                      ? 'bg-amber-50 border-amber-200 text-amber-950'
+                      : 'bg-teal-50 border-teal-200 text-teal-950'
+                  }`}
+                >
+                  {pendingActions > 0 ? (
+                    <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <CheckCircle2 className="w-6 h-6 text-teal-700 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-sm">
-                      {isFr ? 'Couverture Bilingue (EN / FR) en Direct' : 'Live Bilingual Coverage Status'}
+                      {pendingActions > 0
+                        ? (isFr ? 'À traiter maintenant' : 'Needs Attention')
+                        : (isFr ? 'Tout est à jour' : 'Everything Is Up to Date')}
                     </h4>
-                    <p className="text-xs text-amber-800 mt-1">
+                    <p className="text-xs opacity-80 mt-1">
                       {isFr
-                        ? 'Toutes les pages, bannières et programmes disposent de textes vérifiés en français et anglais. Vous pouvez enrichir ou éditer n’importe quelle traduction instantanément.'
-                        : 'All public pages, carousels, and pillars feature bilingual French/English entries. Every CRUD module allows direct dual-language editing.'}
+                        ? 'Accédez directement aux contenus qui nécessitent une action.'
+                        : 'Open the content that currently needs an action.'}
                     </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('inbox')}
+                        className="rounded-xl border border-current/15 bg-white/70 px-3 py-2 text-left hover:bg-white transition-colors"
+                      >
+                        <span className="block text-lg font-extrabold font-label">{unreadMessages}</span>
+                        <span className="block text-[10px] font-label uppercase tracking-wide opacity-75">
+                          {isFr ? 'Messages non lus' : 'Unread messages'}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('articles')}
+                        className="rounded-xl border border-current/15 bg-white/70 px-3 py-2 text-left hover:bg-white transition-colors"
+                      >
+                        <span className="block text-lg font-extrabold font-label">{draftArticles}</span>
+                        <span className="block text-[10px] font-label uppercase tracking-wide opacity-75">
+                          {isFr ? 'Articles en brouillon' : 'Draft articles'}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('banners')}
+                        className="rounded-xl border border-current/15 bg-white/70 px-3 py-2 text-left hover:bg-white transition-colors"
+                      >
+                        <span className="block text-lg font-extrabold font-label">{inactiveBanners}</span>
+                        <span className="block text-[10px] font-label uppercase tracking-wide opacity-75">
+                          {isFr ? 'Bannières désactivées' : 'Inactive banners'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
                   <button
                     onClick={() => refreshDashboardStats()}
-                    className="p-2 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 transition-colors"
-                    title="Refresh"
+                    className="p-2 rounded-lg bg-white border border-current/20 hover:bg-white/70 transition-colors shrink-0"
+                    title={isFr ? 'Actualiser' : 'Refresh'}
                   >
                     <RefreshCw className="w-4 h-4" />
                   </button>
@@ -751,7 +806,7 @@ export const AdminDashboard: React.FC = () => {
                     .sort((a, b) => a.order - b.order)
                     .map((slide) => {
                       const isActive = slide.active !== false && slide.isActive !== false;
-                      const slideImg = slide.imageUrl || slide.image || '/public/assets/aistudio/4_289670c0.PNG';
+                      const slideImg = slide.imageUrl || slide.image || '/assets/aistudio/4_289670c0.PNG';
 
                       return (
                         <div
@@ -917,7 +972,7 @@ export const AdminDashboard: React.FC = () => {
                         shortDescFr: 'Description de ce nouveau domaine d’intervention.',
                         fullDescEn: 'Comprehensive details on objectives and field methodology...',
                         fullDescFr: 'Détails exhaustifs sur la méthodologie et les objectifs...',
-                        image: '/public/assets/aistudio/4_289670c0.PNG',
+                        image: '/assets/aistudio/4_289670c0.PNG',
                         order: programs.length + 1,
                         metrics: [{ value: '500+', labelEn: 'beneficiaries', labelFr: 'bénéficiaires' }]
                       })
@@ -1010,7 +1065,7 @@ export const AdminDashboard: React.FC = () => {
                         excerptFr: 'Résumé des initiatives citoyennes du front...',
                         contentEn: 'Full article text regarding ACV youth operations...',
                         contentFr: 'Texte complet sur les opérations des jeunes d’ACV...',
-                        coverImage: '/public/assets/aistudio/7_ee54323c.PNG',
+                        coverImage: '/assets/aistudio/7_ee54323c.PNG',
                         author: adminUser?.name || 'ACV Communications',
                         category: 'Youth Leadership',
                         tags: ['Goma', 'Youth', 'Agroecology'],
@@ -1031,7 +1086,7 @@ export const AdminDashboard: React.FC = () => {
                     <div key={art.id} className="p-4 rounded-2xl border border-stone-200 bg-stone-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <img
-                          src={art.coverImage || art.image || '/public/assets/aistudio/8_5185b9b0.PNG'}
+                          src={art.coverImage || art.image || '/assets/aistudio/8_5185b9b0.PNG'}
                           alt={art.titleEn}
                           className="w-16 h-16 rounded-xl object-cover shrink-0 border border-stone-200"
                         />
@@ -1100,7 +1155,7 @@ export const AdminDashboard: React.FC = () => {
                         roleFr: 'Coordinateur',
                         bioEn: 'Dedicated to youth empowerment in North Kivu.',
                         bioFr: 'Engagé dans l’autonomisation des jeunes au Nord-Kivu.',
-                        photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg',
+                        photoUrl: '/assets/brand/acv-logo.jpeg',
                         category: 'Staff',
                         order: teamMembers.length + 1
                       })
@@ -1117,7 +1172,7 @@ export const AdminDashboard: React.FC = () => {
                     <div key={member.id} className="p-4 rounded-2xl border border-stone-200 bg-stone-50/70 flex flex-col justify-between">
                       <div className="flex items-center gap-3">
                         <img
-                          src={member.photoUrl || member.image || '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg'}
+                          src={member.photoUrl || member.image || '/assets/brand/acv-logo.jpeg'}
                           alt={member.name || `${member.firstName} ${member.lastName}`}
                           className="w-14 h-14 rounded-full object-cover shrink-0 border border-stone-300"
                         />
@@ -1182,7 +1237,7 @@ export const AdminDashboard: React.FC = () => {
                         roleFr: 'Co-Fondateur',
                         bioEn: 'Visionary co-founder of ACV in Goma.',
                         bioFr: 'Co-fondateur engagé d’ACV à Goma.',
-                        photoUrl: '/public/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.24.00_f60ee00b.jpeg',
+                        photoUrl: '/assets/brand/acv-logo.jpeg',
                         yearsActive: '2023 - Présent',
                         order: founders.length + 1,
                         status: 'visible'
@@ -1429,7 +1484,7 @@ export const AdminDashboard: React.FC = () => {
                       setEditingPartner({
                         id: `part_${Date.now()}`,
                         name: 'Nouveau Partenaire',
-                        logoUrl: '/public/assets/aistudio/8_a0add9a7.PNG',
+                        logoUrl: '/assets/aistudio/8_a0add9a7.PNG',
                         type: 'Technique',
                         order: partners.length + 1,
                         status: 'active'
@@ -1654,7 +1709,7 @@ export const AdminDashboard: React.FC = () => {
               </span>
               <div className="relative aspect-16/8 sm:aspect-16/7 w-full rounded-2xl overflow-hidden bg-stone-900 shadow-md border border-stone-200">
                 <img
-                  src={editingBanner.image || (editingBanner as any).imageUrl || '/public/assets/aistudio/4_289670c0.PNG'}
+                  src={editingBanner.image || (editingBanner as any).imageUrl || '/assets/aistudio/4_289670c0.PNG'}
                   alt="Preview"
                   className="w-full h-full object-cover"
                 />
@@ -1849,7 +1904,7 @@ export const AdminDashboard: React.FC = () => {
                       } as any)
                     }
                     className="flex-1 p-2.5 bg-stone-50 border border-stone-200 rounded-xl font-mono text-[11px]"
-                    placeholder="https://... ou /public/assets/..."
+                    placeholder="https://... ou /assets/..."
                   />
                   <label className="px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs">
                     <Upload className="w-3.5 h-3.5" />
