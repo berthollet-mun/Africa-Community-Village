@@ -15,9 +15,10 @@ import {
 } from 'lucide-react';
 import { BlogPost } from '../../types';
 import { SkeletonCard } from '../common/Skeleton';
+import { AnimatedText } from '../motion/AnimatedText';
 
 export const BlogPage: React.FC = () => {
-  const { language, blogPosts, isAdminAuthenticated, setAdminModalOpen, isLoading } = useApp();
+  const { language, blogPosts, isAdminAuthenticated, setAdminModalOpen, isLoading, navigateTo } = useApp();
   const t = useTranslation(language);
   const isFr = language === 'fr';
 
@@ -84,9 +85,7 @@ export const BlogPage: React.FC = () => {
                 <BookOpen className="w-3.5 h-3.5 text-amber-600" />
                 <span>{isFr ? 'Actualités & Publications' : 'Field Dispatches & Insights'}</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight">
-                {t.nav.blog}
-              </h1>
+              <AnimatedText as="h1" text={t.nav.blog} className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight" />
               <p className="mt-3 text-base md:text-lg text-stone-600 max-w-2xl">
                 {isFr
                   ? 'Analyses, reportages de terrain et témoignages des jeunes acteurs de changement dans l’Est de la République Démocratique du Congo.'
@@ -227,9 +226,9 @@ export const BlogPage: React.FC = () => {
       {/* Articles Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isLoading && blogPosts.length === 0 ? (
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <SkeletonCard key={i} variant="article" />
               ))}
             </div>
@@ -409,7 +408,7 @@ export const BlogPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setActivePost(null);
-                    window.location.hash = '/donate';
+                    navigateTo('/donate#donation-form');
                   }}
                   className="px-5 py-2.5 rounded-lg bg-[#690C07] hover:bg-[#520905] text-white text-xs font-label uppercase font-bold cursor-pointer shadow-md"
                 >

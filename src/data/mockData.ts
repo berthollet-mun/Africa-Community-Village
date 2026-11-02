@@ -92,7 +92,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_food_security_1792692600374.jpg',
     ctaTextEn: 'Support Our Mission',
     ctaTextFr: 'Soutenir notre mission',
-    ctaLink: '/donate',
+    ctaLink: '/donate#donation-form',
     order: 3,
     isActive: true,
     active: true
@@ -140,7 +140,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_food_security_1792692600374.jpg',
     ctaTextEn: 'Education & Youth',
     ctaTextFr: 'Éducation & Jeunesse',
-    ctaLink: '/programs/education-youth',
+    ctaLink: '/programs#education',
     order: 1,
     isActive: true,
     active: true
@@ -156,7 +156,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_tree_planting_1792692600143.jpg',
     ctaTextEn: 'Nature & Biodiversity',
     ctaTextFr: 'Nature & Biodiversité',
-    ctaLink: '/programs/nature-biodiversity',
+    ctaLink: '/programs#biodiversity',
     order: 2,
     isActive: true,
     active: true
@@ -172,7 +172,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_food_security_1792692600374.jpg',
     ctaTextEn: 'Sustainable Agriculture',
     ctaTextFr: 'Agriculture Durable',
-    ctaLink: '/programs/sustainable-agriculture',
+    ctaLink: '/programs#agriculture',
     order: 3,
     isActive: true,
     active: true
@@ -284,7 +284,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_tree_planting_1792692600143.jpg',
     ctaTextEn: 'Donate Now',
     ctaTextFr: 'Faire un don maintenant',
-    ctaLink: '/donate',
+    ctaLink: '/donate#donation-form',
     order: 1,
     isActive: true,
     active: true
@@ -300,7 +300,7 @@ export const defaultBanners: BannerSlide[] = [
     image: '/assets/images/acv_hero_youth_community_1792692599382.jpg',
     ctaTextEn: 'Choose an Impact Tier',
     ctaTextFr: 'Choisir un palier d’impact',
-    ctaLink: '/donate',
+    ctaLink: '/donate#donation-form',
     order: 2,
     isActive: true,
     active: true

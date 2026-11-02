@@ -4,6 +4,14 @@
  */
 
 const BASE_URL = '/api';
+const REQUEST_START_EVENT = 'acv:request-start';
+const REQUEST_END_EVENT = 'acv:request-end';
+
+function dispatchRequestEvent(name: typeof REQUEST_START_EVENT | typeof REQUEST_END_EVENT): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(name));
+  }
+}
 
 export function getAuthToken(): string | null {
   return typeof window === 'undefined' ? null : localStorage.getItem('acv_auth_token');
@@ -30,26 +38,64 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
+  dispatchRequestEvent(REQUEST_START_EVENT);
 
-  if (!res.ok) {
-    let errorMsg = `HTTP Error ${res.status}`;
-    try {
-      const errJson = await res.json();
-      if (errJson.error) errorMsg = errJson.error;
-    } catch {
-      // ignore
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+
+    if (!res.ok) {
+      let errorMsg = `HTTP Error ${res.status}`;
+      try {
+        const errJson = await res.json();
+        if (errJson.error) errorMsg = errJson.error;
+      } catch {
+        // ignore
+      }
+      throw new Error(errorMsg);
     }
-    throw new Error(errorMsg);
-  }
 
-  return res.json();
+    return res.json();
+  } finally {
+    dispatchRequestEvent(REQUEST_END_EVENT);
+  }
 }
 
 export const api = {
+  checkout: {
+    async createSession(data: {
+      amount: number;
+      donorName: string;
+      donorEmail: string;
+      allocation: string;
+      anonymous: boolean;
+      language: 'fr' | 'en';
+    }) {
+      return request<{ success: boolean; url: string; sessionId: string }>('/checkout-sessions', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    async getSession(sessionId: string) {
+      return request<{
+        success: boolean;
+        data: {
+          id: string;
+          paymentStatus: string;
+          status: string | null;
+          amountTotal: number | null;
+          currency: string | null;
+          donorName: string;
+          donorEmail: string;
+          allocation: string;
+        };
+      }>(`/checkout-sessions?session_id=${encodeURIComponent(sessionId)}`);
+    }
+  },
+
   // Authentication
   auth: {
     async login(email: string, password: string) {

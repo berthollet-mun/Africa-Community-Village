@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export type ButtonVariant =
@@ -34,13 +34,16 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   className = '',
   onClick,
+  onPointerDown,
   ...props
 }) => {
   const isDisabled = disabled || isLoading;
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [ripple, setRipple] = useState<{ x: number; y: number; id: number } | null>(null);
 
   const hasCustomDisplay = /\b(hidden|block|inline-block|flex|inline-flex|grid)\b/.test(className);
   const baseStyles =
-    `${hasCustomDisplay ? '' : 'inline-flex'} items-center justify-center font-label font-bold tracking-wider uppercase transition-all duration-200 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-95 disabled:active:scale-100 disabled:cursor-not-allowed disabled:opacity-60 rounded-full`;
+    `${hasCustomDisplay ? '' : 'inline-flex'} acv-magnetic-button acv-button-shimmer relative isolate overflow-hidden items-center justify-center font-label font-bold tracking-wider uppercase transition-all duration-300 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 rounded-full`;
 
   const sizeStyles: Record<ButtonSize, string> = {
     sm: 'text-[11px] px-3.5 py-1.5 gap-1.5',
@@ -73,11 +76,34 @@ export const Button: React.FC<ButtonProps> = ({
     onClick?.(e);
   };
 
+  const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (isDisabled || event.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty('--magnetic-x', `${(event.clientX - rect.left - rect.width / 2) * 0.1}px`);
+    event.currentTarget.style.setProperty('--magnetic-y', `${(event.clientY - rect.top - rect.height / 2) * 0.14}px`);
+  };
+
+  const resetMagnet = () => {
+    buttonRef.current?.style.setProperty('--magnetic-x', '0px');
+    buttonRef.current?.style.setProperty('--magnetic-y', '0px');
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setRipple({ x: event.clientX - rect.left, y: event.clientY - rect.top, id: Date.now() });
+    window.setTimeout(() => setRipple(null), 520);
+    onPointerDown?.(event);
+  };
+
   return (
     <button
       {...props}
+      ref={buttonRef}
       disabled={isDisabled}
       onClick={handleClick}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={resetMagnet}
+      onPointerDown={handlePointerDown}
       className={`
         ${baseStyles}
         ${sizeStyles[size]}
@@ -86,16 +112,24 @@ export const Button: React.FC<ButtonProps> = ({
         ${className}
       `}
     >
+      {ripple && (
+        <span
+          key={ripple.id}
+          aria-hidden="true"
+          className="acv-button-ripple"
+          style={{ left: ripple.x, top: ripple.y }}
+        />
+      )}
       {isLoading ? (
         <>
           <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-          <span>{loadingText || children}</span>
+          <span className="relative z-10">{loadingText || children}</span>
         </>
       ) : (
         <>
-          {icon && iconPosition === 'left' && <span className="shrink-0">{icon}</span>}
-          <span>{children}</span>
-          {icon && iconPosition === 'right' && <span className="shrink-0">{icon}</span>}
+          {icon && iconPosition === 'left' && <span className="relative z-10 shrink-0">{icon}</span>}
+          <span className="relative z-10">{children}</span>
+          {icon && iconPosition === 'right' && <span className="relative z-10 shrink-0">{icon}</span>}
         </>
       )}
     </button>

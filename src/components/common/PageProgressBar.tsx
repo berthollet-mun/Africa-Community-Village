@@ -1,112 +1,81 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { CircleProgressIndicator } from './CircleProgressIndicator';
-import { motion, AnimatePresence } from 'motion/react';
 
 export const PageProgressBar: React.FC = () => {
-  const { currentRoute, isLoading, language, actionLoading } = useApp();
+  const { currentRoute, isLoading, actionLoading } = useApp();
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
-  const [status, setStatus] = useState<'loading' | 'success'>('loading');
-
-  const isFr = language === 'fr';
+  const [routePending, setRoutePending] = useState(false);
+  const [requestCount, setRequestCount] = useState(0);
+  const hasStarted = useRef(false);
 
   useEffect(() => {
-    // When route changes or loading starts, show progress bar & circular indicator
-    setVisible(true);
-    setStatus('loading');
-    setProgress(25);
+    const handleStart = () => setRequestCount((count) => count + 1);
+    const handleEnd = () => setRequestCount((count) => Math.max(0, count - 1));
 
-    const timer1 = setTimeout(() => {
-      setProgress(65);
-    }, 180);
-
-    const timer2 = setTimeout(() => {
-      setProgress(90);
-    }, 380);
-
-    const timer3 = setTimeout(() => {
-      setProgress(100);
-      setStatus('success');
-      const hideTimer = setTimeout(() => {
-        setVisible(false);
-        setProgress(0);
-        setStatus('loading');
-      }, 500);
-      return () => clearTimeout(hideTimer);
-    }, 620);
+    window.addEventListener('acv:request-start', handleStart);
+    window.addEventListener('acv:request-end', handleEnd);
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      window.removeEventListener('acv:request-start', handleStart);
+      window.removeEventListener('acv:request-end', handleEnd);
     };
-  }, [currentRoute, isLoading]);
+  }, []);
 
-  // If a specific action loading is active via AppContext, prioritize it
-  const isActionActive = actionLoading?.isOpen || false;
-  const isDisplaying = visible || isActionActive;
-  const displayStatus = isActionActive ? actionLoading.status : status;
-  const displayMessage = isActionActive
-    ? actionLoading.message || (isFr ? 'Action en cours...' : 'Processing...')
-    : (displayStatus === 'success'
-        ? (isFr ? 'Opération validée !' : 'Action confirmed!')
-        : (isFr ? 'Action en cours...' : 'Processing action...'));
-  const displaySubmessage = isActionActive
-    ? actionLoading.submessage || (isFr ? 'En attente d’une suite favorable...' : 'Awaiting confirmation...')
-    : (displayStatus === 'success'
-        ? (isFr ? 'Suite favorable confirmée' : 'Completed successfully')
-        : (isFr ? 'En attente d’une suite favorable...' : 'Awaiting confirmation...'));
+  useEffect(() => {
+    setRoutePending(true);
+    const timer = window.setTimeout(() => setRoutePending(false), 650);
+    return () => window.clearTimeout(timer);
+  }, [currentRoute]);
+
+  const actionPending = actionLoading?.isOpen && actionLoading.status === 'loading';
+  const isActive = routePending || isLoading || requestCount > 0 || actionPending;
+
+  useEffect(() => {
+    if (isActive) {
+      hasStarted.current = true;
+      setVisible(true);
+      setProgress((value) => (value < 12 ? 12 : Math.min(value, 88)));
+
+      const interval = window.setInterval(() => {
+        setProgress((value) => {
+          if (value >= 92) return value;
+          return Math.min(92, value + Math.max(1, (92 - value) * 0.16));
+        });
+      }, 160);
+
+      return () => window.clearInterval(interval);
+    }
+
+    if (!hasStarted.current) return;
+
+    setProgress(100);
+    const hideTimer = window.setTimeout(() => {
+      setVisible(false);
+      setProgress(0);
+      hasStarted.current = false;
+    }, 240);
+
+    return () => window.clearTimeout(hideTimer);
+  }, [isActive]);
 
   return (
-    <>
-      {/* Top subtle micro line */}
-      {isDisplaying && (
-        <div
-          aria-hidden="true"
-          className="fixed top-0 left-0 right-0 z-[9999] h-1 pointer-events-none overflow-hidden"
-        >
-          <div
-            className="h-full bg-gradient-to-r from-[#690C07] via-[#EFA62B] to-[#0E7490] transition-all duration-300 ease-out shadow-xs"
-            style={{
-              width: isActionActive ? '100%' : `${progress}%`,
-              opacity: isDisplaying ? 1 : 0
-            }}
-          />
-        </div>
-      )}
-
-      {/* Floating Circular Progress Indicator Badge (Circle Progress Indicator) */}
-      <AnimatePresence>
-        {isDisplaying && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.92 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed bottom-5 sm:bottom-6 right-5 sm:right-6 z-[9999] pointer-events-auto"
-          >
-            <div className="flex items-center gap-3.5 bg-[#232826]/95 text-white backdrop-blur-md px-4 py-3 rounded-2xl shadow-2xl border border-white/15 ring-1 ring-black/25">
-              <CircleProgressIndicator
-                size="sm"
-                progress={isActionActive ? undefined : (displayStatus === 'loading' ? progress : 100)}
-                status={displayStatus}
-                message=""
-                submessage=""
-              />
-              <div className="flex flex-col text-left pr-1.5 min-w-[170px] max-w-[240px]">
-                <span className="font-display font-bold text-xs sm:text-sm text-white tracking-tight truncate">
-                  {displayMessage}
-                </span>
-                <span className="font-label text-[10px] sm:text-[11px] text-[#EFA62B] font-semibold tracking-wide truncate mt-0.5">
-                  {displaySubmessage}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <div
+      role="progressbar"
+      aria-label="Chargement de la page"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
+      className={`pointer-events-none fixed inset-x-0 top-0 z-[100000] h-[3px] overflow-hidden transition-opacity duration-150 ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div
+        className="relative h-full w-full origin-left bg-gradient-to-r from-[#690C07] via-[#8B1510] to-[#EFA62B] shadow-[0_0_10px_rgba(239,166,43,0.75)] transition-transform duration-200 ease-out"
+        style={{ transform: `scaleX(${progress / 100})` }}
+      >
+        <span className="absolute right-0 top-0 h-full w-16 bg-white/30 blur-[2px]" />
+      </div>
+    </div>
   );
 };
-

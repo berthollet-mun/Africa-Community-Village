@@ -121,7 +121,7 @@ export const AboutPage: React.FC = () => {
             <h2 className="font-label text-xs uppercase tracking-widest text-[#B45309] font-bold">
               {language === 'fr' ? 'DIRECTION & STRATÉGIE' : 'LEADERSHIP'}
             </h2>
-            {isLoading && teamMembers.length === 0 ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <SkeletonCard variant="team" />
                 <SkeletonCard variant="team" />

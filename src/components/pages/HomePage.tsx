@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
+import { getProgramHashRoute } from '../../lib/navigation';
 import { BannerCarousel } from '../common/BannerCarousel';
 import { Button } from '../common/Button';
 import { StaggerContainer, StaggerItem } from '../common/PageTransition';
-import { toast } from '../common/Toast';
 import {
   GraduationCap,
   Leaf,
@@ -22,30 +22,32 @@ import {
 } from 'lucide-react';
 import { SkeletonCard } from '../common/Skeleton';
 import { BrandLogo } from '../common/BrandLogo';
+import { AnimatedText } from '../motion/AnimatedText';
+import { AnimatedCard } from '../motion/AnimatedCard';
+import { CountUpText } from '../motion/CountUpText';
 
 export const HomePage: React.FC = () => {
   const { language, navigateTo, programs, blogPosts, isLoading } = useApp();
   const t = useTranslation(language);
 
   const [selectedDonation, setSelectedDonation] = useState<number>(50);
-  const [isSimulating, setIsSimulating] = useState(false);
 
   const donationImpacts: Record<number, { en: string; fr: string }> = {
     25: {
-      en: '$25/month supplies 30 indigenous tree saplings and watershed protection tools to our youth agroforestry teams.',
-      fr: '$25/mois fournit 30 jeunes plants d\'arbres indigènes et des outils de restauration des berges aux équipes de jeunes.'
+      en: '$25 supplies 30 indigenous tree saplings and watershed protection tools to our youth agroforestry teams.',
+      fr: 'Un don de $25 fournit 30 jeunes plants d\'arbres indigènes et des outils de restauration des berges aux équipes de jeunes.'
     },
     50: {
-      en: '$50/month provides learning materials, textbooks and weekly nutrition for 4 displaced students in our Goma learning pod.',
-      fr: '$50/mois garantit les fournitures scolaires, les manuels et un repas nutritif hebdomadaire pour 4 élèves déplacés à Goma.'
+      en: '$50 provides learning materials, textbooks and weekly nutrition for 4 displaced students in our Goma learning pod.',
+      fr: 'Un don de $50 garantit les fournitures scolaires, les manuels et un repas nutritif hebdomadaire pour 4 élèves déplacés à Goma.'
     },
     100: {
-      en: '$100/month finances a micro-grant seed for a youth-led solar fabrication atelier or women\'s agricultural garden.',
-      fr: '$100/mois finance l\'amorçage d\'un atelier artisanal solaire de jeunes ou un jardin maraîcher coopératif de femmes.'
+      en: '$100 finances a micro-grant seed for a youth-led solar fabrication atelier or women\'s agricultural garden.',
+      fr: 'Un don de $100 finance l\'amorçage d\'un atelier artisanal solaire de jeunes ou un jardin maraîcher coopératif de femmes.'
     },
     250: {
-      en: '$250/month covers a full mobile trauma care session and clean water distribution point serving 80 youth in Beni.',
-      fr: '$250/mois finance une tournée complète de soins psychosociaux et la maintenance d\'un point d\'eau potable pour 80 jeunes à Beni.'
+      en: '$250 covers a full mobile trauma care session and clean water distribution point serving 80 youth in Beni.',
+      fr: 'Un don de $250 finance une tournée complète de soins psychosociaux et la maintenance d\'un point d\'eau potable pour 80 jeunes à Beni.'
     }
   };
 
@@ -66,17 +68,7 @@ export const HomePage: React.FC = () => {
   };
 
   const handleConfirmDonation = () => {
-    setIsSimulating(true);
-    setTimeout(() => {
-      setIsSimulating(false);
-      toast.success(
-        language === 'fr'
-          ? `Option $${selectedDonation}/mois pré-sélectionnée pour votre don !`
-          : `Selected $${selectedDonation}/month tier pre-loaded for your donation!`,
-        language === 'fr' ? 'Solidarité Communautaire' : 'Community Solidarity'
-      );
-      navigateTo('/donate');
-    }, 400);
+    navigateTo(`/donate?amount=${selectedDonation}#donation-form`);
   };
 
   return (
@@ -91,7 +83,7 @@ export const HomePage: React.FC = () => {
         <StaggerContainer className="bg-white rounded-2xl shadow-xl border border-stone-200/80 p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y lg:divide-y-0 lg:divide-x divide-stone-100">
           <StaggerItem className="space-y-1 sm:px-4">
             <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tabular-nums">
-              {t.home.kpi1Value}
+              <CountUpText value={t.home.kpi1Value} />
             </p>
             <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
               {t.home.kpi1Label}
@@ -99,7 +91,7 @@ export const HomePage: React.FC = () => {
           </StaggerItem>
           <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
             <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#690C07] tabular-nums">
-              {t.home.kpi2Value}
+              <CountUpText value={t.home.kpi2Value} />
             </p>
             <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
               {t.home.kpi2Label}
@@ -107,7 +99,7 @@ export const HomePage: React.FC = () => {
           </StaggerItem>
           <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
             <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#0E7490] tabular-nums">
-              {t.home.kpi3Value}
+              <CountUpText value={t.home.kpi3Value} />
             </p>
             <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
               {t.home.kpi3Label}
@@ -115,7 +107,7 @@ export const HomePage: React.FC = () => {
           </StaggerItem>
           <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
             <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#EFA62B] tabular-nums">
-              {t.home.kpi4Value}
+              <CountUpText value={t.home.kpi4Value} />
             </p>
             <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
               {t.home.kpi4Label}
@@ -135,9 +127,7 @@ export const HomePage: React.FC = () => {
               </span>
             </div>
 
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight text-balance">
-              {t.home.whoWeAreTitle}
-            </h2>
+            <AnimatedText as="h2" text={t.home.whoWeAreTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight text-balance" />
 
             <p className="text-sm sm:text-base text-[#3F493F] leading-relaxed">
               {t.home.whoWeAreP1}
@@ -158,27 +148,17 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Ubuntu Emblem Card */}
+          {/* ACV Brand Mark */}
           <div className="lg:col-span-5">
-            <div className="rounded-2xl overflow-hidden bg-stone-900 p-8 shadow-xl text-white flex flex-col justify-between min-h-[300px] border border-stone-800 transition-all hover:shadow-2xl hover:-translate-y-1">
-              <div className="flex items-center justify-center py-6">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-full border-4 border-[#D97706]/60 bg-white p-1.5 shadow-xl flex items-center justify-center">
-                    <BrandLogo
-                      alt="Ubuntu Emblem"
-                      size={128}
-                      sizes="96px"
-                      className="w-full h-full rounded-full object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center">
-                <p className="font-label text-xs sm:text-sm text-neutral-200 font-semibold tracking-wide">
-                  {t.home.ubuntuPill}
-                </p>
-              </div>
+            <div className="relative isolate overflow-hidden rounded-[2rem] border border-[#D9CBAF] bg-white/80 px-6 py-8 sm:px-10 sm:py-10 shadow-[0_24px_60px_-32px_rgba(35,40,38,0.35)]">
+              <div className="absolute -right-16 -top-16 -z-10 h-44 w-44 rounded-full bg-[#EFA62B]/12 blur-2xl" />
+              <div className="absolute -bottom-20 -left-16 -z-10 h-48 w-48 rounded-full bg-[#0E7490]/10 blur-2xl" />
+              <BrandLogo
+                alt="Logo officiel Africa Community Village (ACV)"
+                size={640}
+                sizes="(max-width: 1024px) 90vw, 440px"
+                className="mx-auto h-auto w-full max-w-[440px] object-contain drop-shadow-[0_12px_22px_rgba(35,40,38,0.12)]"
+              />
             </div>
           </div>
         </div>
@@ -206,9 +186,7 @@ export const HomePage: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight">
-            {t.home.pillarsTitle}
-          </h2>
+          <AnimatedText as="h2" text={t.home.pillarsTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight" />
 
           <p className="text-sm sm:text-base text-[#3F493F] leading-relaxed">
             {t.home.pillarsSubtitle}
@@ -230,9 +208,7 @@ export const HomePage: React.FC = () => {
 
               return (
                 <StaggerItem key={pillar.id}>
-                  <div
-                    className="bg-white rounded-2xl p-5 border border-stone-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between h-full group"
-                  >
+                  <AnimatedCard className="bg-white rounded-2xl p-5 border border-stone-200/80 flex flex-col justify-between h-full group">
                     <div>
                       <div className="w-12 h-12 rounded-xl bg-[#FAF6EF] border border-[#E2D7C3] flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-[#F3EDE1] transition-all duration-300">
                         {getPillarIcon(pillar.icon || pillar.slug || '')}
@@ -248,13 +224,13 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <button
-                      onClick={() => navigateTo(`/programs/${pillar.slug}`)}
+                      onClick={() => navigateTo(getProgramHashRoute(pillar.slug || pillar.id))}
                       className="inline-flex items-center gap-1.5 text-xs font-label font-bold text-[#D97706] hover:text-[#B45309] group/btn pt-3 border-t border-stone-100 transition-colors w-full justify-between"
                     >
                       <span>{t.common.exploreProgram}</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
-                  </div>
+                  </AnimatedCard>
                 </StaggerItem>
               );
             })}
@@ -273,9 +249,7 @@ export const HomePage: React.FC = () => {
               </span>
             </div>
 
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
-              {t.home.standWithUsTitle}
-            </h2>
+            <AnimatedText as="h2" text={t.home.standWithUsTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight" />
 
             <p className="text-sm sm:text-base text-neutral-300">
               {t.home.standWithUsSubtitle}
@@ -349,7 +323,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => navigateTo('/donate')}
+                  onClick={() => navigateTo('/donate#donation-form')}
                   className="inline-flex items-center gap-2 text-sm font-bold text-[#18181B] hover:text-[#690C07] font-label group/btn active:scale-95 transition-all cursor-pointer"
                 >
                   <span>{t.common.waysToGive}</span>
@@ -371,9 +345,7 @@ export const HomePage: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight">
-            {t.home.recentStoriesTitle}
-          </h2>
+          <AnimatedText as="h2" text={t.home.recentStoriesTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight" />
 
           <p className="text-sm sm:text-base text-[#3F493F]">
             {t.home.recentStoriesSubtitle}
@@ -387,9 +359,7 @@ export const HomePage: React.FC = () => {
 
             return (
               <StaggerItem key={post.id}>
-                <div
-                  className="bg-white rounded-2xl overflow-hidden border border-stone-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between h-full group"
-                >
+                <AnimatedCard className="bg-white rounded-2xl overflow-hidden border border-stone-200/80 flex flex-col justify-between h-full group">
                   <div>
                     <div className="h-48 w-full overflow-hidden bg-stone-900 relative">
                       <img
@@ -429,7 +399,7 @@ export const HomePage: React.FC = () => {
                       <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
                     </button>
                   </div>
-                </div>
+                </AnimatedCard>
               </StaggerItem>
             );
           })}
@@ -455,11 +425,11 @@ export const HomePage: React.FC = () => {
             <span>Direct Community Impact</span>
           </div>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight text-balance">
-            {language === 'fr'
-              ? 'Faites grandir la souveraineté locale à Goma et au Kivu.'
-              : 'Stand alongside Congolese youth rebuilding their future.'}
-          </h2>
+          <AnimatedText
+            as="h2"
+            text={language === 'fr' ? 'Faites grandir la souveraineté locale à Goma et au Kivu.' : 'Stand alongside Congolese youth rebuilding their future.'}
+            className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight text-balance"
+          />
 
           <p className="text-sm sm:text-base text-[#F3EDE1]/90 max-w-xl mx-auto leading-relaxed">
             {language === 'fr'
@@ -470,7 +440,7 @@ export const HomePage: React.FC = () => {
           <div className="bg-white text-[#18181B] rounded-2xl p-6 sm:p-8 max-w-xl mx-auto shadow-2xl text-left space-y-5">
             <div className="flex items-center justify-between">
               <span className="font-label text-xs uppercase tracking-wider text-[#6F7A6E] font-bold">
-                {language === 'fr' ? 'Choisir la solidarité mensuelle' : 'Choose monthly solidarity'}
+                {language === 'fr' ? 'Choisir le montant du don' : 'Choose your donation amount'}
               </span>
               <span className="text-xs bg-[#EFA62B] text-[#232826] px-2.5 py-0.5 rounded-full font-label font-bold">
                 94.2% Direct Field Yield
@@ -496,7 +466,7 @@ export const HomePage: React.FC = () => {
 
             <div className="p-4 bg-[#FAF6EF] rounded-xl border border-[#E2D7C3] text-xs sm:text-sm text-[#3F493F] leading-relaxed transition-all">
               <span className="font-bold text-[#690C07] font-label">
-                ${selectedDonation}/month:
+                ${selectedDonation}:
               </span>{' '}
               {language === 'fr' ? donationImpacts[selectedDonation].fr : donationImpacts[selectedDonation].en}
             </div>
@@ -505,8 +475,6 @@ export const HomePage: React.FC = () => {
               variant="secondary"
               size="lg"
               fullWidth
-              isLoading={isSimulating}
-              loadingText={language === 'fr' ? 'Préparation...' : 'Loading...'}
               onClick={handleConfirmDonation}
               icon={<ArrowRight className="w-4 h-4" />}
               iconPosition="right"
@@ -522,7 +490,7 @@ export const HomePage: React.FC = () => {
                 <Receipt className="w-3.5 h-3.5 text-[#EFA62B]" /> Tax Deductible
               </span>
               <span className="flex items-center gap-1">
-                <RotateCcw className="w-3.5 h-3.5 text-[#EFA62B]" /> Cancel Anytime
+                <RotateCcw className="w-3.5 h-3.5 text-[#EFA62B]" /> Stripe Secure Checkout
               </span>
             </div>
           </div>

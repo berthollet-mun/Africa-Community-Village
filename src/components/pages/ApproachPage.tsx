@@ -288,7 +288,7 @@ export const ApproachPage: React.FC = () => {
               {isFr ? 'Collaborer avec nous' : 'Collaborate With ACV'}
             </button>
             <button
-              onClick={() => navigateTo('/donate')}
+                onClick={() => navigateTo('/donate#donation-form')}
               className="px-6 py-3 bg-acv-amber hover:bg-amber-600 text-stone-900 rounded-lg font-bold text-xs font-label uppercase tracking-wider transition-colors"
             >
               {t.nav.donate}
