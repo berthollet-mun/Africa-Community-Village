@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   Language,
   PageRoute,
@@ -162,10 +162,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   children,
   initialRoute = '/'
 }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    const saved = typeof window === 'undefined' ? null : localStorage.getItem('acv_lang');
-    return saved === 'fr' || saved === 'en' ? saved : 'en';
-  });
+  // Keep the server and first client render identical, then restore the user's
+  // preference after hydration to avoid a full React client-side regeneration.
+  const [language, setLanguageState] = useState<Language>('en');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('acv_lang');
+    if (saved === 'fr' || saved === 'en') setLanguageState(saved);
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -175,22 +179,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   const [currentRoute, setCurrentRoute] = useState<PageRoute | string>(initialRoute);
 
   const navigateTo = (route: PageRoute | string) => {
-    setCurrentRoute(route);
-    window.history.pushState({}, '', route);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const target = new URL(String(route), window.location.origin);
+    const browserUrl = `${target.pathname}${target.search}${target.hash}`;
+
+    setCurrentRoute(target.pathname);
+    window.history.pushState({}, '', browserUrl);
+
+    const scrollToTarget = () => {
+      if (target.hash) {
+        const element = document.getElementById(decodeURIComponent(target.hash.slice(1)));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return true;
+        }
+        return false;
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return true;
+    };
+
+    requestAnimationFrame(() => requestAnimationFrame(scrollToTarget));
+    window.setTimeout(scrollToTarget, 180);
+    window.setTimeout(scrollToTarget, 500);
   };
 
   useEffect(() => {
     const handleRouteChange = () => {
       const nextRoute = window.location.pathname || '/';
       if (nextRoute !== currentRoute) setCurrentRoute(nextRoute);
+
+      if (window.location.hash) {
+        window.setTimeout(() => {
+          document
+            .getElementById(decodeURIComponent(window.location.hash.slice(1)))
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     };
     window.addEventListener('popstate', handleRouteChange);
     return () => window.removeEventListener('popstate', handleRouteChange);
   }, [currentRoute]);
 
   // Loading indicator
-  const [isLoading, setIsLoading] = useState(false);
+  // Keep the first server/hydrated frame structured while public data syncs.
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isLoading || !window.location.hash) return;
+
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(decodeURIComponent(window.location.hash.slice(1)))
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+
+    return () => window.clearTimeout(timer);
+  }, [currentRoute, isLoading]);
 
   // CircleProgressIndicator Action Loading State
   const [actionLoading, setActionLoading] = useState<{
@@ -269,6 +316,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   const hydrateFromApi = useCallback(async () => {
     setIsLoading(true);
     try {
+      const publicRequestLoaders: Array<() => Promise<{ success: boolean; data: any }>> = [
+        () => api.public.getSettings(),
+        () => api.public.getBanners(),
+        () => api.public.getPrograms(),
+        () => api.public.getArticles(),
+        () => api.public.getTeam(),
+        () => api.public.getFounders(),
+        () => api.public.getFieldStaff(),
+        () => api.public.getGovernance(),
+        () => api.public.getPartners(),
+        () => api.public.getTestimonials(),
+        () => api.public.getStats()
+      ];
+      const publicResults: PromiseSettledResult<{ success: boolean; data: any }>[] = [];
+
+      // The development database is configured with a small connection pool.
+      // Two-at-a-time keeps hydration responsive and prevents P2024 timeouts.
+      for (let index = 0; index < publicRequestLoaders.length; index += 2) {
+        const batch = publicRequestLoaders.slice(index, index + 2).map((load) => load());
+        publicResults.push(...(await Promise.allSettled(batch)));
+      }
+
       const [
         settingsRes,
         bannersRes,
@@ -281,19 +350,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
         partnersRes,
         testimonialsRes,
         statsRes
-      ] = await Promise.allSettled([
-        api.public.getSettings(),
-        api.public.getBanners(),
-        api.public.getPrograms(),
-        api.public.getArticles(),
-        api.public.getTeam(),
-        api.public.getFounders(),
-        api.public.getFieldStaff(),
-        api.public.getGovernance(),
-        api.public.getPartners(),
-        api.public.getTestimonials(),
-        api.public.getStats()
-      ]);
+      ] = publicResults;
 
       if (settingsRes.status === 'fulfilled' && settingsRes.value.data) {
         setSiteSettings((prev) => ({ ...prev, ...settingsRes.value.data }));
@@ -368,8 +425,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
     }
   }, [adminUser]);
 
+  const hasStartedInitialHydration = useRef(false);
+
   useEffect(() => {
-    hydrateFromApi();
+    if (hasStartedInitialHydration.current) return;
+    hasStartedInitialHydration.current = true;
+    void hydrateFromApi();
   }, [hydrateFromApi]);
 
   const refreshDashboardStats = async () => {

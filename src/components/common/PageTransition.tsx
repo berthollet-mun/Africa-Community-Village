@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
+import { BrandLogo } from './BrandLogo';
 
 export const PageTransition: React.FC<{
   children: React.ReactNode;
@@ -12,15 +13,30 @@ export const PageTransition: React.FC<{
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
+    <>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-[90] flex origin-top items-center justify-center bg-[#690C07]"
+        initial={{ scaleY: 1 }}
+        animate={{ scaleY: 0 }}
+        transition={{ duration: 0.48, ease: [0.76, 0, 0.24, 1] }}
+      >
+        <motion.div initial={{ opacity: 1, scale: 1 }} animate={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.22 }}>
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white p-1 shadow-2xl ring-4 ring-[#EFA62B]/70">
+            <BrandLogo alt="" size={128} className="h-full w-full rounded-full object-contain" />
+          </div>
+        </motion.div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.38, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        className={className}
+      >
+        {children}
+      </motion.div>
+    </>
   );
 };
 

@@ -10,7 +10,6 @@ import {
   Instagram,
   Facebook,
   Linkedin,
-  Twitter,
   CheckCircle2,
   Lock
 } from 'lucide-react';
@@ -100,9 +99,15 @@ export const Footer: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-full bg-neutral-800 hover:bg-[#8B1510] text-neutral-300 hover:text-white flex items-center justify-center transition-colors"
-                aria-label="Twitter / X"
+                aria-label="X"
               >
-                <Twitter className="w-4 h-4" />
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="w-4 h-4 fill-current"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+                </svg>
               </a>
             </div>
 
@@ -157,27 +162,27 @@ export const Footer: React.FC = () => {
             </span>
             <ul className="space-y-2 text-sm text-neutral-300">
               <li>
-                <button onClick={() => navigateTo('/programs/education-youth')} className="hover:text-[#EFA62B] transition-colors text-left">
+                <button onClick={() => navigateTo('/programs#education')} className="hover:text-[#EFA62B] transition-colors text-left">
                   {t.nav.education}
                 </button>
               </li>
               <li>
-                <button onClick={() => navigateTo('/programs/nature-biodiversity')} className="hover:text-[#EFA62B] transition-colors text-left">
+                <button onClick={() => navigateTo('/programs#biodiversity')} className="hover:text-[#EFA62B] transition-colors text-left">
                   {t.nav.nature}
                 </button>
               </li>
               <li>
-                <button onClick={() => navigateTo('/programs/agriculture-food-security')} className="hover:text-[#EFA62B] transition-colors text-left">
+                <button onClick={() => navigateTo('/programs#agriculture')} className="hover:text-[#EFA62B] transition-colors text-left">
                   {t.nav.agriculture}
                 </button>
               </li>
               <li>
-                <button onClick={() => navigateTo('/programs/health-wellbeing')} className="hover:text-[#EFA62B] transition-colors text-left">
+                <button onClick={() => navigateTo('/programs#health')} className="hover:text-[#EFA62B] transition-colors text-left">
                   {t.nav.health}
                 </button>
               </li>
               <li>
-                <button onClick={() => navigateTo('/programs/socio-economic-empowerment')} className="hover:text-[#EFA62B] transition-colors text-left">
+                <button onClick={() => navigateTo('/programs#livelihoods')} className="hover:text-[#EFA62B] transition-colors text-left">
                   {t.nav.livelihoods}
                 </button>
               </li>

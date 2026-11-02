@@ -8,6 +8,8 @@ import {
   Heart,
   Compass
 } from 'lucide-react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
+import { AnimatedText } from '../motion/AnimatedText';
 
 export interface HeroBannerProps {
   page?: 'home' | 'about' | 'programs' | 'approach' | 'blog' | 'contact' | 'donate' | string;
@@ -23,6 +25,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   const { banners, language, navigateTo, currentUser, siteSettings } = useApp();
   const t = useTranslation(language);
   const isFr = language === 'fr';
+  const heroRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const imageParallax = useTransform(scrollYProgress, [0, 1], [0, reducedMotion ? 0 : 72]);
 
   // Normalize target route
   const targetRoute =
@@ -166,6 +172,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
   return (
     <section
+      ref={heroRef}
       className={`relative w-full ${
         fullBleed ? 'px-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'
       }`}
@@ -194,9 +201,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           const isCurrent = idx === currentIndex;
 
           return (
-            <div
+            <motion.div
               key={slide.id || idx}
-              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+              style={{ y: imageParallax }}
+              className={`absolute -inset-y-12 inset-x-0 transition-opacity duration-700 ease-in-out ${
                 isCurrent ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
             >
@@ -211,9 +219,17 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                     '/assets/images/acv_hero_youth_community_1792692599382.jpg';
                 }}
               />
-            </div>
+            </motion.div>
           );
         })}
+
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[19] origin-right bg-[#F3EDE1]"
+          initial={reducedMotion ? { opacity: 0 } : { scaleX: 1 }}
+          animate={reducedMotion ? { opacity: 0 } : { scaleX: 0 }}
+          transition={{ duration: reducedMotion ? 0.2 : 0.7, ease: [0.76, 0, 0.24, 1] }}
+        />
 
         {/* Multi-layered Warm Cinematic Scrim (Seamless fade with no cut-off line) */}
         <div className="absolute inset-0 z-20 bg-gradient-to-r from-black/90 via-black/60 via-45% to-transparent to-90% pointer-events-none"></div>
@@ -232,9 +248,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             </div>
 
             {/* Main Editorial Headline */}
-            <h1 className="font-display font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-[1.14] sm:leading-[1.08] text-balance drop-shadow-md">
-              {title}
-            </h1>
+            <AnimatedText
+              as="h1"
+              text={title}
+              delay={0.12}
+              className="font-display font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-[1.14] sm:leading-[1.08] text-balance drop-shadow-md"
+            />
 
             {/* Subtitle */}
             <p className="text-xs sm:text-base lg:text-lg text-stone-200/95 leading-relaxed max-w-2xl font-light drop-shadow-sm line-clamp-3 sm:line-clamp-none">
@@ -256,7 +275,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               {/* Secondary Contextual Pill */}
               {targetRoute !== '/donate' && (
                 <button
-                  onClick={() => navigateTo('/donate')}
+              onClick={() => navigateTo('/donate#donation-form')}
                   className="px-5 sm:px-6 py-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm font-label tracking-wider uppercase transition-all backdrop-blur-md border border-white/25 hover:border-white/50 flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
                 >
                   <Heart className="w-3.5 h-3.5 text-[#EFA62B] fill-[#EFA62B]/30" />

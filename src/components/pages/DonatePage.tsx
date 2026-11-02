@@ -1,603 +1,188 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { CheckCircle2, CreditCard, Heart, Loader2, Lock, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
+import { api } from '../../services/api';
 import { BannerCarousel } from '../common/BannerCarousel';
-import {
-  Heart,
-  ShieldCheck,
-  CreditCard,
-  Smartphone,
-  Building,
-  CheckCircle2,
-  Sparkles,
-  Download,
-  Share2,
-  Lock,
-  ArrowRight,
-  Gift,
-  RefreshCw,
-  Coins
-} from 'lucide-react';
-import { DonationRecord } from '../../types';
 import { Button } from '../common/Button';
 import { toast } from '../common/Toast';
+import { AnimatedText } from '../motion/AnimatedText';
+
+const PRESET_AMOUNTS = [25, 50, 100, 250];
 
 export const DonatePage: React.FC = () => {
-  const { language, addDonation } = useApp();
+  const { language } = useApp();
   const t = useTranslation(language);
+  const searchParams = useSearchParams();
   const isFr = language === 'fr';
-
-  const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
-  const [selectedAmount, setSelectedAmount] = useState<number>(50);
-  const [customAmount, setCustomAmount] = useState<string>('');
-  const [allocation, setAllocation] = useState<string>('all');
-  const [paymentMethod, setPaymentMethod] = useState<'mobile' | 'card' | 'wire'>('card');
-  const [mobileProvider, setMobileProvider] = useState<'airtel' | 'mpesa' | 'orange'>('airtel');
-
-  // Donor form
+  const [selectedAmount, setSelectedAmount] = useState(50);
+  const [customAmount, setCustomAmount] = useState('');
+  const [allocation, setAllocation] = useState('all');
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
-  const [donorPhone, setDonorPhone] = useState('');
-  const [donorMessage, setDonorMessage] = useState('');
   const [anonymous, setAnonymous] = useState(false);
-
-  // Success state
   const [isProcessing, setIsProcessing] = useState(false);
-  const [completedDonation, setCompletedDonation] = useState<DonationRecord | null>(null);
 
-  const presets = [25, 50, 100, 250, 500];
+  useEffect(() => {
+    const requestedAmount = Number(searchParams.get('amount'));
+    if (!Number.isFinite(requestedAmount) || requestedAmount < 5 || requestedAmount > 10_000) return;
+    if (PRESET_AMOUNTS.includes(requestedAmount)) {
+      setSelectedAmount(requestedAmount);
+      setCustomAmount('');
+    } else {
+      setCustomAmount(String(requestedAmount));
+    }
+  }, [searchParams]);
 
-  const getEffectiveAmount = () => {
-    if (customAmount && Number(customAmount) > 0) {
-      return Number(customAmount);
-    }
-    return selectedAmount;
-  };
+  const amount = customAmount ? Number(customAmount) : selectedAmount;
 
-  const getImpactDescription = (amt: number) => {
-    if (amt < 35) {
-      return isFr
-        ? 'Fournit 15 jeunes plants d’arbres indigènes et du compost pour une parcelle agroforestière.'
-        : 'Provides 15 indigenous tree seedlings and organic compost kit for a youth agroforestry plot.';
-    }
-    if (amt < 75) {
-      return isFr
-        ? 'Finance le matériel scolaire, les kits éco-citoyens et le tutorat de 2 enfants pour une année complète.'
-        : 'Funds climate-smart educational materials and mentoring for 2 children for a full academic year.';
-    }
-    if (amt < 175) {
-      return isFr
-        ? 'Équipe un lit maraîcher agroécologique alimentant 4 familles en légumes frais et sains.'
-        : 'Equips a regenerative bio-vegetable bed nourishing 4 families continuously with fresh produce.';
-    }
-    if (amt < 400) {
-      return isFr
-        ? 'Parraine 6 mois de formation professionnelle qualifiante et kit d’insertion pour une jeune femme.'
-        : 'Sponsors a young woman through 6 months of certified vocational incubation and launch grant.';
-    }
+  const getImpactDescription = (value: number) => {
+    if (value < 35) return isFr
+      ? 'Fournit des plants indigènes et du compost pour une parcelle agroforestière portée par des jeunes.'
+      : 'Provides indigenous seedlings and compost for a youth-led agroforestry plot.';
+    if (value < 75) return isFr
+      ? 'Finance du matériel scolaire, des kits éco-citoyens et le tutorat de deux enfants.'
+      : 'Funds school materials, eco-citizen kits and mentoring for two children.';
+    if (value < 175) return isFr
+      ? 'Équipe un jardin agroécologique qui nourrit durablement plusieurs familles.'
+      : 'Equips a regenerative garden that sustainably nourishes several families.';
     return isFr
-      ? 'Finance l’installation d’un point de captage et filtration d’eau saine pour un quartier villageois.'
-      : 'Funds clean water catchment and bio-sand filtration infrastructure for a vulnerable village sector.';
+      ? 'Renforce directement une action communautaire structurante dans l’Est de la RDC.'
+      : 'Directly strengthens a high-impact community initiative in Eastern DRC.';
   };
 
-  const handleDonateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!donorName || !donorEmail) {
+  const handleDonateSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!Number.isFinite(amount) || amount < 5 || amount > 10_000) {
       toast.warning(
-        isFr ? 'Veuillez saisir votre nom et courriel pour le reçu.' : 'Please enter your name and email for the receipt.',
-        isFr ? 'Coordonnées Requises' : 'Information Required'
+        isFr ? 'Choisissez un montant entre 5 et 10 000 USD.' : 'Choose an amount between 5 and 10,000 USD.',
+        isFr ? 'Montant invalide' : 'Invalid amount'
       );
       return;
     }
-
     setIsProcessing(true);
-    const amount = getEffectiveAmount();
-
-    setTimeout(() => {
-      const record: DonationRecord = {
-        id: `DON-${Date.now().toString().slice(-6)}`,
-        name: anonymous ? (isFr ? 'Donateur Anonyme' : 'Anonymous Donor') : donorName,
-        donorName: anonymous ? (isFr ? 'Donateur Anonyme' : 'Anonymous Donor') : donorName,
-        donorEmail,
-        amount,
-        currency: 'USD',
-        frequency,
-        pillar: allocation,
-        paymentMethod:
-          paymentMethod === 'mobile'
-            ? `Mobile Money (${mobileProvider.toUpperCase()})`
-            : paymentMethod === 'card'
-            ? 'Credit Card'
-            : 'Bank Wire Transfer',
-        status: 'completed',
-        date: new Date().toISOString().split('T')[0],
-        anonymous
-      };
-
-      addDonation(record);
-      setCompletedDonation(record);
+    try {
+      const session = await api.checkout.createSession({ amount, donorName, donorEmail, allocation, anonymous, language });
+      window.location.href = session.url;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : (isFr ? 'Une erreur est survenue.' : 'Something went wrong.');
+      toast.error(message, isFr ? 'Paiement indisponible' : 'Payment unavailable');
       setIsProcessing(false);
-
-      toast.success(
-        isFr
-          ? `Merci infiniment pour votre don de $${amount} USD en faveur d'ACV !`
-          : `Heartfelt thanks for your generous donation of $${amount} USD!`,
-        isFr ? 'Solidarité Enregistrée' : 'Donation Processed'
-      );
-    }, 1000);
+    }
   };
 
   return (
-    <div className="bg-[#fbf8fc] min-h-screen">
-      {/* Banner Carousel */}
+    <div className="min-h-screen bg-[#F3EDE1]">
       <BannerCarousel pageRoute="/donate" />
-
-      {/* Hero Header */}
-      <section className="py-12 md:py-16 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-label uppercase tracking-widest font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-4">
-            <Heart className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
-            <span>{isFr ? 'Solidarité & Impact Direct' : 'Direct Grassroots Solidarity'}</span>
+      {isProcessing && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#232826]/65 px-4 backdrop-blur-sm" role="status" aria-live="polite">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#690C07]" />
+            <h2 className="mt-5 text-xl font-extrabold text-stone-900">{isFr ? 'Ouverture du paiement sécurisé…' : 'Opening secure checkout…'}</h2>
+            <p className="mt-2 text-sm text-stone-600">{isFr ? 'Vous allez être redirigé vers Stripe.' : 'You will be redirected to Stripe.'}</p>
           </div>
-          <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight">
-            {t.donate.title}
-          </h1>
-          <p className="mt-4 text-base md:text-lg text-stone-600 leading-relaxed">
-            {t.donate.subtitle}
-          </p>
+        </div>
+      )}
+
+      <section className="border-b border-[#E2D7C3] bg-white py-12 text-center md:py-16">
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-800">
+            <Heart className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
+            <span>{isFr ? 'Solidarité & impact direct' : 'Direct grassroots solidarity'}</span>
+          </div>
+          <AnimatedText as="h1" text={t.donate.title} className="text-3xl font-extrabold tracking-tight text-stone-900 md:text-5xl" />
+          <p className="mt-4 text-base leading-relaxed text-stone-600 md:text-lg">{t.donate.subtitle}</p>
         </div>
       </section>
 
-      {/* Main Donation Container */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {completedDonation ? (
-            /* Thank you & Donor Certificate Box */
-            <div className="bg-white rounded-3xl border border-stone-200 shadow-xl p-8 md:p-14 text-center max-w-3xl mx-auto space-y-8 animate-fade-in">
-              <div className="w-20 h-20 bg-[#FAF6EF] text-[#690C07] rounded-full flex items-center justify-center mx-auto shadow-inner border border-[#E2D7C3]">
-                <CheckCircle2 className="w-10 h-10" />
+      <section id="donation-form" className="py-16">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+          <div className="rounded-3xl border border-[#E2D7C3] bg-white p-7 shadow-sm sm:p-10 lg:col-span-7">
+            <form onSubmit={handleDonateSubmit} className="space-y-8">
+              <div>
+                <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-stone-700">{isFr ? '1. Montant du don (USD)' : '1. Donation amount (USD)'}</label>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {PRESET_AMOUNTS.map((preset) => {
+                    const active = selectedAmount === preset && !customAmount;
+                    return (
+                      <button type="button" key={preset} aria-pressed={active} onClick={() => { setSelectedAmount(preset); setCustomAmount(''); }}
+                        className={`rounded-xl border px-3 py-3 font-label text-base font-bold transition-all ${active ? 'border-[#690C07] bg-[#690C07] text-white shadow-md ring-2 ring-[#EFA62B]/45' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-[#690C07]/40 hover:bg-stone-100'}`}>
+                        ${preset}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="relative mt-3">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-500">$</span>
+                  <input type="number" min="5" max="10000" step="1" inputMode="decimal" placeholder={isFr ? 'Autre montant' : 'Other amount'} value={customAmount} onChange={(event) => setCustomAmount(event.target.value)}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3 pl-9 pr-16 text-sm font-bold text-stone-900 outline-none focus:border-[#690C07] focus:ring-2 focus:ring-[#690C07]/15" />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">USD</span>
+                </div>
               </div>
 
               <div>
-                <span className="text-xs font-label uppercase tracking-widest text-[#690C07] font-bold">
-                  {isFr ? 'Paiement Confirmé • Réf : ' + completedDonation.id : 'Donation Confirmed • Ref : ' + completedDonation.id}
-                </span>
-                <h2 className="text-3xl md:text-4xl font-display font-extrabold text-stone-900 mt-2">
-                  {isFr ? 'Merci du fond du cœur, ' : 'Thank You Warmly, '}
-                  {completedDonation.donorName} !
-                </h2>
-                <p className="text-stone-600 mt-3 text-base">
-                  {isFr
-                    ? 'Votre générosité active directement le travail des jeunes de Goma sur le terrain. Un reçu fiscal et notre bulletin d’impact vous seront envoyés à ' + completedDonation.donorEmail
-                    : 'Your contribution directly empowers local youth in Eastern Congo. A formal tax receipt and quarterly field updates are en route to ' + completedDonation.donorEmail}
-                </p>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-700">{isFr ? '2. Affectation' : '2. Direct your gift'}</label>
+                <select value={allocation} onChange={(event) => setAllocation(event.target.value)} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none focus:border-[#690C07] focus:ring-2 focus:ring-[#690C07]/15">
+                  <option value="all">{isFr ? 'Là où le besoin est le plus urgent' : 'Where needed most'}</option>
+                  <option value="education">{isFr ? 'Éducation & jeunesse' : 'Education & youth'}</option>
+                  <option value="biodiversity">{isFr ? 'Nature & biodiversité' : 'Nature & biodiversity'}</option>
+                  <option value="agriculture">{isFr ? 'Agriculture & sécurité alimentaire' : 'Agriculture & food security'}</option>
+                  <option value="health">{isFr ? 'Santé & bien-être' : 'Health & wellbeing'}</option>
+                  <option value="livelihoods">{isFr ? 'Autonomisation socio-économique' : 'Socio-economic empowerment'}</option>
+                </select>
               </div>
 
-              {/* Certificate Card */}
-              <div className="p-8 rounded-2xl bg-stone-50 border-2 border-dashed border-amber-300 text-left relative overflow-hidden">
-                <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="/assets/aistudio/WhatsApp_Image_2026-10-19_at_23.23.59_792cea6b.jpeg"
-                      alt="ACV Logo"
-                      className="h-10 w-auto object-contain"
-                    />
-                    <div>
-                      <div className="text-xs font-label uppercase font-bold text-stone-500">
-                        Africa Community Village
-                      </div>
-                      <div className="text-sm font-bold text-stone-900">
-                        {isFr ? 'Certificat de Solidarité' : 'Certificate of Solidarity'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-extrabold font-label text-acv-green">
-                      ${completedDonation.amount} USD
-                    </div>
-                    <div className="text-xs text-stone-500 font-label">
-                      {completedDonation.frequency === 'monthly' ? (isFr ? 'Par mois' : 'Monthly') : (isFr ? 'Don Unique' : 'One-time')}
-                    </div>
-                  </div>
+              <div className="space-y-4 border-t border-stone-100 pt-6">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">{isFr ? '3. Vos informations' : '3. Your information'}</label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <input type="text" required autoComplete="name" placeholder={isFr ? 'Nom complet *' : 'Full name *'} value={donorName} onChange={(event) => setDonorName(event.target.value)} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-[#690C07] focus:ring-2 focus:ring-[#690C07]/15" />
+                  <input type="email" required autoComplete="email" placeholder={isFr ? 'Adresse e-mail *' : 'Email address *'} value={donorEmail} onChange={(event) => setDonorEmail(event.target.value)} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-[#690C07] focus:ring-2 focus:ring-[#690C07]/15" />
                 </div>
+                <label className="flex items-start gap-2 text-xs text-stone-600">
+                  <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} className="mt-0.5 rounded border-stone-300 text-[#690C07] focus:ring-[#690C07]" />
+                  <span>{isFr ? 'Garder mon nom anonyme dans les publications publiques.' : 'Keep my name anonymous in public recognition.'}</span>
+                </label>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4 text-xs font-label text-stone-600">
+              <div className="rounded-2xl border border-[#E2D7C3] bg-[#FAF6EF] p-4">
+                <div className="flex items-start gap-3">
+                  <CreditCard className="mt-0.5 h-5 w-5 shrink-0 text-[#690C07]" />
                   <div>
-                    <span className="text-stone-400 block">{isFr ? 'Attribué à :' : 'Granted to:'}</span>
-                    <span className="font-bold text-stone-800 text-sm">{completedDonation.donorName}</span>
+                    <p className="text-sm font-bold text-stone-900">{isFr ? 'Paiement par carte via Stripe' : 'Card payment via Stripe'}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-stone-600">{isFr ? 'Les données bancaires sont saisies et traitées sur la page sécurisée de Stripe.' : 'Card details are entered and processed on Stripe’s secure checkout page.'}</p>
                   </div>
-                  <div>
-                    <span className="text-stone-400 block">{isFr ? 'Date :' : 'Issued Date:'}</span>
-                    <span className="font-bold text-stone-800 text-sm">{completedDonation.date}</span>
-                  </div>
-                  <div>
-                    <span className="text-stone-400 block">{isFr ? 'Affectation :' : 'Designation:'}</span>
-                    <span className="font-bold text-stone-800 text-sm">{completedDonation.pillar}</span>
-                  </div>
-                  <div>
-                    <span className="text-stone-400 block">{isFr ? 'Mode de règlement :' : 'Payment Route:'}</span>
-                    <span className="font-bold text-stone-800 text-sm">{completedDonation.paymentMethod}</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-stone-200 text-center text-xs text-stone-500 italic">
-                  « Umuntu ngumuntu ngabantu — Je suis parce que nous sommes »
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-                <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-stone-900 text-white rounded-lg text-xs font-label uppercase tracking-wider font-bold hover:bg-stone-800 transition-colors cursor-pointer"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>{isFr ? 'Télécharger le Reçu' : 'Print / Save Receipt'}</span>
-                </button>
-                <button
-                  onClick={() => setCompletedDonation(null)}
-                  className="px-6 py-3 bg-stone-100 text-stone-700 rounded-lg text-xs font-label uppercase tracking-wider font-bold hover:bg-stone-200 transition-colors"
-                >
-                  {isFr ? 'Faire un autre don' : 'Make Another Gift'}
-                </button>
+              <Button type="submit" variant="secondary" size="lg" fullWidth disabled={isProcessing} isLoading={isProcessing} loadingText={isFr ? 'Redirection sécurisée…' : 'Secure redirect…'} icon={<CreditCard className="h-5 w-5" />}>
+                {isFr ? `Faire un don de $${Number.isFinite(amount) ? amount : 0} USD` : `Donate $${Number.isFinite(amount) ? amount : 0} USD`}
+              </Button>
+              <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-stone-500">
+                <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-[#EFA62B]" /> SSL sécurisé</span>
+                <span className="flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-[#EFA62B]" /> Stripe Checkout</span>
+                <span className="flex items-center gap-1"><CreditCard className="h-3.5 w-3.5 text-[#EFA62B]" /> Carte bancaire</span>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              {/* Left Column: Donation Form */}
-              <div className="lg:col-span-7 bg-white p-8 md:p-10 rounded-3xl border border-stone-200 shadow-sm">
-                <form onSubmit={handleDonateSubmit} className="space-y-8">
-                  {/* Frequency Toggle */}
-                  <div>
-                    <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-2">
-                      {isFr ? '1. Fréquence de votre don' : '1. Choose Gift Frequency'}
-                    </label>
-                    <div className="grid grid-cols-2 gap-3 p-1 bg-stone-100 rounded-xl">
-                      <button
-                        type="button"
-                        onClick={() => setFrequency('once')}
-                        className={`py-2.5 text-xs font-label uppercase tracking-wider font-bold rounded-lg transition-all ${
-                          frequency === 'once'
-                            ? 'bg-white text-stone-900 shadow-xs'
-                            : 'text-stone-600 hover:text-stone-900'
-                        }`}
-                      >
-                        {isFr ? 'Don Unique' : 'One-Time Gift'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFrequency('monthly')}
-                        className={`py-2.5 text-xs font-label uppercase tracking-wider font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                          frequency === 'monthly'
-                            ? 'bg-acv-green text-white shadow-xs'
-                            : 'text-stone-600 hover:text-stone-900'
-                        }`}
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>{isFr ? 'Mensuel (Impact continu)' : 'Monthly Supporter'}</span>
-                      </button>
-                    </div>
-                  </div>
+            </form>
+          </div>
 
-                  {/* Preset Amount Grid */}
-                  <div>
-                    <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-2">
-                      {isFr ? '2. Montant du don (USD)' : '2. Select Amount (USD)'}
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                      {presets.map((amt) => {
-                        const isSelected = selectedAmount === amt && !customAmount;
-                        return (
-                          <button
-                            type="button"
-                            key={amt}
-                            onClick={() => {
-                              setSelectedAmount(amt);
-                              setCustomAmount('');
-                            }}
-                            className={`py-3 px-2 rounded-xl text-center font-label font-bold text-base transition-all border ${
-                              isSelected
-                                ? 'bg-amber-500 text-stone-950 border-amber-600 ring-2 ring-amber-400/40 shadow-xs'
-                                : 'bg-stone-50 hover:bg-stone-100 text-stone-800 border-stone-200'
-                            }`}
-                          >
-                            ${amt}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Custom Amount input */}
-                    <div className="mt-3 relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-label font-bold text-stone-400">
-                        $ USD
-                      </span>
-                      <input
-                        type="number"
-                        min="5"
-                        placeholder={isFr ? 'Autre montant personnalisé...' : 'Other custom amount...'}
-                        value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
-                        className="w-full pl-18 pr-4 py-2.5 bg-stone-50 rounded-xl border border-stone-200 text-sm font-label font-bold text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Allocation Selector */}
-                  <div>
-                    <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-2">
-                      {isFr ? '3. Affectation de votre don' : '3. Direct Your Gift'}
-                    </label>
-                    <select
-                      value={allocation}
-                      onChange={(e) => setAllocation(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm bg-stone-50 font-medium text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green"
-                    >
-                      <option value="all">
-                        {isFr ? 'Là où le besoin est le plus urgent (Recommandé)' : 'Where Needed Most (Recommended)'}
-                      </option>
-                      <option value="nature-biodiversity">
-                        {isFr ? 'Projet Goma Restoration & Reforestation' : 'Goma Restoration & Biodiversity'}
-                      </option>
-                      <option value="education-youth">
-                        {isFr ? 'Éducation & Autonomie des Jeunes' : 'Education & Youth Leadership'}
-                      </option>
-                      <option value="agriculture-food-security">
-                        {isFr ? 'Agriculture Durable & Sécurité Alimentaire' : 'Sustainable Agriculture & Food Security'}
-                      </option>
-                      <option value="health-wellbeing">
-                        {isFr ? 'Santé Communautaire & Bien-Être' : 'Community Health & Hygiene'}
-                      </option>
-                      <option value="socio-economic-empowerment">
-                        {isFr ? 'Autonomisation Économique & AVEC' : 'Socio-Economic Micro-Empowerment'}
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* Payment Method Selector */}
-                  <div>
-                    <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-2">
-                      {isFr ? '4. Moyen de paiement' : '4. Payment Method'}
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('card')}
-                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 text-center transition-all ${
-                          paymentMethod === 'card'
-                            ? 'bg-acv-green/10 border-acv-green text-acv-green ring-1 ring-acv-green'
-                            : 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-700'
-                        }`}
-                      >
-                        <CreditCard className="w-5 h-5" />
-                        <span className="text-xs font-label uppercase font-bold">
-                          {isFr ? 'Carte Bancaire' : 'Credit Card'}
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('mobile')}
-                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 text-center transition-all ${
-                          paymentMethod === 'mobile'
-                            ? 'bg-acv-green/10 border-acv-green text-acv-green ring-1 ring-acv-green'
-                            : 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-700'
-                        }`}
-                      >
-                        <Smartphone className="w-5 h-5" />
-                        <span className="text-xs font-label uppercase font-bold">
-                          Mobile Money
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('wire')}
-                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 text-center transition-all ${
-                          paymentMethod === 'wire'
-                            ? 'bg-acv-green/10 border-acv-green text-acv-green ring-1 ring-acv-green'
-                            : 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-700'
-                        }`}
-                      >
-                        <Building className="w-5 h-5" />
-                        <span className="text-xs font-label uppercase font-bold">
-                          {isFr ? 'Virement Bancaire' : 'Bank Wire'}
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Mobile provider options */}
-                    {paymentMethod === 'mobile' && (
-                      <div className="mt-4 p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-3">
-                        <div className="text-xs font-label font-bold text-stone-700 uppercase">
-                          {isFr ? 'Opérateur Mobile Money (RDC)' : 'DRC Mobile Operator'}
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { id: 'airtel', label: 'Airtel Money (+243 977 531 777)' },
-                            { id: 'mpesa', label: 'Vodacom M-Pesa (+243 81...)' },
-                            { id: 'orange', label: 'Orange Money (+243 89...)' }
-                          ].map((op) => (
-                            <button
-                              type="button"
-                              key={op.id}
-                              onClick={() => setMobileProvider(op.id as any)}
-                              className={`py-2 px-2 rounded-lg text-[11px] font-label font-bold uppercase border text-center transition-all ${
-                                mobileProvider === op.id
-                                  ? 'bg-[#690C07] text-white border-[#690C07]'
-                                  : 'bg-white text-stone-700 border-stone-200'
-                              }`}
-                            >
-                              {op.id.toUpperCase()}
-                            </button>
-                          ))}
-                        </div>
-                        <p className="text-xs text-stone-500 italic">
-                          {isFr
-                            ? 'Le numéro officiel ACV Airtel Money est le +243 977 531 777 (Titulaire : Africa Community Village ASBL).'
-                            : 'Official ACV Airtel Money receiving number: +243 977 531 777 (Account name: Africa Community Village).'}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Bank Wire instructions */}
-                    {paymentMethod === 'wire' && (
-                      <div className="mt-4 p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs space-y-1.5 font-label">
-                        <div className="font-bold text-stone-800">
-                          Rawbank RDC • Agence de Goma
-                        </div>
-                        <div className="text-stone-600">Compte USD : 01000-0250-9843-ACV-01</div>
-                        <div className="text-stone-600">SWIFT / BIC : RAWBKICD</div>
-                        <div className="text-stone-600">Bénéficiaire : Africa Community Village ASBL</div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Donor Info Inputs */}
-                  <div className="space-y-4 pt-2 border-t border-stone-100">
-                    <label className="block text-xs font-label uppercase font-bold text-stone-700">
-                      {isFr ? '5. Informations du Donateur' : '5. Donor Information'}
-                    </label>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <input
-                          type="text"
-                          required
-                          placeholder={isFr ? 'Nom complet *' : 'Full Name *'}
-                          value={donorName}
-                          onChange={(e) => setDonorName(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-lg border border-stone-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green bg-stone-50/50"
-                        />
-                      </div>
-                      <div>
-                        <input
-                          type="email"
-                          required
-                          placeholder={isFr ? 'Courriel *' : 'Email Address *'}
-                          value={donorEmail}
-                          onChange={(e) => setDonorEmail(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-lg border border-stone-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green bg-stone-50/50"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <input
-                        type="checkbox"
-                        id="anonCheck"
-                        checked={anonymous}
-                        onChange={(e) => setAnonymous(e.target.checked)}
-                        className="rounded border-stone-300 text-acv-green focus:ring-acv-green"
-                      />
-                      <label htmlFor="anonCheck" className="text-xs text-stone-600">
-                        {isFr
-                          ? 'Garder mon don anonyme sur nos publications publiques'
-                          : 'Keep my donation anonymous in public donor recognitions'}
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    size="lg"
-                    fullWidth
-                    isLoading={isProcessing}
-                    loadingText={isFr ? 'Traitement sécurisé en cours...' : 'Processing Solidarity Gift...'}
-                    icon={<Heart className="w-5 h-5 fill-white" />}
-                  >
-                    {`${isFr ? 'Finaliser le don de' : 'Complete Gift of'} $${getEffectiveAmount()} USD`}
-                  </Button>
-
-                  <div className="flex items-center justify-center gap-4 text-stone-400 text-xs">
-                    <span className="flex items-center gap-1">
-                      <Lock className="w-3.5 h-3.5 text-[#0E7490]" />
-                      256-Bit SSL Encrypted
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#0E7490]" />
-                      100% Direct Grassroots Impact
-                    </span>
-                  </div>
-                </form>
-              </div>
-
-              {/* Right Column: Dynamic Impact Showcase */}
-              <div className="lg:col-span-5 space-y-6">
-                {/* Tangible Impact Box */}
-                <div className="bg-linear-to-br from-[#690C07] to-[#232826] p-8 rounded-3xl text-white shadow-lg space-y-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-[#EFA62B]/15 rounded-full blur-3xl pointer-events-none" />
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-label uppercase font-bold tracking-widest text-[#EFA62B]">
-                      {isFr ? 'Votre Impact Concret' : 'Your Concrete Impact'}
-                    </span>
-                    <span className="text-2xl font-extrabold font-label text-white">
-                      ${getEffectiveAmount()}
-                    </span>
-                  </div>
-
-                  <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-xs border border-white/10 space-y-2">
-                    <div className="text-xs font-label text-[#EFA62B] uppercase font-bold">
-                      {frequency === 'monthly'
-                        ? (isFr ? 'Chaque mois, vous permettez :' : 'Every month, you unlock:')
-                        : (isFr ? 'Grâce à ce don :' : 'With this gift:')}
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed text-stone-100">
-                      {getImpactDescription(getEffectiveAmount())}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 pt-2 text-xs text-stone-300">
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#EFA62B] shrink-0 mt-0.5" />
-                      <span>
-                        {isFr
-                          ? 'Transparence totale : rapports financiers trimestriels audités.'
-                          : 'Quarterly open-ledger reports sent directly to your inbox.'}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#EFA62B] shrink-0 mt-0.5" />
-                      <span>
-                        {isFr
-                          ? 'Ancrage 100% local à Goma et au Nord-Kivu sans intermédiaires coûteux.'
-                          : 'Zero bureaucratic intermediary loss: funds execute straight to field teams.'}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#EFA62B] shrink-0 mt-0.5" />
-                      <span>
-                        {isFr
-                          ? 'Certificat de Donateur Solidaire téléchargeable instantanément.'
-                          : 'Instant verifiable certificate of solidarity generated upon receipt.'}
-                      </span>
-                    </div>
-                  </div>
+          <aside className="space-y-6 lg:col-span-5">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#690C07] to-[#232826] p-8 text-white shadow-lg">
+              <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[#EFA62B]/20 blur-3xl" />
+              <div className="relative space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#EFA62B]"><Sparkles className="h-4 w-4" /> {isFr ? 'Votre impact' : 'Your impact'}</span>
+                  <span className="text-2xl font-extrabold">${Number.isFinite(amount) ? amount : 0}</span>
                 </div>
-
-                {/* Trust Quotes */}
-                <div className="bg-white p-6 rounded-3xl border border-stone-200 text-stone-700 space-y-4">
-                  <p className="text-xs italic leading-relaxed text-stone-600">
-                    « {isFr
-                      ? 'Donner à ACV, c’est investir dans des solutions durables menées par ceux qui connaissent le mieux les réalités de l’Est du Congo.'
-                      : 'Investing in ACV means funding solutions designed and deployed by the very youth who understand the nuanced terrain of North Kivu.'} »
-                  </p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-stone-100">
-                    <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold font-label">
-                      BM
-                    </div>
-                    <div className="text-xs">
-                      <div className="font-bold text-stone-900">Berthollet Munihire</div>
-                      <div className="text-stone-500">Founder & Legal Representative, ACV</div>
-                    </div>
-                  </div>
+                <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm"><p className="text-sm font-medium leading-relaxed text-stone-100">{getImpactDescription(Number.isFinite(amount) ? amount : 0)}</p></div>
+                <div className="space-y-3 text-xs text-stone-300">
+                  <p className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#EFA62B]" /> {isFr ? 'Un paiement unique, sans abonnement caché.' : 'A one-time payment with no hidden subscription.'}</p>
+                  <p className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#EFA62B]" /> {isFr ? 'Une redirection Stripe rapide et chiffrée.' : 'Fast, encrypted Stripe Checkout.'}</p>
+                  <p className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#EFA62B]" /> {isFr ? 'Un reçu envoyé après confirmation.' : 'A receipt sent after confirmation.'}</p>
                 </div>
               </div>
             </div>
-          )}
+          </aside>
         </div>
       </section>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
 import { Button } from './Button';
@@ -11,7 +11,6 @@ import {
   Globe,
   Heart,
   LayoutDashboard,
-  ShieldCheck,
   ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -25,6 +24,14 @@ export const Header: React.FC = () => {
   const [programsDropdownOpen, setProgramsDropdownOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const [mobileProgramsOpen, setMobileProgramsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const updateHeader = () => setIsScrolled(window.scrollY > 18);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    return () => window.removeEventListener('scroll', updateHeader);
+  }, []);
 
   const isAboutActive = currentRoute.startsWith('/about');
   const isProgramsActive = currentRoute.startsWith('/programs');
@@ -35,37 +42,23 @@ export const Header: React.FC = () => {
     }`;
 
   const renderUnderline = (isActive: boolean) => (
-    <span
-      className={`absolute bottom-0 left-3 right-3 h-0.5 bg-[#690C07] transition-transform duration-300 ease-out origin-left ${
-        isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-      }`}
-    />
+    isActive ? (
+      <motion.span
+        layoutId="acv-navigation-underline"
+        className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#690C07]"
+        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      />
+    ) : (
+      <span className="absolute bottom-0 left-3 right-3 h-0.5 origin-left scale-x-0 rounded-full bg-[#690C07] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+    )
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#F3EDE1]/95 backdrop-blur-md border-b border-[#E2D7C3] shadow-xs">
-      {/* Top Banner Ribbon - Dominant Deep Red */}
-      <div className="w-full bg-[#690C07] text-white py-1.5 px-4 text-xs font-label">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#EFA62B] animate-pulse"></span>
-            <span className="truncate">
-              {language === 'fr'
-                ? 'Relèvement Communautaire par la Jeunesse · Est de la RDC | Goma · Bukavu · Beni'
-                : 'Youth-Led Community Recovery in Eastern DR Congo | Goma · Bukavu · Beni'}
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-rose-100">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#EFA62B]" />
-              {language === 'fr' ? 'Initiative Citoyenne Autonome' : 'Autonomous Grassroots Initiative'}
-            </span>
-            <span>·</span>
-            <span>Ubuntu: « I am because we are »</span>
-          </div>
-        </div>
-      </div>
-
+    <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 ${
+      isScrolled
+        ? 'border-[#E2D7C3] bg-[#F3EDE1]/96 shadow-[0_12px_32px_-22px_rgba(35,40,38,0.55)]'
+        : 'border-transparent bg-[#F3EDE1]/72 shadow-none'
+    }`}>
       {/* Main Nav Bar */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
         {/* Zone 1: Brand Wordmark & Logo */}
@@ -192,35 +185,35 @@ export const Header: React.FC = () => {
                   className="absolute top-full left-0 w-72 bg-white rounded-xl shadow-xl border border-stone-200/90 py-2 mt-1 z-50"
                 >
                   <button
-                    onClick={() => { navigateTo('/programs/education-youth'); setProgramsDropdownOpen(false); }}
+                    onClick={() => { navigateTo('/programs#education'); setProgramsDropdownOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-[#18181B] hover:bg-[#F5F5F4] hover:text-[#690C07] transition-colors font-medium flex items-center justify-between group"
                   >
                     <span>{t.nav.education}</span>
                     <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#690C07]" />
                   </button>
                   <button
-                    onClick={() => { navigateTo('/programs/nature-biodiversity'); setProgramsDropdownOpen(false); }}
+                    onClick={() => { navigateTo('/programs#biodiversity'); setProgramsDropdownOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-[#18181B] hover:bg-[#F5F5F4] hover:text-[#690C07] transition-colors font-medium flex items-center justify-between group"
                   >
                     <span>{t.nav.nature}</span>
                     <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#690C07]" />
                   </button>
                   <button
-                    onClick={() => { navigateTo('/programs/agriculture-food-security'); setProgramsDropdownOpen(false); }}
+                    onClick={() => { navigateTo('/programs#agriculture'); setProgramsDropdownOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-[#18181B] hover:bg-[#F5F5F4] hover:text-[#690C07] transition-colors font-medium flex items-center justify-between group"
                   >
                     <span>{t.nav.agriculture}</span>
                     <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#690C07]" />
                   </button>
                   <button
-                    onClick={() => { navigateTo('/programs/health-wellbeing'); setProgramsDropdownOpen(false); }}
+                    onClick={() => { navigateTo('/programs#health'); setProgramsDropdownOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-[#18181B] hover:bg-[#F5F5F4] hover:text-[#690C07] transition-colors font-medium flex items-center justify-between group"
                   >
                     <span>{t.nav.health}</span>
                     <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#690C07]" />
                   </button>
                   <button
-                    onClick={() => { navigateTo('/programs/socio-economic-empowerment'); setProgramsDropdownOpen(false); }}
+                    onClick={() => { navigateTo('/programs#livelihoods'); setProgramsDropdownOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-[#18181B] hover:bg-[#F5F5F4] hover:text-[#690C07] transition-colors font-medium flex items-center justify-between group"
                   >
                     <span>{t.nav.livelihoods}</span>
@@ -296,7 +289,7 @@ export const Header: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => navigateTo('/donate')}
+              onClick={() => navigateTo('/donate#donation-form')}
               icon={<Heart className="w-3.5 h-3.5 fill-white" />}
             >
               {t.nav.donate}
@@ -324,16 +317,16 @@ export const Header: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 top-[68px] sm:top-[74px] bg-black/40 backdrop-blur-xs z-40 lg:hidden"
+              className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-68px)] bg-black/40 backdrop-blur-xs sm:h-[calc(100dvh-74px)] lg:hidden"
             />
             <motion.div
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 z-50 lg:hidden bg-[#F3EDE1] border-b border-[#E2D7C3] px-5 pt-4 pb-6 shadow-2xl max-h-[calc(100vh-120px)] overflow-y-auto"
+              className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-68px)] overflow-y-auto border-b border-[#E2D7C3] bg-[#F3EDE1] px-5 pb-6 pt-4 shadow-2xl sm:h-[calc(100dvh-74px)] lg:hidden"
             >
-              <div className="flex flex-col space-y-1">
+              <div className="acv-mobile-menu flex flex-col space-y-1">
                 {/* Mobile Drawer Brand Header for clear visibility */}
                 <div className="flex items-center gap-3 p-3 mb-2 rounded-xl bg-[#FAF6EF] border border-[#E2D7C3]">
                   <div className="w-12 h-12 rounded-full bg-white ring-2 ring-[#690C07]/40 p-0.5 shadow-xs shrink-0 flex items-center justify-center overflow-hidden">
@@ -450,31 +443,31 @@ export const Header: React.FC = () => {
                       className="pl-4 pb-2 space-y-1 border-l-2 border-[#690C07]/30 ml-3"
                     >
                       <button
-                        onClick={() => { navigateTo('/programs/education-youth'); setMobileMenuOpen(false); }}
+                        onClick={() => { navigateTo('/programs#education'); setMobileMenuOpen(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-[#3F493F] hover:text-[#690C07]"
                       >
                         · {t.nav.education}
                       </button>
                       <button
-                        onClick={() => { navigateTo('/programs/nature-biodiversity'); setMobileMenuOpen(false); }}
+                        onClick={() => { navigateTo('/programs#biodiversity'); setMobileMenuOpen(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-[#3F493F] hover:text-[#690C07]"
                       >
                         · {t.nav.nature}
                       </button>
                       <button
-                        onClick={() => { navigateTo('/programs/agriculture-food-security'); setMobileMenuOpen(false); }}
+                        onClick={() => { navigateTo('/programs#agriculture'); setMobileMenuOpen(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-[#3F493F] hover:text-[#690C07]"
                       >
                         · {t.nav.agriculture}
                       </button>
                       <button
-                        onClick={() => { navigateTo('/programs/health-wellbeing'); setMobileMenuOpen(false); }}
+                        onClick={() => { navigateTo('/programs#health'); setMobileMenuOpen(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-[#3F493F] hover:text-[#690C07]"
                       >
                         · {t.nav.health}
                       </button>
                       <button
-                        onClick={() => { navigateTo('/programs/socio-economic-empowerment'); setMobileMenuOpen(false); }}
+                        onClick={() => { navigateTo('/programs#livelihoods'); setMobileMenuOpen(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-[#3F493F] hover:text-[#690C07]"
                       >
                         · {t.nav.livelihoods}
@@ -521,7 +514,7 @@ export const Header: React.FC = () => {
                   <Button
                     variant="secondary"
                     fullWidth
-                    onClick={() => { navigateTo('/donate'); setMobileMenuOpen(false); }}
+                    onClick={() => { navigateTo('/donate#donation-form'); setMobileMenuOpen(false); }}
                     icon={<Heart className="w-4 h-4 fill-white" />}
                   >
                     {t.nav.donate}

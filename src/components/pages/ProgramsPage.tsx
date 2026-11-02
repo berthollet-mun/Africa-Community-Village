@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 import { ProgramPillar } from '../../types';
 import { SkeletonCard } from '../common/Skeleton';
+import { getProgramAnchor, getProgramHashRoute } from '../../lib/navigation';
+import { AnimatedText } from '../motion/AnimatedText';
+import { AnimatedCard } from '../motion/AnimatedCard';
 
 export const ProgramsPage: React.FC = () => {
   const { language, currentRoute, navigateTo, programs, isLoading } = useApp();
@@ -99,9 +102,7 @@ export const ProgramsPage: React.FC = () => {
   };
 
   const getPillarRoute = (p: ProgramPillar): string => {
-    if (p.route) return p.route;
-    if (p.slug) return `/programs/${p.slug}`;
-    return `/programs/${p.id}`;
+    return getProgramHashRoute(p.slug || p.id);
   };
 
   // If a single program pillar is selected, render detailed program page
@@ -173,9 +174,7 @@ export const ProgramsPage: React.FC = () => {
                   <span>Pillar {currentProgram.order ? `#${currentProgram.order}` : ''}</span>
                 </div>
 
-                <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 leading-tight">
-                  {isFr ? currentProgram.titleFr : currentProgram.titleEn}
-                </h1>
+                <AnimatedText as="h1" text={isFr ? currentProgram.titleFr : currentProgram.titleEn} className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 leading-tight" />
 
                 <p className="text-lg md:text-xl text-stone-600 leading-relaxed">
                   {isFr
@@ -200,7 +199,7 @@ export const ProgramsPage: React.FC = () => {
                 {/* Actions */}
                 <div className="flex flex-wrap gap-4 pt-2">
                   <button
-                    onClick={() => navigateTo('/donate')}
+                    onClick={() => navigateTo('/donate#donation-form')}
                     className="inline-flex items-center gap-2 px-6 py-3.5 bg-acv-amber hover:bg-amber-600 text-stone-900 font-bold rounded-lg shadow-sm transition-all text-sm uppercase tracking-wider cursor-pointer"
                   >
                     <Heart className="w-4 h-4 fill-stone-900" />
@@ -374,7 +373,7 @@ export const ProgramsPage: React.FC = () => {
                   </p>
                   <div className="space-y-3 pt-2">
                     <button
-                      onClick={() => navigateTo('/donate')}
+                      onClick={() => navigateTo('/donate#donation-form')}
                       className="w-full py-3 bg-[#EFA62B] hover:bg-[#D98E16] text-[#232826] font-bold rounded-lg text-sm uppercase tracking-wider transition-all text-center cursor-pointer shadow-md"
                     >
                       {t.nav.donate}
@@ -409,11 +408,11 @@ export const ProgramsPage: React.FC = () => {
             <span>{isFr ? 'Nos 5 Piliers Stratégiques' : 'Our 5 Core Pillars'}</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight leading-tight">
-            {isFr
-              ? 'Des programmes holistiques pour la résilience de l’Est de la RDC'
-              : 'Holistic Programs for Lasting Community Regeneration in Eastern DRC'}
-          </h1>
+          <AnimatedText
+            as="h1"
+            text={isFr ? 'Des programmes holistiques pour la résilience de l’Est de la RDC' : 'Holistic Programs for Lasting Community Regeneration in Eastern DRC'}
+            className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight leading-tight"
+          />
 
           <p className="mt-6 text-lg md:text-xl text-stone-600 leading-relaxed">
             {isFr
@@ -426,18 +425,10 @@ export const ProgramsPage: React.FC = () => {
       {/* 5 Pillars Detailed Grid */}
       <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isLoading && programs.length === 0 ? (
-            <div className="space-y-12">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-stone-200/90 p-8 flex flex-col md:flex-row gap-8 items-center animate-pulse">
-                  <div className="w-full md:w-5/12 h-64 bg-stone-200 rounded-2xl" />
-                  <div className="w-full md:w-7/12 space-y-4">
-                    <div className="h-6 w-32 bg-stone-200 rounded-md" />
-                    <div className="h-10 w-3/4 bg-stone-200 rounded-md" />
-                    <div className="h-4 w-full bg-stone-200 rounded-md" />
-                    <div className="h-4 w-5/6 bg-stone-200 rounded-md" />
-                  </div>
-                </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonCard key={i} variant="program" />
               ))}
             </div>
           ) : (
@@ -450,8 +441,9 @@ export const ProgramsPage: React.FC = () => {
               const cardRoute = getPillarRoute(pillar);
 
               return (
-                <div
+                <AnimatedCard
                   key={pillar.id}
+                  id={getProgramAnchor(slugOrId)}
                   className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div className={`grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch`}>
@@ -534,7 +526,7 @@ export const ProgramsPage: React.FC = () => {
                         </button>
 
                         <button
-                          onClick={() => navigateTo('/donate')}
+                          onClick={() => navigateTo('/donate#donation-form')}
                           className="inline-flex items-center gap-2 text-xs font-label uppercase tracking-wider font-bold text-amber-700 hover:text-amber-800 transition-colors cursor-pointer"
                         >
                           <Heart className="w-4 h-4" />
@@ -543,7 +535,7 @@ export const ProgramsPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </AnimatedCard>
               );
             })}
           </div>
