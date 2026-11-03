@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import {
   GraduationCap,
   Leaf,
@@ -22,7 +22,6 @@ import { getProgramAnchor, getProgramHashRoute } from '../../lib/navigation';
 import { AnimatedText } from '../motion/AnimatedText';
 import { AnimatedCard } from '../motion/AnimatedCard';
 import { Container } from '../common/Container';
-import { SectionHeader } from '../common/SectionHeader';
 import { ErrorState, EmptyState } from '../common/DataState';
 import { ProgressiveImage } from '../common/ProgressiveImage';
 
@@ -42,8 +41,8 @@ export const ProgramsPage: React.FC = () => {
 
   const getPillarIcon = (slugOrId: string) => {
     if (slugOrId.includes('education')) return <GraduationCap className="w-8 h-8 text-[#EFA62B]" />;
-    if (slugOrId.includes('nature') || slugOrId.includes('biodiversity')) return <Leaf className="w-8 h-8 text-[#0E7490]" />;
-    if (slugOrId.includes('agri') || slugOrId.includes('food')) return <Sprout className="w-8 h-8 text-[#0E7490]" />;
+    if (slugOrId.includes('nature') || slugOrId.includes('biodiversity')) return <Leaf className="w-8 h-8 text-[#14798B]" />;
+    if (slugOrId.includes('agri') || slugOrId.includes('food')) return <Sprout className="w-8 h-8 text-[#14798B]" />;
     if (slugOrId.includes('health') || slugOrId.includes('wellbeing')) return <HeartPulse className="w-8 h-8 text-[#690C07]" />;
     if (slugOrId.includes('empower') || slugOrId.includes('socio') || slugOrId.includes('livelihood')) return <Briefcase className="w-8 h-8 text-[#EFA62B]" />;
     return <Layers className="w-8 h-8 text-[#690C07]" />;
@@ -63,9 +62,9 @@ export const ProgramsPage: React.FC = () => {
       return {
         bg: 'bg-[#FAF6EF]',
         border: 'border-[#E2D7C3]',
-        badge: 'bg-[#E0F2FE] text-[#0E7490]',
-        accent: 'text-[#0E7490]',
-        button: 'bg-[#0E7490] hover:bg-[#095368]'
+        badge: 'bg-[#E0F2FE] text-[#14798B]',
+        accent: 'text-[#14798B]',
+        button: 'bg-[#14798B] hover:bg-[#0F5F6D]'
       };
     }
     if (slugOrId.includes('agri') || slugOrId.includes('food')) {
@@ -139,10 +138,7 @@ export const ProgramsPage: React.FC = () => {
     ];
 
     return (
-      <div className="bg-[#fbf8fc] min-h-screen">
-        {/* Banner Carousel for this specific program route */}
-        <BannerCarousel pageRoute={currentRoute} />
-
+      <div className="bg-[#F3EDE1] min-h-screen">
         {/* Breadcrumb Navigation */}
         <div className="border-b border-stone-200/80 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
@@ -274,7 +270,7 @@ export const ProgramsPage: React.FC = () => {
                 {/* Key Objectives */}
                 <div className="bg-white p-8 md:p-10 rounded-2xl border border-stone-200/80 shadow-xs space-y-6">
                   <h2 className="text-2xl font-bold font-display text-stone-900 flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-[#0E7490]" />
+                    <CheckCircle2 className="w-6 h-6 text-[#14798B]" />
                     <span>{isFr ? 'Objectifs & Actions Clés' : 'Key Objectives & Interventions'}</span>
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,7 +279,7 @@ export const ProgramsPage: React.FC = () => {
                         key={idx}
                         className="flex items-start gap-3 p-4 rounded-xl bg-stone-50/80 border border-stone-200/60"
                       >
-                        <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#0E7490] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold font-label">
+                        <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#14798B] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold font-label">
                           {idx + 1}
                         </div>
                         <p className="text-sm text-stone-800 leading-snug">{obj}</p>
@@ -404,9 +400,6 @@ export const ProgramsPage: React.FC = () => {
   // Otherwise, render the main Programs Hub (/programs)
   return (
     <div className="bg-[#F3EDE1] min-h-screen">
-      {/* Dynamic Banner Carousel for /programs */}
-      <BannerCarousel pageRoute="/programs" />
-
       {dataState.error && (
         <Container className="pt-8">
           <ErrorState
@@ -419,19 +412,18 @@ export const ProgramsPage: React.FC = () => {
         </Container>
       )}
 
-      {/* Hub Hero */}
-      <section className="py-16 md:py-20 bg-white border-b border-stone-200">
-        <Container width="content">
-          <SectionHeader
-            align="center"
-            eyebrow={isFr ? 'Nos 5 piliers stratégiques' : 'Our 5 core pillars'}
-            title={isFr ? 'Des programmes holistiques pour la résilience de l’Est de la RDC' : 'Holistic programs for lasting community regeneration in Eastern DRC'}
-            description={isFr
-              ? 'Africa Community Village structure son action autour de cinq axes interdépendants. Dirigés par des jeunes locaux, nos programmes allient savoirs traditionnels et approches novatrices pour un impact pérenne.'
-              : 'Africa Community Village operates across five interconnected pillars. Youth-designed and community-rooted, these initiatives combine ancestral wisdom with modern climate and socio-economic solutions.'}
-          />
-        </Container>
-      </section>
+      <PageHeader
+        align="center"
+        eyebrow={isFr ? 'Nos 5 piliers stratégiques' : 'Our 5 core pillars'}
+        title={isFr ? 'Des programmes holistiques pour la résilience de l’Est de la RDC' : 'Holistic programs for lasting community regeneration in Eastern DRC'}
+        description={isFr
+          ? 'Africa Community Village structure son action autour de cinq axes interdépendants. Dirigés par des jeunes locaux, nos programmes allient savoirs traditionnels et approches novatrices pour un impact pérenne.'
+          : 'Africa Community Village operates across five interconnected pillars. Youth-designed and community-rooted, these initiatives combine ancestral wisdom with modern climate and socio-economic solutions.'}
+        homeLabel={t.nav.home}
+        currentLabel={t.nav.programs}
+        onHome={() => navigateTo('/')}
+        icon={<Layers className="h-4 w-4" />}
+      />
 
       {/* 5 Pillars Detailed Grid */}
       <section className="py-16 md:py-24">

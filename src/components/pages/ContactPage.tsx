@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import {
   MapPin,
   Mail,
@@ -22,7 +22,7 @@ import { Button } from '../common/Button';
 import { toast } from '../common/Toast';
 
 export const ContactPage: React.FC = () => {
-  const { language, siteSettings, addContactSubmission, triggerActionLoading } = useApp();
+  const { language, navigateTo, siteSettings, addContactSubmission, triggerActionLoading } = useApp();
   const t = useTranslation(language);
   const isFr = language === 'fr';
 
@@ -119,35 +119,27 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#fbf8fc] min-h-screen">
-      {/* Banner Carousel */}
-      <BannerCarousel pageRoute="/contact" />
-
-      {/* Hero Header */}
-      <section className="py-12 md:py-16 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-label uppercase tracking-widest font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-4">
-            <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
-            <span>{isFr ? 'Prendre Contact' : 'Get In Touch'}</span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight">
-            {t.nav.contact}
-          </h1>
-          <p className="mt-4 text-base md:text-lg text-stone-600 leading-relaxed">
-            {isFr
-              ? 'Une question sur nos programmes ? Vous souhaitez nous rendre visite à Goma, soutenir notre cause ou devenir un partenaire institutionnel ? Notre équipe est à votre écoute.'
-              : 'Have inquiries about our programs in Goma, wish to volunteer, or want to explore an institutional partnership? Our team is ready to connect.'}
-          </p>
-
-          {/* Quick Anchor Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-6">
+    <div className="bg-[#F3EDE1] min-h-screen">
+      <PageHeader
+        align="center"
+        eyebrow={isFr ? 'Prendre contact' : 'Get in touch'}
+        title={t.nav.contact}
+        description={isFr
+          ? 'Une question sur nos programmes ? Vous souhaitez nous rendre visite à Goma, soutenir notre cause ou devenir un partenaire institutionnel ? Notre équipe est à votre écoute.'
+          : 'Have inquiries about our programs in Goma, wish to volunteer, or want to explore an institutional partnership? Our team is ready to connect.'}
+        homeLabel={t.nav.home}
+        currentLabel={t.nav.contact}
+        onHome={() => navigateTo('/')}
+        icon={<MessageSquare className="h-4 w-4" />}
+        actions={(
+          <>
             <a
               href="#contact-form"
               onClick={() => setActiveTab('general')}
-              className={`px-4 py-2 rounded-lg text-xs font-label uppercase tracking-wider font-bold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs font-label uppercase tracking-wider font-bold transition-colors ${
                 activeTab === 'general'
                   ? 'bg-acv-green text-white shadow-xs'
-                  : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
+                  : 'border border-[#D9CBAF] bg-white/80 hover:bg-white text-stone-800'
               }`}
             >
               {isFr ? 'Formulaire Général' : 'General Contact'}
@@ -158,7 +150,7 @@ export const ContactPage: React.FC = () => {
                 setActiveTab('support');
                 setFormData((p) => ({ ...p, category: 'Volunteer & Support' }));
               }}
-              className={`px-4 py-2 rounded-lg text-xs font-label uppercase tracking-wider font-bold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs font-label uppercase tracking-wider font-bold transition-colors ${
                 activeTab === 'support'
                   ? 'bg-amber-600 text-white shadow-xs'
                   : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200'
@@ -172,17 +164,17 @@ export const ContactPage: React.FC = () => {
                 setActiveTab('partner');
                 setFormData((p) => ({ ...p, category: 'Institutional Partnership' }));
               }}
-              className={`px-4 py-2 rounded-lg text-xs font-label uppercase tracking-wider font-bold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs font-label uppercase tracking-wider font-bold transition-colors ${
                 activeTab === 'partner'
                   ? 'bg-stone-900 text-white shadow-xs'
-                  : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
+                  : 'border border-[#D9CBAF] bg-white/80 hover:bg-white text-stone-800'
               }`}
             >
               {isFr ? 'Partenariat Stratégique (#partner)' : 'Institutional Partner (#partner)'}
             </a>
-          </div>
-        </div>
-      </section>
+          </>
+        )}
+      />
 
       {/* Main Content: Info Cards & Form */}
       <section id="contact-form" className="py-16">
@@ -300,13 +292,13 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 {submitted && (
-                  <div className="mb-6 p-4 rounded-xl bg-[#E0F2FE] border border-[#0E7490]/30 text-[#0E7490] flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#0E7490] shrink-0 mt-0.5" />
+                  <div className="mb-6 p-4 rounded-xl bg-[#E0F2FE] border border-[#14798B]/30 text-[#14798B] flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-[#14798B] shrink-0 mt-0.5" />
                     <div>
                       <h4 className="font-bold text-sm">
                         {isFr ? 'Message transmis avec succès !' : 'Message Sent Successfully!'}
                       </h4>
-                      <p className="text-xs text-[#0E7490] mt-0.5">
+                      <p className="text-xs text-[#14798B] mt-0.5">
                         {isFr
                           ? 'Merci de votre intérêt. Notre équipe prendra contact avec vous dans les plus brefs délais.'
                           : 'Thank you for connecting. Our secretariat will respond to your provided email within 48 hours.'}
@@ -467,15 +459,15 @@ export const ContactPage: React.FC = () => {
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-stone-800">
-                  <CheckCircle2 className="w-4 h-4 text-[#0E7490] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14798B] shrink-0" />
                   <span>{isFr ? 'Missions de reboisement sur le terrain' : 'Direct participation in tree planting & agroforestry'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-stone-800">
-                  <CheckCircle2 className="w-4 h-4 text-[#0E7490] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14798B] shrink-0" />
                   <span>{isFr ? 'Animation d’ateliers numériques pour les jeunes' : 'Leading digital & vocational bootcamps for Goma youth'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-stone-800">
-                  <CheckCircle2 className="w-4 h-4 text-[#0E7490] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14798B] shrink-0" />
                   <span>{isFr ? 'Campagnes de santé mobile et hygiène' : 'Community hygiene & reproductive wellness outreach'}</span>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import {
   Users,
   Compass,
@@ -94,31 +94,21 @@ export const ApproachPage: React.FC = () => {
   ];
 
   return (
-    <div className="bg-[#fbf8fc] min-h-screen">
-      {/* Banner Carousel */}
-      <BannerCarousel pageRoute="/approach" />
-
-      {/* Hero */}
-      <section className="py-16 md:py-20 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-label uppercase tracking-widest font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-6">
-            <Compass className="w-3.5 h-3.5 text-amber-600" />
-            <span>{isFr ? 'Méthodologie & Philosophie' : 'Our Grounded Methodology'}</span>
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight leading-tight">
-            {isFr
-              ? 'Une approche régénérative, guidée par les communautés de l’Est de la RDC'
-              : 'A Community-Driven, Climate-Resilient Paradigm in Eastern DR Congo'}
-          </h1>
-
-          <p className="mt-6 text-lg md:text-xl text-stone-600 leading-relaxed">
-            {isFr
-              ? 'Nous rejetons l’assistanat humanitaire à court terme. Chez Africa Community Village, nous croyons que les communautés congolaises possèdent déjà la sagesse, le courage et la terre pour s’épanouir durablement.'
-              : 'Moving beyond short-term humanitarian relief, Africa Community Village activates endogenous strength. Communities in North Kivu hold the ancestral insight, resilience, and fertile land required to cultivate enduring peace and prosperity.'}
-          </p>
-        </div>
-      </section>
+    <div className="bg-[#F3EDE1] min-h-screen">
+      <PageHeader
+        align="center"
+        eyebrow={isFr ? 'Méthodologie & philosophie' : 'Our grounded methodology'}
+        title={isFr
+          ? 'Une approche régénérative, guidée par les communautés de l’Est de la RDC'
+          : 'A Community-Driven, Climate-Resilient Paradigm in Eastern DR Congo'}
+        description={isFr
+          ? 'Nous rejetons l’assistanat humanitaire à court terme. Chez Africa Community Village, nous croyons que les communautés congolaises possèdent déjà la sagesse, le courage et la terre pour s’épanouir durablement.'
+          : 'Moving beyond short-term humanitarian relief, Africa Community Village activates endogenous strength. Communities in North Kivu hold the ancestral insight, resilience, and fertile land required to cultivate enduring peace and prosperity.'}
+        homeLabel={t.nav.home}
+        currentLabel={t.nav.approach}
+        onHome={() => navigateTo('/')}
+        icon={<Compass className="h-4 w-4" />}
+      />
 
       {/* 4 Core Principles Grid */}
       <section className="py-16 md:py-24">
@@ -152,7 +142,7 @@ export const ApproachPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="pt-6 mt-6 border-t border-stone-100 flex items-center gap-2 text-xs font-label uppercase tracking-wider text-[#690C07] font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-[#0E7490]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14798B]" />
                   <span>{isFr ? 'Vérifié par nos comités locaux' : 'Verified by village councils'}</span>
                 </div>
               </div>
@@ -188,7 +178,7 @@ export const ApproachPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-stone-800/80 p-4 rounded-xl border border-stone-700">
-                    <div className="text-2xl font-bold font-label text-[#0E7490]">85%</div>
+                    <div className="text-2xl font-bold font-label text-[#14798B]">85%</div>
                     <div className="text-xs text-stone-400 mt-1">
                       {isFr ? 'Taux de survie' : 'Survival Rate'}
                     </div>

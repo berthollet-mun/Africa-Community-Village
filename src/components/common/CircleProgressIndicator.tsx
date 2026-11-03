@@ -65,7 +65,7 @@ export const CircleProgressIndicator: React.FC<CircleProgressIndicatorProps> = (
             <linearGradient id="acv-circle-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#690C07" />
               <stop offset="50%" stopColor="#EFA62B" />
-              <stop offset="100%" stopColor="#0E7490" />
+              <stop offset="100%" stopColor="#14798B" />
             </linearGradient>
           </defs>
 
@@ -105,7 +105,7 @@ export const CircleProgressIndicator: React.FC<CircleProgressIndicatorProps> = (
               transition={{ type: 'spring', damping: 12, stiffness: 200 }}
             >
               <CheckCircle2
-                className="text-[#0E7490]"
+                className="text-[#14798B]"
                 style={{ width: config.iconSize, height: config.iconSize }}
               />
             </motion.div>

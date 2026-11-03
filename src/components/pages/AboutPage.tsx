@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import { initialEightValues, initialGovernanceTiers } from '../../data/mockData';
 import { PolicyDocument, TeamMember, FieldNote } from '../../types';
 import {
@@ -49,6 +49,36 @@ export const AboutPage: React.FC = () => {
   const isGovernance = currentRoute === '/about/governance';
   const isFieldNotes = currentRoute === '/about/field-notes';
 
+  const aboutHeader = isOurTeam
+    ? {
+        label: t.nav.ourTeam,
+        eyebrow: language === 'fr' ? 'Les personnes derrière ACV' : 'The people behind ACV',
+        title: language === 'fr' ? 'Notre équipe' : 'Our Team'
+      }
+    : isGovernance
+      ? {
+          label: t.nav.governance,
+          eyebrow: language === 'fr' ? 'Transparence & responsabilité' : 'Transparency & accountability',
+          title: language === 'fr' ? 'Notre gouvernance' : 'Our Governance'
+        }
+      : isFieldNotes
+        ? {
+            label: t.nav.fieldNotes,
+            eyebrow: language === 'fr' ? 'Depuis le terrain' : 'From the field',
+            title: language === 'fr' ? 'Notes de terrain' : 'Field Notes'
+          }
+        : isOurStory
+          ? {
+              label: t.nav.ourStory,
+              eyebrow: language === 'fr' ? 'Notre histoire' : 'Our story',
+              title: language === 'fr' ? 'L’histoire d’Africa Community Village' : 'The story of Africa Community Village'
+            }
+          : {
+              label: t.nav.about,
+              eyebrow: language === 'fr' ? 'À propos d’ACV' : 'About ACV',
+              title: language === 'fr' ? 'Communautés, dignité et changement durable' : 'People, communities and lasting change'
+            };
+
   // Filter field notes
   const filteredFieldNotes = fieldFilter === 'all'
     ? fieldNotes
@@ -56,13 +86,17 @@ export const AboutPage: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col space-y-12 lg:space-y-16 pb-20">
-      {/* 1. Dynamic Banner Carousel for this route - Full Width Edge-to-Edge */}
-      <section className="w-full">
-        <BannerCarousel pageRoute={currentRoute} fullBleed={true} />
-      </section>
+      <PageHeader
+        eyebrow={aboutHeader.eyebrow}
+        title={aboutHeader.title}
+        homeLabel={t.nav.home}
+        currentLabel={aboutHeader.label}
+        onHome={() => navigateTo('/')}
+        icon={<Users className="h-4 w-4" />}
+      />
 
       {/* 2. Sub-navigation tabs for About section */}
-      <section className="bg-white border-b border-[#E7E5E4] py-3 -mt-6 sm:-mt-8 relative z-20 shadow-xs">
+      <section className="relative z-20 -mt-6 border-b border-[#D9CBAF] bg-white/95 py-3 shadow-sm backdrop-blur sm:-mt-7">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto text-xs sm:text-sm font-label">
           <button
             onClick={() => navigateTo('/about')}
@@ -129,11 +163,11 @@ export const AboutPage: React.FC = () => {
                 {language === 'fr' ? 'NOTRE ÉQUIPE' : 'OUR TEAM'}
               </span>
             </div>
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-[#18181B] tracking-tight">
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#232826] tracking-tight">
               {language === 'fr'
                 ? 'De jeunes professionnels congolais qui agissent en première ligne'
                 : 'Young Congolese professionals, leading from the front'}
-            </h1>
+            </h2>
             <p className="text-base sm:text-lg text-[#3F493F] leading-relaxed">
               {language === 'fr'
                 ? 'Une équipe pluridisciplinaire et engagée pour la régénération communautaire, la protection environnementale et l\'émancipation de la jeunesse — au bureau, sur les collines et partout où le besoin se fait sentir.'
@@ -284,16 +318,16 @@ export const AboutPage: React.FC = () => {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-16">
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-[#0E7490] rotate-45 inline-block"></span>
-              <span className="font-label text-xs uppercase tracking-widest text-[#0E7490] font-bold">
+              <span className="w-2.5 h-2.5 bg-[#14798B] rotate-45 inline-block"></span>
+              <span className="font-label text-xs uppercase tracking-widest text-[#14798B] font-bold">
                 {language === 'fr' ? 'GOUVERNANCE & REDEVABILITÉ' : 'GOVERNANCE & ACCOUNTABILITY'}
               </span>
             </div>
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-[#18181B] tracking-tight">
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#232826] tracking-tight">
               {language === 'fr'
                 ? 'Structuré pour mériter la confiance, au-delà des intentions'
                 : 'Structured to earn trust, not just intentions'}
-            </h1>
+            </h2>
             <p className="text-base sm:text-lg text-[#3F493F] leading-relaxed">
               {language === 'fr'
                 ? 'Agir dans des contextes fragiles et marqués par les tensions exige une exemplarité sans compromis. Voici comment ACV est gouverné et encadré.'
@@ -371,7 +405,7 @@ export const AboutPage: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-xl p-6 border border-[#E7E5E4]">
-                <span className="font-label text-xs text-[#0E7490] font-bold block mb-2">03 / REPORTING</span>
+                <span className="font-label text-xs text-[#14798B] font-bold block mb-2">03 / REPORTING</span>
                 <h3 className="font-display font-bold text-base text-[#18181B] mb-2">
                   {language === 'fr' ? 'Rapports alignés aux bailleurs' : 'Donor-aligned reporting'}
                 </h3>
@@ -386,7 +420,7 @@ export const AboutPage: React.FC = () => {
 
           {/* Policy Library */}
           <div className="space-y-6">
-            <span className="font-label text-xs uppercase tracking-widest text-[#0E7490] font-bold block">
+            <span className="font-label text-xs uppercase tracking-widest text-[#14798B] font-bold block">
               {language === 'fr' ? 'DOCUMENTS CADRES' : 'POLICY LIBRARY'}
             </span>
             <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#18181B]">
@@ -441,11 +475,11 @@ export const AboutPage: React.FC = () => {
                 {language === 'fr' ? 'CHRONIQUES VISUELLES DU TERRAIN' : 'FIELD NOTES'}
               </span>
             </div>
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-[#18181B] tracking-tight">
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#232826] tracking-tight">
               {language === 'fr'
                 ? 'Récits visuels de Goma et des villages du Nord-Kivu'
                 : 'Visual stories from Goma and the communities around Virunga'}
-            </h1>
+            </h2>
             <p className="text-base sm:text-lg text-[#3F493F] leading-relaxed">
               {language === 'fr'
                 ? 'Une chronique vivante des moments qui façonnent nos cinq piliers : sessions d\'alphabétisation, repiquage de jeunes plants et cercles de solidarité.'
@@ -530,9 +564,9 @@ export const AboutPage: React.FC = () => {
                 {t.about.heroKicker}
               </span>
             </div>
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-[#18181B] tracking-tight">
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-[#232826] tracking-tight">
               {t.about.heroTitle}
-            </h1>
+            </h2>
             <p className="text-base sm:text-lg text-[#3F493F] leading-relaxed">
               {t.about.heroSubtitle}
             </p>
@@ -634,10 +668,10 @@ export const AboutPage: React.FC = () => {
 
             <button
               onClick={() => navigateTo('/about/governance')}
-              className="p-6 bg-white rounded-xl border border-[#E7E5E4] hover:border-[#0E7490] shadow-xs text-left group transition-all"
+              className="p-6 bg-white rounded-xl border border-[#E7E5E4] hover:border-[#14798B] shadow-xs text-left group transition-all"
             >
-              <ShieldCheck className="w-8 h-8 text-[#0E7490] mb-3" />
-              <h3 className="font-display font-bold text-lg text-[#18181B] group-hover:text-[#0E7490] mb-1">
+              <ShieldCheck className="w-8 h-8 text-[#14798B] mb-3" />
+              <h3 className="font-display font-bold text-lg text-[#18181B] group-hover:text-[#14798B] mb-1">
                 {t.nav.governance}
               </h3>
               <p className="text-xs text-[#3F493F] mb-3">
@@ -645,7 +679,7 @@ export const AboutPage: React.FC = () => {
                   ? 'Transparence, politique de sauvegarde et contrôle citoyen.'
                   : 'Four tiers of accountability and policy library.'}
               </p>
-              <span className="text-xs font-label text-[#0E7490] font-bold flex items-center gap-1">
+              <span className="text-xs font-label text-[#14798B] font-bold flex items-center gap-1">
                 <span>{language === 'fr' ? 'Voir la gouvernance' : 'See our governance'}</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </span>

@@ -12,10 +12,15 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = ({
   page,
   fullBleed = true
 }) => {
+  const isHomeCarousel = pageRoute === '/' || page === 'home';
+
+  // The large visual carousel is intentionally exclusive to the homepage.
+  if (!isHomeCarousel) return null;
+
   return (
     <HeroBanner
-      pageRoute={pageRoute}
-      page={page || (pageRoute === '/' ? 'home' : pageRoute?.replace('/', ''))}
+      pageRoute="/"
+      page="home"
       fullBleed={fullBleed}
     />
   );

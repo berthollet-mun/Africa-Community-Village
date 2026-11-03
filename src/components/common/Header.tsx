@@ -85,7 +85,7 @@ export const Header: React.FC = () => {
                 ACV
               </span>
               <span className="text-[10px] text-stone-400">·</span>
-              <span className="font-label text-[10px] sm:text-[11px] text-[#0E7490] font-bold tracking-wider uppercase truncate">
+              <span className="font-label text-[10px] sm:text-[11px] text-[#14798B] font-bold tracking-wider uppercase truncate">
                 Goma, DRC
               </span>
             </div>
@@ -260,7 +260,7 @@ export const Header: React.FC = () => {
             className="flex items-center gap-1 px-2 py-1 text-[11px] sm:text-xs font-label font-bold text-[#232826] hover:text-[#690C07] bg-[#FAF6EF] border border-[#E2D7C3] rounded-full hover:bg-[#F3EDE1] transition-all active:scale-95 shadow-xs"
             title={language === 'en' ? 'Passer en Français' : 'Switch to English'}
           >
-            <Globe className="w-3.5 h-3.5 text-[#0E7490]" />
+            <Globe className="w-3.5 h-3.5 text-[#14798B]" />
             <span>{language.toUpperCase()}</span>
           </button>
 
@@ -526,7 +526,7 @@ export const Header: React.FC = () => {
                     onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}
                     className="flex items-center gap-2 px-3 py-1.5 text-xs font-label font-bold text-[#18181B] bg-stone-100 rounded-lg active:scale-95 transition-all"
                   >
-                    <Globe className="w-3.5 h-3.5 text-[#0E7490]" />
+                    <Globe className="w-3.5 h-3.5 text-[#14798B]" />
                     <span>{language === 'en' ? 'Passer en Français' : 'Switch to English'}</span>
                   </button>
 

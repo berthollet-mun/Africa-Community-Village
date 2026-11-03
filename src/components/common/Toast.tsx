@@ -134,11 +134,11 @@ const ToastCard: React.FC<{
     switch (item.type) {
       case 'success':
         return {
-          border: 'border-[#0E7490]/40',
+          border: 'border-[#14798B]/40',
           bg: 'bg-white',
-          iconColor: 'text-[#0E7490]',
-          icon: <CheckCircle2 className="w-5 h-5 text-[#0E7490] shrink-0" />,
-          accent: 'bg-[#0E7490]'
+          iconColor: 'text-[#14798B]',
+          icon: <CheckCircle2 className="w-5 h-5 text-[#14798B] shrink-0" />,
+          accent: 'bg-[#14798B]'
         };
       case 'error':
         return {
@@ -161,9 +161,9 @@ const ToastCard: React.FC<{
         return {
           border: 'border-cyan-600/40',
           bg: 'bg-white',
-          iconColor: 'text-[#0E7490]',
-          icon: <Info className="w-5 h-5 text-[#0E7490] shrink-0" />,
-          accent: 'bg-[#0E7490]'
+          iconColor: 'text-[#14798B]',
+          icon: <Info className="w-5 h-5 text-[#14798B] shrink-0" />,
+          accent: 'bg-[#14798B]'
         };
     }
   };

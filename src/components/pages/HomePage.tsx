@@ -61,9 +61,9 @@ export const HomePage: React.FC = () => {
       case 'school':
         return <GraduationCap className="w-6 h-6 text-[#EFA62B]" />;
       case 'forest':
-        return <Leaf className="w-6 h-6 text-[#0E7490]" />;
+        return <Leaf className="w-6 h-6 text-[#14798B]" />;
       case 'potted_plant':
-        return <Sprout className="w-6 h-6 text-[#0E7490]" />;
+        return <Sprout className="w-6 h-6 text-[#14798B]" />;
       case 'medical_services':
         return <HeartPulse className="w-6 h-6 text-[#690C07]" />;
       case 'handshake':
@@ -147,7 +147,7 @@ export const HomePage: React.FC = () => {
           <div className="lg:col-span-5">
             <div className="relative isolate overflow-hidden rounded-[2rem] border border-[#D9CBAF] bg-white/80 px-6 py-8 sm:px-10 sm:py-10 shadow-[0_24px_60px_-32px_rgba(35,40,38,0.35)]">
               <div className="absolute -right-16 -top-16 -z-10 h-44 w-44 rounded-full bg-[#EFA62B]/12 blur-2xl" />
-              <div className="absolute -bottom-20 -left-16 -z-10 h-48 w-48 rounded-full bg-[#0E7490]/10 blur-2xl" />
+              <div className="absolute -bottom-20 -left-16 -z-10 h-48 w-48 rounded-full bg-[#14798B]/10 blur-2xl" />
               <BrandLogo
                 alt="Logo officiel Africa Community Village (ACV)"
                 size={640}
@@ -273,10 +273,10 @@ export const HomePage: React.FC = () => {
             <StaggerItem>
               <div className="bg-white text-[#18181B] rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 group">
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-[#CFFAFE] flex items-center justify-center text-[#0E7490] mb-5 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-[#CFFAFE] flex items-center justify-center text-[#14798B] mb-5 group-hover:scale-110 transition-transform">
                     <Handshake className="w-6 h-6" />
                   </div>
-                  <h3 className="font-display font-bold text-xl text-[#18181B] mb-3 group-hover:text-[#0E7490] transition-colors">
+                  <h3 className="font-display font-bold text-xl text-[#18181B] mb-3 group-hover:text-[#14798B] transition-colors">
                     {t.common.partnerWithUs}
                   </h3>
                   <p className="text-sm text-[#3F493F] leading-relaxed mb-6">
@@ -286,7 +286,7 @@ export const HomePage: React.FC = () => {
 
                 <button
                   onClick={() => navigateTo('/contact')}
-                  className="inline-flex items-center gap-2 text-sm font-bold text-[#18181B] hover:text-[#0E7490] font-label group/btn active:scale-95 transition-all"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-[#18181B] hover:text-[#14798B] font-label group/btn active:scale-95 transition-all"
                 >
                   <span>{t.common.startConversation}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />

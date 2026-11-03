@@ -46,34 +46,22 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       ? page
       : `/${page}`);
 
-  // Fetch / filter matching banners
-  const matchingBanners = banners
+  const activeBanners = banners
     .filter((b) => {
       const isActive = b.isActive !== false && b.active !== false;
-      if (!isActive) return false;
-      const legacyRoute = (b as BannerSlide & { page_assignment?: string }).page_assignment;
-      const bRoute = (b.pageRoute || legacyRoute || '').toLowerCase();
-      const tRoute = targetRoute.toLowerCase();
-
-      return (
-        bRoute === tRoute ||
-        (tRoute === '/' && (bRoute === '/' || bRoute === 'home')) ||
-        (tRoute.startsWith('/about') && bRoute.startsWith('/about')) ||
-        (tRoute.startsWith('/programs') && bRoute.startsWith('/programs')) ||
-        (tRoute.startsWith('/approach') && bRoute.startsWith('/approach')) ||
-        (tRoute.startsWith('/blog') && bRoute.startsWith('/blog')) ||
-        (tRoute.startsWith('/contact') && bRoute.startsWith('/contact')) ||
-        (tRoute.startsWith('/donate') && bRoute.startsWith('/donate')) ||
-        bRoute === 'all'
-      );
+      return isActive;
     })
     .sort((a, b) => a.order - b.order);
 
-  // Fallback: If no page specific banner, take first 2 active banners
-  const slides: BannerSlide[] =
-    matchingBanners.length > 0
-      ? matchingBanners
-      : banners.filter((b) => b.isActive !== false && b.active !== false).slice(0, 3);
+  // Homepage first shows its dedicated slides, then reuses existing ACV visuals
+  // to reach a professional ten-slide editorial sequence without duplicating content.
+  const homeBanners = activeBanners.filter((banner) => {
+    const legacyRoute = (banner as BannerSlide & { page_assignment?: string }).page_assignment;
+    const route = (banner.pageRoute || legacyRoute || '').toLowerCase();
+    return route === '/' || route === 'home' || route === 'all';
+  });
+  const supportingBanners = activeBanners.filter((banner) => !homeBanners.includes(banner));
+  const slides: BannerSlide[] = [...homeBanners, ...supportingBanners].slice(0, 10);
 
   const total = slides.length;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -333,7 +321,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   onClick={() => navigateTo('/programs')}
                   className="px-5 sm:px-6 py-3.5 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm font-label tracking-wider uppercase transition-all backdrop-blur-md border border-white/25 flex items-center gap-2 cursor-pointer"
                 >
-                  <Compass className="w-3.5 h-3.5 text-[#0E7490]" />
+                  <Compass className="w-3.5 h-3.5 text-[#14798B]" />
                   <span>{isFr ? 'Découvrir nos 5 axes' : 'Discover 5 Pillars'}</span>
                 </button>
               )}
@@ -352,7 +340,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            <div className="hidden items-center gap-2 sm:flex" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
+            <div className="hidden items-center gap-1.5 sm:flex" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
               {slides.map((_, idx) => (
               <button
                 key={idx}
@@ -360,7 +348,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`cursor-pointer transition-all duration-300 ${
                   idx === currentIndex
-                    ? 'h-2.5 w-8 rounded-full bg-[#EFA62B] shadow-sm'
+                    ? 'h-2.5 w-7 rounded-full bg-[#EFA62B] shadow-sm'
                     : 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/90'
                 }`}
                 aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}

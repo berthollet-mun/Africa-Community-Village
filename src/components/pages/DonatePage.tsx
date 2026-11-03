@@ -4,15 +4,14 @@ import { CheckCircle2, CreditCard, Heart, Loader2, Lock, ShieldCheck, Sparkles }
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
 import { api } from '../../services/api';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import { Button } from '../common/Button';
 import { toast } from '../common/Toast';
-import { AnimatedText } from '../motion/AnimatedText';
 
 const PRESET_AMOUNTS = [25, 50, 100, 250];
 
 export const DonatePage: React.FC = () => {
-  const { language } = useApp();
+  const { language, navigateTo } = useApp();
   const t = useTranslation(language);
   const searchParams = useSearchParams();
   const isFr = language === 'fr';
@@ -78,7 +77,6 @@ export const DonatePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F3EDE1]">
-      <BannerCarousel pageRoute="/donate" />
       {isProcessing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#232826]/65 px-4 backdrop-blur-sm" role="status" aria-live="polite">
           <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
@@ -89,16 +87,16 @@ export const DonatePage: React.FC = () => {
         </div>
       )}
 
-      <section className="border-b border-[#E2D7C3] bg-white py-12 text-center md:py-16">
-        <div className="mx-auto max-w-3xl px-4">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-800">
-            <Heart className="h-3.5 w-3.5 fill-amber-600 text-amber-600" />
-            <span>{isFr ? 'Solidarité & impact direct' : 'Direct grassroots solidarity'}</span>
-          </div>
-          <AnimatedText as="h1" text={t.donate.title} className="text-3xl font-extrabold tracking-tight text-stone-900 md:text-5xl" />
-          <p className="mt-4 text-base leading-relaxed text-stone-600 md:text-lg">{t.donate.subtitle}</p>
-        </div>
-      </section>
+      <PageHeader
+        align="center"
+        eyebrow={isFr ? 'Solidarité & impact direct' : 'Direct grassroots solidarity'}
+        title={t.donate.title}
+        description={t.donate.subtitle}
+        homeLabel={t.nav.home}
+        currentLabel={t.nav.donate}
+        onHome={() => navigateTo('/')}
+        icon={<Heart className="h-4 w-4 fill-[#EFA62B]/30" />}
+      />
 
       <section id="donation-form" className="py-16">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">

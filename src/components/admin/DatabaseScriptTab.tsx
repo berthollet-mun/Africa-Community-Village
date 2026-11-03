@@ -235,7 +235,7 @@ export const DatabaseScriptTab: React.FC<DatabaseScriptTabProps> = ({ isFr, show
               onClick={handleCopy}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#690C07] hover:bg-[#F3EDE1] font-label text-xs uppercase font-extrabold tracking-wider shadow-sm transition-all cursor-pointer active:scale-95"
             >
-              {copied ? <CheckCircle2 className="w-4 h-4 text-[#0E7490]" /> : <Copy className="w-4 h-4" />}
+              {copied ? <CheckCircle2 className="w-4 h-4 text-[#14798B]" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le Script' : 'Copy Script')}</span>
             </button>
 
@@ -337,7 +337,7 @@ export const DatabaseScriptTab: React.FC<DatabaseScriptTabProps> = ({ isFr, show
                     onClick={() => setDialect(d.id as SqlDialect)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-label font-bold cursor-pointer transition-all ${
                       dialect === d.id
-                        ? 'bg-[#0E7490] text-white shadow-xs'
+                        ? 'bg-[#14798B] text-white shadow-xs'
                         : 'text-[#232826] hover:bg-[#FAF6EF]'
                     }`}
                   >
@@ -462,7 +462,7 @@ export const DatabaseScriptTab: React.FC<DatabaseScriptTabProps> = ({ isFr, show
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#690C07] inline-block" />
               <span className="w-3 h-3 rounded-full bg-[#EFA62B] inline-block" />
-              <span className="w-3 h-3 rounded-full bg-[#0E7490] inline-block" />
+              <span className="w-3 h-3 rounded-full bg-[#14798B] inline-block" />
             </div>
             <div className="flex items-center gap-2 font-mono text-xs text-stone-400">
               <Terminal className="w-3.5 h-3.5 text-[#EFA62B]" />
@@ -518,7 +518,7 @@ export const DatabaseScriptTab: React.FC<DatabaseScriptTabProps> = ({ isFr, show
       {/* Deployment & CLI instructions */}
       <div className="bg-[#FAF6EF] rounded-3xl border border-[#E2D7C3] p-6 shadow-xs space-y-4">
         <div className="flex items-center gap-2">
-          <Server className="w-4 h-4 text-[#0E7490]" />
+          <Server className="w-4 h-4 text-[#14798B]" />
           <h3 className="font-display font-bold text-base text-[#232826]">
             {isFr ? 'Comment Exécuter Ce Script sur Votre Serveur ou Hébergeur' : 'How to Execute This Script on Your Database'}
           </h3>
@@ -540,7 +540,7 @@ export const DatabaseScriptTab: React.FC<DatabaseScriptTabProps> = ({ isFr, show
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-[#E2D7C3] space-y-2">
-            <span className="text-xs font-label font-bold text-[#0E7490] uppercase tracking-wider block">
+            <span className="text-xs font-label font-bold text-[#14798B] uppercase tracking-wider block">
               2. MySQL / phpMyAdmin / cPanel
             </span>
             <p className="text-xs text-[#232826]/80 leading-relaxed font-sans">

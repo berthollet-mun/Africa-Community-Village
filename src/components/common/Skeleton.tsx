@@ -131,6 +131,16 @@ const SkeletonSectionHeading = () => (
   </div>
 );
 
+const CompactPageHeaderSkeleton = () => (
+  <section className="border-b border-[#D9CBAF] bg-[#F3EDE1] py-9 sm:py-11">
+    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+      <SkeletonBlock className="h-3 w-32" rounded="rounded-full" />
+      <SkeletonBlock className="h-10 w-4/5 max-w-2xl" />
+      <SkeletonBlock className="h-4 w-2/3 max-w-xl" />
+    </div>
+  </section>
+);
+
 const HomeRouteSkeleton = () => (
   <div className="w-full space-y-16 pb-20">
     <SkeletonBanner />
@@ -157,7 +167,7 @@ const HomeRouteSkeleton = () => (
 
 const ProgramsRouteSkeleton = () => (
   <div className="w-full pb-20">
-    <SkeletonBanner className="h-[46vh] min-h-[360px]" />
+    <CompactPageHeaderSkeleton />
     <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <SkeletonSectionHeading />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -190,7 +200,7 @@ const BlogRouteSkeleton = () => (
 
 const DefaultRouteSkeleton = () => (
   <div className="w-full pb-20">
-    <SkeletonBanner className="h-[46vh] min-h-[360px]" />
+    <CompactPageHeaderSkeleton />
     <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <SkeletonSectionHeading />
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -334,7 +344,7 @@ export const GlobalPageLoader: React.FC<{ message?: string }> = ({
             {message}
           </p>
           <div className="w-48 h-1 bg-[#E2D7C3] rounded-full overflow-hidden mx-auto mt-3">
-            <div className="w-full h-full bg-gradient-to-r from-[#690C07] via-[#EFA62B] to-[#0E7490] animate-[shimmer_1.5s_infinite]" />
+            <div className="w-full h-full bg-gradient-to-r from-[#690C07] via-[#EFA62B] to-[#14798B] animate-[shimmer_1.5s_infinite]" />
           </div>
         </div>
       </div>

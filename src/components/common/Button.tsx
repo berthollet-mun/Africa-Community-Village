@@ -59,7 +59,7 @@ export const Button: React.FC<ButtonProps> = ({
     terracotta:
       'bg-[#8B1510] hover:bg-[#690C07] text-white shadow-md hover:shadow-lg hover:scale-[1.02] focus-visible:ring-[#8B1510]',
     cyan:
-      'bg-[#0E7490] hover:bg-[#095368] text-white shadow-md hover:shadow-lg hover:scale-[1.02] focus-visible:ring-[#0E7490]',
+      'bg-[#14798B] hover:bg-[#0F5F6D] text-white shadow-md hover:shadow-lg hover:scale-[1.02] focus-visible:ring-[#14798B]',
     dark:
       'bg-[#232826] hover:bg-black text-white shadow-md hover:shadow-lg hover:scale-[1.02] focus-visible:ring-[#232826]',
     outline:

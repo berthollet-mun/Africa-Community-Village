@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
-import { BannerCarousel } from '../common/BannerCarousel';
+import { PageHeader } from '../common/PageHeader';
 import {
   Search,
   Tag,
@@ -14,7 +14,6 @@ import {
   Share2
 } from 'lucide-react';
 import { BlogPost } from '../../types';
-import { AnimatedText } from '../motion/AnimatedText';
 import { LoadingState, EmptyState, ErrorState } from '../common/DataState';
 import { ProgressiveImage } from '../common/ProgressiveImage';
 import { Button } from '../common/Button';
@@ -92,38 +91,26 @@ export const BlogPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#fbf8fc] min-h-screen">
-      {/* Banner Carousel for /blog */}
-      <BannerCarousel pageRoute="/blog" />
-
-      {/* Hero Section */}
-      <section className="py-12 md:py-16 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-label uppercase tracking-widest font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-4">
-                <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-                <span>{isFr ? 'Actualités & Publications' : 'Field Dispatches & Insights'}</span>
-              </div>
-              <AnimatedText as="h1" text={t.nav.blog} className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight" />
-              <p className="mt-3 text-base md:text-lg text-stone-600 max-w-2xl">
-                {isFr
-                  ? 'Analyses, reportages de terrain et témoignages des jeunes acteurs de changement dans l’Est de la République Démocratique du Congo.'
-                  : 'Critical insights, grassroots dispatches, and perspectives from youth builders in Eastern Democratic Republic of the Congo.'}
-              </p>
-            </div>
-
-            {isAdminAuthenticated && (
-              <button
-                onClick={() => setAdminModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#690C07] text-white text-xs font-label uppercase tracking-wider rounded-lg font-bold hover:bg-[#520905] transition-colors self-start md:self-end cursor-pointer shadow-sm"
-              >
-                <span>{isFr ? '+ Nouvel Article (Admin)' : '+ New Article (Admin)'}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
+    <div className="bg-[#F3EDE1] min-h-screen">
+      <PageHeader
+        eyebrow={isFr ? 'Actualités & publications' : 'Field dispatches & insights'}
+        title={t.nav.blog}
+        description={isFr
+          ? 'Analyses, reportages de terrain et témoignages des jeunes acteurs de changement dans l’Est de la République Démocratique du Congo.'
+          : 'Critical insights, grassroots dispatches, and perspectives from youth builders in Eastern Democratic Republic of the Congo.'}
+        homeLabel={t.nav.home}
+        currentLabel={t.nav.blog}
+        onHome={() => navigateTo('/')}
+        icon={<BookOpen className="h-4 w-4" />}
+        actions={isAdminAuthenticated ? (
+          <button
+            onClick={() => setAdminModalOpen(true)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#690C07] px-5 py-2.5 font-label text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#520905]"
+          >
+            <span>{isFr ? '+ Nouvel Article (Admin)' : '+ New Article (Admin)'}</span>
+          </button>
+        ) : undefined}
+      />
 
       {/* Featured Article Hero */}
       {featuredPost && selectedCategory === 'all' && searchQuery === '' && (

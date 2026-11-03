@@ -669,7 +669,7 @@ export const AdminDashboard: React.FC = () => {
                                 }}
                                 className={`text-[10px] font-label uppercase px-2.5 py-1 rounded-full font-bold cursor-pointer transition-colors shadow-xs ${
                                   isActive
-                                    ? 'bg-[#0E7490] hover:bg-[#095368] text-white'
+                                    ? 'bg-[#14798B] hover:bg-[#0F5F6D] text-white'
                                     : 'bg-stone-600 hover:bg-stone-700 text-stone-200'
                                 }`}
                               >

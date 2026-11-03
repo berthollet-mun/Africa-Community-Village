@@ -89,7 +89,7 @@ export const Footer: React.FC = () => {
                 href={siteSettings.linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-neutral-800 hover:bg-[#0E7490] text-neutral-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full bg-neutral-800 hover:bg-[#14798B] text-neutral-300 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4" />
@@ -191,7 +191,7 @@ export const Footer: React.FC = () => {
 
           {/* Col 4: Get In Touch & Newsletter (3 cols) */}
           <div className="lg:col-span-3 space-y-4">
-            <span className="font-label text-xs uppercase tracking-widest text-[#0E7490] font-bold block">
+            <span className="font-label text-xs uppercase tracking-widest text-[#14798B] font-bold block">
               {t.footer.getInTouch}
             </span>
 
@@ -207,7 +207,7 @@ export const Footer: React.FC = () => {
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#0E7490] shrink-0" />
+                <Phone className="w-4 h-4 text-[#14798B] shrink-0" />
                 <a href={`tel:${siteSettings.phone}`} className="hover:underline">
                   {siteSettings.phone}
                 </a>
@@ -235,8 +235,8 @@ export const Footer: React.FC = () => {
                 </button>
               </form>
               {subscribed && (
-                <div className="flex items-center gap-1.5 text-[#0E7490] text-xs mt-1.5 animate-fadeIn">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#0E7490]" />
+                <div className="flex items-center gap-1.5 text-[#14798B] text-xs mt-1.5 animate-fadeIn">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#14798B]" />
                   <span>
                     {language === 'fr' ? 'Merci pour votre confiance !' : 'Thank you for standing with us!'}
                   </span>

@@ -105,7 +105,7 @@ export const AdminLoginModal: React.FC = () => {
               <div className="p-4 bg-[#FAF6EF] rounded-2xl border border-[#E2D7C3] text-xs text-stone-600 text-left space-y-1 font-label">
                 <div>
                   <strong>{isFr ? 'Statut Privilèges :' : 'Access Privilege:'}</strong>{' '}
-                  <span className="text-[#0E7490] font-bold">
+                  <span className="text-[#14798B] font-bold">
                     {isFr ? 'Authentifié (CRUD complet)' : 'Authenticated (Full Access)'}
                   </span>
                 </div>

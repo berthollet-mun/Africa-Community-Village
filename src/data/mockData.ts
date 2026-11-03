@@ -388,9 +388,9 @@ export const initialProgramPillars: ProgramPillar[] = [
     quoteAuthorEn: 'ACV NATURE & BIODIVERSITY PROGRAMME',
     quoteAuthorFr: 'PROGRAMME NATURE & BIODIVERSITÉ ACV',
     icon: 'forest',
-    color: '#0E7490',
+    color: '#14798B',
     badgeBg: '#E0F2FE',
-    badgeText: '#0E7490',
+    badgeText: '#14798B',
     metrics: [
       { value: '4', labelEn: 'communities running active forest-monitoring routes', labelFr: 'communautés assurant des rondes de veille forestière citoyenne' },
       { value: '1', labelEn: 'school tree-nursery network feeding the Miti Alliance programme', labelFr: 'réseau de pépinières scolaires alimentant le projet Miti Alliance' },
@@ -448,7 +448,7 @@ export const initialProgramPillars: ProgramPillar[] = [
     quoteAuthorEn: 'ACV AGRICULTURE & FOOD SECURITY PROGRAMME',
     quoteAuthorFr: 'PROGRAMME AGRICULTURE DURABLE ACV',
     icon: 'potted_plant',
-    color: '#0E7490',
+    color: '#14798B',
     badgeBg: '#FEF3C7',
     badgeText: '#B45309',
     metrics: [
@@ -510,7 +510,7 @@ export const initialProgramPillars: ProgramPillar[] = [
     icon: 'medical_services',
     color: '#991B1B',
     badgeBg: '#CFFAFE',
-    badgeText: '#0E7490',
+    badgeText: '#14798B',
     metrics: [
       { value: '45,000L', labelEn: 'of clean drinking water distributed daily through tapstands', labelFr: 'd\'eau potable distribuée quotidiennement via nos bornes fontaines' },
       { value: '18', labelEn: 'community health volunteer relays active in Goma & Beni', labelFr: 'relais communautaires de santé formés et actifs' },
@@ -675,7 +675,7 @@ export const initialTeamMembers: TeamMember[] = [
     bioEn: 'A detail-oriented administrative professional supporting office coordination and records management so program teams can stay focused on the field.',
     bioFr: 'Appui administratif précieux garantissant la fluidité opérationnelle entre le siège de Goma et les antennes de terrain.',
     initials: 'EZ',
-    bgGradient: 'from-[#0E7490] to-[#232826]'
+    bgGradient: 'from-[#14798B] to-[#232826]'
   },
   {
     id: 'team-7',
@@ -987,7 +987,7 @@ export const initialFieldNotes: FieldNote[] = [
     captionFr: 'Des écoliers repiquant de jeunes arbres dans leur cour pour créer ombre et brise-vent naturels.',
     pillar: 'Nature',
     icon: 'forest',
-    color: '#0E7490'
+    color: '#14798B'
   },
   {
     id: 'fn-3',
@@ -999,7 +999,7 @@ export const initialFieldNotes: FieldNote[] = [
     captionFr: 'Parcelle de démonstration partagée entre trois familles pratiquant une fertilisation 100% organique.',
     pillar: 'Agriculture',
     icon: 'potted_plant',
-    color: '#0E7490'
+    color: '#14798B'
   },
   {
     id: 'fn-4',
