@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { InitialSiteLoader } from '@/components/common/InitialSiteLoader';
 import '../index.css';
 
 export const metadata: Metadata = {
@@ -23,7 +24,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body>
+        <InitialSiteLoader />
+        {children}
+      </body>
     </html>
   );
 }
