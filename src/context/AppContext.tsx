@@ -20,18 +20,11 @@ import {
   AuditLog,
   ContactSubmission,
   PolicyDocument,
-  FieldNote
+  FieldNote,
+  DashboardStats,
+  DataRequestState
 } from '../types';
-import {
-  defaultBanners,
-  initialProgramPillars,
-  initialTeamMembers,
-  initialSiteSettings,
-  initialAdminUsers,
-  initialPolicyDocuments,
-  initialBlogPosts,
-  initialFieldNotes
-} from '../data/mockData';
+import { fallbackBanners, fallbackSiteSettings } from '../data/fallbackData';
 import { api, getAuthToken } from '../services/api';
 
 export interface AppContextType {
@@ -55,7 +48,7 @@ export interface AppContextType {
   uploadMedia: (files: File[] | FileList) => Promise<MediaItem[]>;
 
   // Synchronized Dashboard Analytics
-  dashboardStats: any;
+  dashboardStats: DashboardStats | null;
   refreshDashboardStats: () => Promise<void>;
 
   // 17 Administrative Modules
@@ -146,6 +139,8 @@ export interface AppContextType {
 
   resetToDefaults: () => Promise<void>;
   isLoading: boolean;
+  dataState: DataRequestState;
+  retryData: () => Promise<void>;
 
   actionLoading: {
     isOpen: boolean;
@@ -164,7 +159,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
 }) => {
   // Keep the server and first client render identical, then restore the user's
   // preference after hydration to avoid a full React client-side regeneration.
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('fr');
 
   useEffect(() => {
     const saved = localStorage.getItem('acv_lang');
@@ -174,9 +169,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('acv_lang', lang);
+    document.documentElement.lang = lang;
+    document.cookie = `acv_lang=${lang}; path=/; max-age=31536000; samesite=lax`;
   };
 
   const [currentRoute, setCurrentRoute] = useState<PageRoute | string>(initialRoute);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+
+    const titles: Record<string, { en: string; fr: string }> = {
+      '/': { en: 'Africa Community Village', fr: 'Africa Community Village' },
+      '/about': { en: 'About us', fr: 'À propos' },
+      '/programs': { en: 'Programs', fr: 'Programmes' },
+      '/approach': { en: 'Our approach', fr: 'Notre approche' },
+      '/blog': { en: 'Blog & news', fr: 'Blog & actualités' },
+      '/contact': { en: 'Contact', fr: 'Contact' },
+      '/donate': { en: 'Donate', fr: 'Faire un don' }
+    };
+    const routeKey = Object.keys(titles).find((route) => route !== '/' && String(currentRoute).startsWith(route)) ?? '/';
+    const pageTitle = titles[routeKey][language];
+    document.title = routeKey === '/' ? pageTitle : `${pageTitle} | Africa Community Village`;
+  }, [currentRoute, language]);
 
   const navigateTo = (route: PageRoute | string) => {
     const target = new URL(String(route), window.location.origin);
@@ -292,146 +306,198 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
 
   // Entities state with initial fallbacks
   const [pages, setPages] = useState<PageItem[]>([]);
-  const [banners, setBanners] = useState<BannerSlide[]>(defaultBanners);
-  const [programs, setPrograms] = useState<ProgramPillar[]>(initialProgramPillars);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
+  const [banners, setBanners] = useState<BannerSlide[]>(fallbackBanners);
+  const [programs, setPrograms] = useState<ProgramPillar[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [founders, setFounders] = useState<Founder[]>([]);
   const [fieldStaff, setFieldStaff] = useState<FieldAgent[]>([]);
   const [governance, setGovernance] = useState<GovernanceMember[]>([]);
-  const [policies, setPolicies] = useState<PolicyDocument[]>(initialPolicyDocuments);
-  const [articles, setArticles] = useState<Article[]>(initialBlogPosts);
-  const [fieldNotes, setFieldNotes] = useState<FieldNote[]>(initialFieldNotes);
+  const [policies, setPolicies] = useState<PolicyDocument[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [fieldNotes, setFieldNotes] = useState<FieldNote[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [stats, setStats] = useState<ImpactStat[]>([]);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(initialSiteSettings);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(fallbackSiteSettings);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([]);
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(initialAdminUsers);
-  const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [dataState, setDataState] = useState<DataRequestState>({
+    status: 'idle',
+    error: null,
+    updatedAt: null
+  });
 
-  // Hydrate data from backend API
-  const hydrateFromApi = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const publicRequestLoaders: Array<() => Promise<{ success: boolean; data: any }>> = [
-        () => api.public.getSettings(),
-        () => api.public.getBanners(),
-        () => api.public.getPrograms(),
-        () => api.public.getArticles(),
-        () => api.public.getTeam(),
-        () => api.public.getFounders(),
-        () => api.public.getFieldStaff(),
-        () => api.public.getGovernance(),
-        () => api.public.getPartners(),
-        () => api.public.getTestimonials(),
-        () => api.public.getStats()
-      ];
-      const publicResults: PromiseSettledResult<{ success: boolean; data: any }>[] = [];
+  // Load only the datasets required by the active route. Successfully loaded
+  // resources are cached for the lifetime of the client session.
+  const loadedDatasetKeys = useRef(new Set<string>());
 
-      // The development database is configured with a small connection pool.
-      // Two-at-a-time keeps hydration responsive and prevents P2024 timeouts.
-      for (let index = 0; index < publicRequestLoaders.length; index += 2) {
-        const batch = publicRequestLoaders.slice(index, index + 2).map((load) => load());
-        publicResults.push(...(await Promise.allSettled(batch)));
-      }
+  type PublicDataResult = { success: boolean; data: unknown };
+  type PublicLoadTask = {
+    key: string;
+    load: () => Promise<PublicDataResult>;
+    apply: (data: unknown) => void;
+  };
 
-      const [
-        settingsRes,
-        bannersRes,
-        programsRes,
-        articlesRes,
-        teamRes,
-        foundersRes,
-        fieldStaffRes,
-        governanceRes,
-        partnersRes,
-        testimonialsRes,
-        statsRes
-      ] = publicResults;
+  const hydrateFromApi = useCallback(async (route: string, force = false) => {
+    const routeGroup = route.startsWith('/about')
+      ? '/about'
+      : route.startsWith('/programs')
+        ? '/programs'
+        : route.startsWith('/blog')
+          ? '/blog'
+        : route.startsWith('/admin')
+          ? '/admin'
+          : route;
+    const tasks: PublicLoadTask[] = [];
+    const addTask = (task: PublicLoadTask) => {
+      if (force || !loadedDatasetKeys.current.has(task.key)) tasks.push(task);
+    };
 
-      if (settingsRes.status === 'fulfilled' && settingsRes.value.data) {
-        setSiteSettings((prev) => ({ ...prev, ...settingsRes.value.data }));
+    addTask({
+      key: 'settings',
+      load: api.public.getSettings,
+      apply: (data) => {
+        if (data) setSiteSettings((previous) => ({ ...previous, ...(data as SiteSettings) }));
       }
-      if (bannersRes.status === 'fulfilled' && bannersRes.value.data?.length) {
-        setBanners(bannersRes.value.data);
+    });
+    tasks.push({
+      key: `banners:${routeGroup}`,
+      load: () => api.public.getBanners(routeGroup),
+      apply: (data) => {
+        const nextBanners = data as BannerSlide[];
+        setBanners(nextBanners.length > 0 ? nextBanners : fallbackBanners);
       }
-      if (programsRes.status === 'fulfilled' && programsRes.value.data?.length) {
-        setPrograms(programsRes.value.data);
-      }
-      if (articlesRes.status === 'fulfilled' && articlesRes.value.data?.length) {
-        setArticles(articlesRes.value.data);
-      }
-      if (teamRes.status === 'fulfilled' && teamRes.value.data?.length) {
-        setTeamMembers(teamRes.value.data);
-      }
-      if (foundersRes.status === 'fulfilled' && foundersRes.value.data?.length) {
-        setFounders(foundersRes.value.data);
-      }
-      if (fieldStaffRes.status === 'fulfilled' && fieldStaffRes.value.data?.length) {
-        setFieldStaff(fieldStaffRes.value.data);
-      }
-      if (governanceRes.status === 'fulfilled' && governanceRes.value.data?.length) {
-        setGovernance(governanceRes.value.data);
-      }
-      if (partnersRes.status === 'fulfilled' && partnersRes.value.data?.length) {
-        setPartners(partnersRes.value.data);
-      }
-      if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.data?.length) {
-        setTestimonials(testimonialsRes.value.data);
-      }
-      if (statsRes.status === 'fulfilled' && statsRes.value.data?.length) {
-        setStats(statsRes.value.data);
-      }
+    });
 
-      // If logged in as admin, fetch admin entities
-      if (adminUser || getAuthToken()) {
-        try {
-          const [
-            mediaRes,
-            donorsRes,
-            contactsRes,
-            auditRes,
-            usersRes,
-            pagesRes
-          ] = await Promise.allSettled([
-            api.admin.list<MediaItem>('media'),
-            api.admin.list<Donor>('donors'),
-            api.admin.list<ContactSubmission>('contactSubmissions'),
-            api.admin.list<AuditLog>('auditLogs'),
-            api.admin.list<AdminUser>('users'),
-            api.admin.list<PageItem>('pages')
-          ]);
+    const addPrograms = () => addTask({
+      key: 'programs',
+      load: () => api.public.getPrograms({ limit: 50 }),
+      apply: (data) => setPrograms(data as ProgramPillar[])
+    });
+    const addArticles = () => addTask({
+      key: 'articles:first-page',
+      load: () => api.public.getArticles(undefined, { page: 1, limit: 12 }),
+      apply: (data) => setArticles(data as Article[])
+    });
+    const addStats = () => addTask({
+      key: 'stats',
+      load: () => api.public.getStats({ limit: 50 }),
+      apply: (data) => setStats(data as ImpactStat[])
+    });
 
-          if (mediaRes.status === 'fulfilled') setMedia(mediaRes.value.data);
-          if (donorsRes.status === 'fulfilled') setDonors(donorsRes.value.data);
-          if (contactsRes.status === 'fulfilled') setContactSubmissions(contactsRes.value.data);
-          if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.data);
-          if (usersRes.status === 'fulfilled') setAdminUsers(usersRes.value.data);
-          if (pagesRes.status === 'fulfilled') setPages(pagesRes.value.data);
-
-          const dashRes = await api.dashboard.getStats();
-          if (dashRes.success) setDashboardStats(dashRes.data);
-        } catch (e) {
-          console.warn('Admin hydration deferred:', e);
-        }
-      }
-    } catch (err) {
-      console.warn('API sync using offline fallback:', err);
-    } finally {
-      setIsLoading(false);
+    if (routeGroup === '/') {
+      addPrograms();
+      addArticles();
+      addStats();
+      addTask({
+        key: 'partners',
+        load: () => api.public.getPartners({ limit: 24 }),
+        apply: (data) => setPartners(data as Partner[])
+      });
+      addTask({
+        key: 'testimonials',
+        load: () => api.public.getTestimonials({ limit: 12 }),
+        apply: (data) => setTestimonials(data as Testimonial[])
+      });
+    } else if (routeGroup === '/programs') {
+      addPrograms();
+      addStats();
+    } else if (routeGroup === '/blog') {
+      addArticles();
+    } else if (routeGroup === '/about') {
+      addTask({ key: 'team', load: () => api.public.getTeam({ limit: 100 }), apply: (data) => setTeamMembers(data as TeamMember[]) });
+      addTask({ key: 'founders', load: () => api.public.getFounders({ limit: 50 }), apply: (data) => setFounders(data as Founder[]) });
+      addTask({ key: 'field-staff', load: () => api.public.getFieldStaff({ limit: 100 }), apply: (data) => setFieldStaff(data as FieldAgent[]) });
+      addTask({ key: 'governance', load: () => api.public.getGovernance({ limit: 50 }), apply: (data) => setGovernance(data as GovernanceMember[]) });
+      addTask({ key: 'policies', load: () => api.public.getPolicies({ limit: 50 }), apply: (data) => setPolicies(data as PolicyDocument[]) });
+      addTask({ key: 'field-notes', load: () => api.public.getFieldNotes({ limit: 24 }), apply: (data) => setFieldNotes(data as FieldNote[]) });
+    } else if (routeGroup === '/admin') {
+      addPrograms();
+      addArticles();
+      addStats();
+      addTask({ key: 'team', load: () => api.public.getTeam({ limit: 100 }), apply: (data) => setTeamMembers(data as TeamMember[]) });
+      addTask({ key: 'founders', load: () => api.public.getFounders({ limit: 50 }), apply: (data) => setFounders(data as Founder[]) });
+      addTask({ key: 'field-staff', load: () => api.public.getFieldStaff({ limit: 100 }), apply: (data) => setFieldStaff(data as FieldAgent[]) });
+      addTask({ key: 'governance', load: () => api.public.getGovernance({ limit: 50 }), apply: (data) => setGovernance(data as GovernanceMember[]) });
+      addTask({ key: 'partners', load: () => api.public.getPartners({ limit: 100 }), apply: (data) => setPartners(data as Partner[]) });
+      addTask({ key: 'testimonials', load: () => api.public.getTestimonials({ limit: 100 }), apply: (data) => setTestimonials(data as Testimonial[]) });
     }
-  }, [adminUser]);
 
-  const hasStartedInitialHydration = useRef(false);
+    setIsLoading(tasks.length > 0);
+    if (tasks.length > 0) {
+      setDataState((previous) => ({ status: 'loading', error: null, updatedAt: previous.updatedAt }));
+    }
+
+    let successes = 0;
+    let failures = 0;
+
+    // Three concurrent requests keeps the small Loopia connection pool stable
+    // while avoiding the previous eleven-request global waterfall.
+    for (let index = 0; index < tasks.length; index += 3) {
+      const batch = tasks.slice(index, index + 3);
+      const results = await Promise.allSettled(batch.map((task) => task.load()));
+      results.forEach((result, resultIndex) => {
+        const task = batch[resultIndex];
+        if (result.status === 'fulfilled' && result.value.success) {
+          task.apply(result.value.data);
+          loadedDatasetKeys.current.add(task.key);
+          successes += 1;
+        } else {
+          failures += 1;
+        }
+      });
+    }
+
+    if (routeGroup === '/admin' && (adminUser || getAuthToken())) {
+      const adminResults = await Promise.allSettled([
+        api.admin.list<MediaItem>('media', { page: 1, limit: 100 }),
+        api.admin.list<Donor>('donors', { page: 1, limit: 100 }),
+        api.admin.list<ContactSubmission>('contactSubmissions', { page: 1, limit: 100 }),
+        api.admin.list<AuditLog>('auditLogs', { page: 1, limit: 100 }),
+        api.admin.list<AdminUser>('users', { page: 1, limit: 100 }),
+        api.admin.list<PageItem>('pages', { page: 1, limit: 100 })
+      ]);
+      const [mediaResult, donorsResult, contactsResult, auditsResult, usersResult, pagesResult] = adminResults;
+      if (mediaResult.status === 'fulfilled') setMedia(mediaResult.value.data);
+      if (donorsResult.status === 'fulfilled') setDonors(donorsResult.value.data);
+      if (contactsResult.status === 'fulfilled') setContactSubmissions(contactsResult.value.data);
+      if (auditsResult.status === 'fulfilled') setAuditLogs(auditsResult.value.data);
+      if (usersResult.status === 'fulfilled') setAdminUsers(usersResult.value.data);
+      if (pagesResult.status === 'fulfilled') setPages(pagesResult.value.data);
+
+      try {
+        const dashboard = await api.dashboard.getStats();
+        if (dashboard.success) setDashboardStats(dashboard.data);
+      } catch (error) {
+        console.warn('Admin dashboard hydration deferred:', error);
+      }
+    }
+
+    const partialMessage = failures > 0
+      ? language === 'fr'
+        ? 'Certaines données n’ont pas pu être actualisées. Le contenu disponible reste affiché.'
+        : 'Some data could not be refreshed. Available content remains visible.'
+      : null;
+    setDataState({
+      status: failures > 0 && successes === 0 ? 'error' : 'success',
+      error: partialMessage,
+      updatedAt: Date.now()
+    });
+    setIsLoading(false);
+  }, [adminUser, language]);
+
+  const retryData = useCallback(
+    async () => hydrateFromApi(String(currentRoute), true),
+    [currentRoute, hydrateFromApi]
+  );
 
   useEffect(() => {
-    if (hasStartedInitialHydration.current) return;
-    hasStartedInitialHydration.current = true;
-    void hydrateFromApi();
-  }, [hydrateFromApi]);
+    void hydrateFromApi(String(currentRoute));
+  }, [currentRoute, hydrateFromApi]);
 
   const refreshDashboardStats = async () => {
     try {
@@ -452,7 +518,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
         setAdminUser(res.user);
         localStorage.setItem('acv_admin_session', JSON.stringify(res.user));
         await refreshDashboardStats();
-        hydrateFromApi();
         return true;
       }
     } catch (err) {
@@ -1111,12 +1176,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   };
 
   const resetToDefaults = async () => {
-    setBanners(defaultBanners);
-    setPrograms(initialProgramPillars);
-    setTeamMembers(initialTeamMembers);
-    setArticles(initialBlogPosts);
-    setFieldNotes(initialFieldNotes);
-    setSiteSettings(initialSiteSettings);
+    setBanners(fallbackBanners);
+    setPrograms([]);
+    setTeamMembers([]);
+    setArticles([]);
+    setFieldNotes([]);
+    setSiteSettings(fallbackSiteSettings);
     localStorage.clear();
   };
 
@@ -1229,6 +1294,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
 
         resetToDefaults,
         isLoading,
+        dataState,
+        retryData,
         actionLoading,
         triggerActionLoading
       }}

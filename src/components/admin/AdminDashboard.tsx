@@ -41,6 +41,7 @@ import {
   Database
 } from 'lucide-react';
 import { DatabaseScriptTab } from './DatabaseScriptTab';
+import { AdminNavigation, type AdminTab } from './AdminNavigation';
 import {
   PageItem,
   BannerSlide,
@@ -150,29 +151,7 @@ export const AdminDashboard: React.FC = () => {
   const isFr = language === 'fr';
   const isSuperAdmin = adminUser?.role === 'super-admin';
 
-  type AdminTab =
-    | 'overview'
-    | 'pages'
-    | 'banners'
-    | 'programs'
-    | 'team'
-    | 'founders'
-    | 'fieldStaff'
-    | 'governance'
-    | 'articles'
-    | 'media'
-    | 'partners'
-    | 'donors'
-    | 'testimonials'
-    | 'stats'
-    | 'inbox'
-    | 'users'
-    | 'settings'
-    | 'audit'
-    | 'database';
-
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -297,190 +276,31 @@ export const AdminDashboard: React.FC = () => {
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 flex-1 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Creative Navigation Sidebar (Matching Kinship & Vitality UI) */}
-          <aside className="lg:col-span-3">
-            <div className="bg-white rounded-3xl border border-stone-200/90 p-3.5 shadow-xs space-y-1 sticky top-20">
-              {/* Mobile collapse / expand indicator header */}
-              <div
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden flex items-center justify-between p-2.5 mb-2 rounded-2xl bg-stone-50 border border-stone-200/80 cursor-pointer transition-colors hover:bg-stone-100"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#EFA62B] animate-pulse" />
-                  <span className="text-xs font-bold font-label uppercase tracking-wider text-stone-800">
-                    {isFr ? 'Menu de Navigation' : 'Navigation Menu'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 text-stone-500 text-[11px] font-bold font-label uppercase">
-                  <span>{isMobileMenuOpen ? (isFr ? 'Masquer' : 'Collapse') : (isFr ? 'Afficher' : 'Expand')}</span>
-                  {isMobileMenuOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </div>
-              </div>
+          <AdminNavigation
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            isFr={isFr}
+            isSuperAdmin={isSuperAdmin}
+            counts={{
+              pages: pages.length,
+              banners: banners.length,
+              programs: programs.length,
+              articles: articles.length,
+              media: media.length,
+              team: teamMembers.length,
+              founders: founders.length,
+              fieldStaff: fieldStaff.length,
+              governance: governance.length,
+              partners: partners.length,
+              testimonials: testimonials.length,
+              inbox: unreadMessages,
+              donors: donors.length,
+              stats: stats.length,
+              users: adminUsers.length
+            }}
+          />
 
-              <div className={`space-y-1 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-                {/* 1. ANALYTICS & DASHBOARD */}
-                <div className="px-3 pt-2 pb-1 text-[11px] font-label uppercase font-extrabold text-stone-400 tracking-wider">
-                  {isFr ? 'Tableau de bord & Analyses' : 'Analytics & Dashboard'}
-                </div>
 
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-label uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                    activeTab === 'overview'
-                      ? 'bg-[#690C07] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#FAF6EF] hover:text-[#690C07]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <LayoutDashboard className="w-4 h-4" />
-                    <span>{isFr ? 'Vue d’Ensemble' : 'Overview Dashboard'}</span>
-                  </div>
-                </button>
-
-                {/* 2. CONTENT & PROGRAMS */}
-                <div className="px-3 pt-3.5 pb-1 text-[11px] font-label uppercase font-extrabold text-stone-400 tracking-wider">
-                  {isFr ? 'Contenus & Programmes' : 'Content & Programs'}
-                </div>
-
-                {[
-                  { id: 'banners', labelEn: 'Banners & Hero', labelFr: 'Bannières & Hero', icon: <Layers className="w-4 h-4" />, count: banners.length },
-                  { id: 'programs', labelEn: '5 Pillars & KPIs', labelFr: '5 Piliers & Métriques', icon: <Sparkles className="w-4 h-4" />, count: programs.length },
-                  { id: 'articles', labelEn: 'Articles & Field Notes', labelFr: 'Articles & Récits', icon: <FileText className="w-4 h-4" />, count: articles.length },
-                  { id: 'pages', labelEn: 'Static Pages', labelFr: 'Pages Statiques', icon: <Compass className="w-4 h-4" />, count: pages.length || 7 },
-                  { id: 'media', labelEn: 'Media Library', labelFr: 'Médiathèque', icon: <FolderOpen className="w-4 h-4" />, count: media.length }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id as AdminTab)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-label uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                      activeTab === item.id
-                        ? 'bg-[#690C07] text-white shadow-xs'
-                        : 'text-stone-700 hover:bg-[#FAF6EF] hover:text-[#690C07]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {item.icon}
-                      <span>{isFr ? item.labelFr : item.labelEn}</span>
-                    </div>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        activeTab === item.id
-                          ? 'bg-white/25 text-white'
-                          : 'bg-stone-100 text-stone-600'
-                      }`}
-                    >
-                      {item.count}
-                    </span>
-                  </button>
-                ))}
-
-                {/* 3. PEOPLE & GOVERNANCE */}
-                <div className="px-3 pt-3.5 pb-1 text-[11px] font-label uppercase font-extrabold text-stone-400 tracking-wider">
-                  {isFr ? 'Communauté & Terrains' : 'People & Governance'}
-                </div>
-
-                {[
-                  { id: 'team', labelEn: 'Our Team', labelFr: 'Équipe ACV', icon: <Users className="w-4 h-4" />, count: teamMembers.length },
-                  { id: 'founders', labelEn: 'Founders', labelFr: 'Fondateurs', icon: <ShieldCheck className="w-4 h-4" />, count: founders.length || 2 },
-                  { id: 'fieldStaff', labelEn: 'Field Agents', labelFr: 'Staff Terrain', icon: <MapPin className="w-4 h-4" />, count: fieldStaff.length || 3 },
-                  { id: 'governance', labelEn: 'Governance & Charters', labelFr: 'Gouvernance & Chartes', icon: <Shield className="w-4 h-4" />, count: governance.length || 2 },
-                  { id: 'partners', labelEn: 'Partners', labelFr: 'Partenaires', icon: <Handshake className="w-4 h-4" />, count: partners.length || 3 },
-                  { id: 'testimonials', labelEn: 'Field Stories', labelFr: 'Témoignages', icon: <Quote className="w-4 h-4" />, count: testimonials.length || 2 }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id as AdminTab)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-label uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                      activeTab === item.id
-                        ? 'bg-[#690C07] text-white shadow-xs'
-                        : 'text-stone-700 hover:bg-[#FAF6EF] hover:text-[#690C07]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {item.icon}
-                      <span>{isFr ? item.labelFr : item.labelEn}</span>
-                    </div>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        activeTab === item.id
-                          ? 'bg-white/25 text-white'
-                          : 'bg-stone-100 text-stone-600'
-                      }`}
-                    >
-                      {item.count}
-                    </span>
-                  </button>
-                ))}
-
-                {/* 4. OPERATIONS & SYSTEM */}
-                <div className="px-3 pt-3.5 pb-1 text-[11px] font-label uppercase font-extrabold text-stone-400 tracking-wider">
-                  {isFr ? 'Finance, Base de Données & Système' : 'Operations, Database & System'}
-                </div>
-
-                {[
-                  { id: 'database', labelEn: 'Database Script & Export', labelFr: 'Script Base de Données (SQL)', icon: <Database className="w-4 h-4 text-[#EFA62B]" />, badge: 'SQL' },
-                  { id: 'inbox', labelEn: 'Inquiries', labelFr: 'Boîte de Réception', icon: <MessageSquare className="w-4 h-4" />, count: contactSubmissions.filter((c) => !c.read).length, unread: true },
-                  { id: 'donors', labelEn: 'Donations Ledger', labelFr: 'Registre des Dons', icon: <Heart className="w-4 h-4" />, count: donors.length },
-                  { id: 'stats', labelEn: 'Impact Counters', labelFr: 'Compteurs d’Impact', icon: <TrendingUp className="w-4 h-4" />, count: stats.length || 4 },
-                  { id: 'settings', labelEn: 'Settings', labelFr: 'Paramètres du Site', icon: <Settings className="w-4 h-4" /> },
-                  { id: 'audit', labelEn: 'Audit Log', labelFr: 'Journal d’Audit', icon: <Clock className="w-4 h-4" /> }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id as AdminTab)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-label uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                      activeTab === item.id
-                        ? 'bg-[#690C07] text-white shadow-xs'
-                        : 'text-stone-700 hover:bg-[#FAF6EF] hover:text-[#690C07]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {item.icon}
-                      <span>{isFr ? item.labelFr : item.labelEn}</span>
-                    </div>
-                    {item.badge ? (
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-label ${
-                        activeTab === item.id ? 'bg-[#EFA62B] text-[#232826]' : 'bg-[#EFA62B]/20 text-[#690C07]'
-                      }`}>
-                        {item.badge}
-                      </span>
-                    ) : item.count !== undefined ? (
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          activeTab === item.id
-                            ? 'bg-white/25 text-white'
-                            : item.unread && item.count > 0
-                            ? 'bg-rose-500 text-white font-bold'
-                            : 'bg-stone-100 text-stone-600'
-                        }`}
-                      >
-                        {item.count}
-                      </span>
-                    ) : null}
-                  </button>
-                ))}
-
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => setActiveTab('users')}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-label uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                      activeTab === 'users'
-                        ? 'bg-amber-600 text-white shadow-xs'
-                        : 'text-amber-800 hover:bg-amber-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>{isFr ? 'Utilisateurs Admin (Super)' : 'Admin Users (Super)'}</span>
-                    </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs bg-amber-100 text-amber-900 font-bold">
-                      {adminUsers.length}
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
-          </aside>
 
           {/* Main Content Workspace */}
           <main className="lg:col-span-9 space-y-6">
@@ -731,8 +551,8 @@ export const AdminDashboard: React.FC = () => {
                         titleFr: 'Quand les jeunes prennent les rênes, les communautés se métamorphosent.',
                         subtitleEn: 'Youth-anchored civic regeneration and living village ecosystems across Goma and Virunga landscapes.',
                         subtitleFr: 'Régénération civique, agro-écologie et écosystèmes villageois vivants portés par la jeunesse à Goma et aux Virunga.',
-                        image: '/assets/images/acv_hero_youth_community_1792692599382.jpg',
-                        imageUrl: '/assets/images/acv_hero_youth_community_1792692599382.jpg',
+                        image: '/assets/images/acv_hero_youth_community_1792692599382.webp',
+                        imageUrl: '/assets/images/acv_hero_youth_community_1792692599382.webp',
                         ctaTextEn: 'Explore Our Programs',
                         ctaTextFr: 'Découvrir nos programmes',
                         ctaLink: '/programs',

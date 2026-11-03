@@ -14,11 +14,22 @@ import {
   Share2
 } from 'lucide-react';
 import { BlogPost } from '../../types';
-import { SkeletonCard } from '../common/Skeleton';
 import { AnimatedText } from '../motion/AnimatedText';
+import { LoadingState, EmptyState, ErrorState } from '../common/DataState';
+import { ProgressiveImage } from '../common/ProgressiveImage';
+import { Button } from '../common/Button';
+import { useArticles } from '../../hooks/useArticles';
 
 export const BlogPage: React.FC = () => {
-  const { language, blogPosts, isAdminAuthenticated, setAdminModalOpen, isLoading, navigateTo } = useApp();
+  const {
+    language,
+    blogPosts: initialBlogPosts,
+    isAdminAuthenticated,
+    setAdminModalOpen,
+    navigateTo,
+    dataState,
+    retryData
+  } = useApp();
   const t = useTranslation(language);
   const isFr = language === 'fr';
 
@@ -26,6 +37,15 @@ export const BlogPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activePost, setActivePost] = useState<BlogPost | null>(null);
   const [copied, setCopied] = useState(false);
+  const {
+    articles: blogPosts,
+    isLoading,
+    isLoadingMore,
+    error,
+    hasMore,
+    loadMore,
+    refresh
+  } = useArticles(undefined, initialBlogPosts);
 
   // Categories
   const categories = [
@@ -112,10 +132,12 @@ export const BlogPage: React.FC = () => {
             <div className="bg-white rounded-3xl border border-stone-200/90 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="grid grid-cols-1 lg:grid-cols-12">
                 <div className="lg:col-span-7 relative min-h-[320px] lg:min-h-[440px]">
-                  <img
+                  <ProgressiveImage
                     src={getPostImage(featuredPost)}
                     alt={featuredPost.titleEn}
-                    className="w-full h-full object-cover"
+                    priority
+                    wrapperClassName="absolute inset-0"
+                    imageClassName="h-full w-full object-cover"
                   />
                   <div className="absolute top-4 left-4 bg-acv-green text-white px-3 py-1 rounded-full text-xs font-label uppercase font-bold tracking-wider">
                     {isFr ? 'À la Une' : 'Featured Story'}
@@ -226,21 +248,91 @@ export const BlogPage: React.FC = () => {
       {/* Articles Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {(error || dataState.error) && (
+            <ErrorState
+              compact
+              className="mb-6"
+              title={isFr ? 'Actualisation incomplète' : 'Refresh incomplete'}
+              description={error || dataState.error || undefined}
+              retryLabel={isFr ? 'Réessayer' : 'Retry'}
+              onRetry={() => void (error ? refresh() : retryData())}
+            />
+          )}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <SkeletonCard key={i} variant="article" />
-              ))}
-            </div>
+            <LoadingState label={isFr ? 'Chargement des articles' : 'Loading articles'} />
           ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-stone-200">
-              <BookOpen className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-stone-800">
-                {isFr ? 'Aucun article trouvé' : 'No articles matched your criteria'}
-              </h3>
-              <p className="text-sm text-stone-500 mt-1">
-                {isFr ? 'Essayez de modifier votre recherche ou catégorie.' : 'Try adjusting your search terms or filter.'}
-              </p>
+            <EmptyState
+              title={isFr ? 'Aucun article trouvé' : 'No articles matched your criteria'}
+              description={isFr ? 'Essayez de modifier votre recherche ou catégorie.' : 'Try adjusting your search terms or filter.'}
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredPosts.map((post) => (
+                  <article
+                    key={post.id}
+                    onClick={() => setActivePost(post)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setActivePost(post);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-md hover:border-acv-green/40 transition-all flex flex-col justify-between cursor-pointer group"
+                  >
+                    <div>
+                      <div className="aspect-16/10 relative overflow-hidden bg-stone-100">
+                        <ProgressiveImage
+                          src={getPostImage(post)}
+                          alt={isFr ? post.titleFr : post.titleEn}
+                          wrapperClassName="absolute inset-0"
+                          imageClassName="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        />
+                        <div className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded text-[11px] font-label uppercase font-bold tracking-wider">
+                          {post.category}
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-3">
+                        <div className="flex items-center gap-3 text-xs font-label text-stone-500">
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{getPostDate(post)}</span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime}</span>
+                        </div>
+                        <h3 className="text-lg font-bold font-display text-stone-900 group-hover:text-acv-green transition-colors line-clamp-2">
+                          {isFr ? post.titleFr : post.titleEn}
+                        </h3>
+                        <p className="text-stone-600 text-xs md:text-sm leading-relaxed line-clamp-3">
+                          {isFr ? post.excerptFr : post.excerptEn}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-6 pb-6 pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 text-stone-600 font-medium">
+                        <User className="w-3.5 h-3.5 text-stone-400" />
+                        <span className="truncate max-w-[130px]">{post.author}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-acv-green font-label font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                        <span>{isFr ? 'Lire' : 'Read'}</span><ArrowRight className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              {hasMore && selectedCategory === 'all' && searchQuery === '' && (
+                <div className="mt-10 flex justify-center">
+                  <Button type="button" variant="outline" isLoading={isLoadingMore} onClick={() => void loadMore()}>
+                    {isFr ? 'Charger plus de récits' : 'Load more stories'}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+          {!isLoading && filteredPosts.length === 0 && (selectedCategory !== 'all' || searchQuery !== '') && (
+            <div className="mt-4 flex justify-center">
               <button
                 onClick={() => {
                   setSelectedCategory('all');
@@ -251,80 +343,21 @@ export const BlogPage: React.FC = () => {
                 {isFr ? 'Réinitialiser les filtres' : 'Reset filters'}
               </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post) => (
-                <article
-                  key={post.id}
-                  onClick={() => setActivePost(post)}
-                  className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-md hover:border-acv-green/40 transition-all flex flex-col justify-between cursor-pointer group"
-                >
-                  <div>
-                    {/* Thumbnail */}
-                    <div className="aspect-16/10 relative overflow-hidden bg-stone-100">
-                      <img
-                        src={getPostImage(post)}
-                        alt={post.titleEn}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded text-[11px] font-label uppercase font-bold tracking-wider">
-                        {post.category}
-                      </div>
-                    </div>
-
-                    {/* Metadata & title */}
-                    <div className="p-6 space-y-3">
-                      <div className="flex items-center gap-3 text-xs font-label text-stone-500">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {getPostDate(post)}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {post.readTime}
-                        </span>
-                      </div>
-
-                      <h3 className="text-lg font-bold font-display text-stone-900 group-hover:text-acv-green transition-colors line-clamp-2">
-                        {isFr ? post.titleFr : post.titleEn}
-                      </h3>
-
-                      <p className="text-stone-600 text-xs md:text-sm leading-relaxed line-clamp-3">
-                        {isFr ? post.excerptFr : post.excerptEn}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Footer tags and author */}
-                  <div className="px-6 pb-6 pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-stone-600 font-medium">
-                      <User className="w-3.5 h-3.5 text-stone-400" />
-                      <span className="truncate max-w-[130px]">{post.author}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-acv-green font-label font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
-                      <span>{isFr ? 'Lire' : 'Read'}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
           )}
         </div>
       </section>
 
       {/* Article Detail Modal / Reader */}
       {activePost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="article-dialog-title">
           <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200">
             {/* Modal Header Media */}
             <div className="relative aspect-16/9 w-full bg-stone-900">
-              <img
+              <ProgressiveImage
                 src={getPostImage(activePost)}
                 alt={activePost.titleEn}
-                className="w-full h-full object-cover"
+                wrapperClassName="absolute inset-0"
+                imageClassName="h-full w-full object-cover"
               />
               <button
                 onClick={() => setActivePost(null)}
@@ -365,7 +398,7 @@ export const BlogPage: React.FC = () => {
                 </button>
               </div>
 
-              <h2 className="text-2xl md:text-4xl font-display font-extrabold text-stone-900 leading-tight">
+              <h2 id="article-dialog-title" className="text-2xl md:text-4xl font-display font-extrabold text-stone-900 leading-tight">
                 {isFr ? activePost.titleFr : activePost.titleEn}
               </h2>
 

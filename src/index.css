@@ -75,6 +75,16 @@ a,
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #EFA62B;
+  outline-offset: 3px;
+}
+
+:where(input, select, textarea)[aria-invalid='true'] {
+  border-color: #690C07;
+  box-shadow: 0 0 0 3px rgba(105, 12, 7, 0.12);
+}
+
 .acv-premium-cursor {
   position: fixed;
   inset: 0 auto auto 0;

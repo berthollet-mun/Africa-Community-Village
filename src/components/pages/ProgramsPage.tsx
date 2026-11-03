@@ -21,9 +21,13 @@ import { SkeletonCard } from '../common/Skeleton';
 import { getProgramAnchor, getProgramHashRoute } from '../../lib/navigation';
 import { AnimatedText } from '../motion/AnimatedText';
 import { AnimatedCard } from '../motion/AnimatedCard';
+import { Container } from '../common/Container';
+import { SectionHeader } from '../common/SectionHeader';
+import { ErrorState, EmptyState } from '../common/DataState';
+import { ProgressiveImage } from '../common/ProgressiveImage';
 
 export const ProgramsPage: React.FC = () => {
-  const { language, currentRoute, navigateTo, programs, isLoading } = useApp();
+  const { language, currentRoute, navigateTo, programs, isLoading, dataState, retryData } = useApp();
   const t = useTranslation(language);
   const isFr = language === 'fr';
 
@@ -218,10 +222,12 @@ export const ProgramsPage: React.FC = () => {
               {/* Program Featured Media */}
               <div className="lg:col-span-5">
                 <div className="relative rounded-2xl overflow-hidden shadow-lg border border-stone-200 bg-stone-900 aspect-4/3 group">
-                  <img
+                  <ProgressiveImage
                     src={heroImage}
                     alt={currentProgram.titleEn}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
+                    wrapperClassName="absolute inset-0"
+                    imageClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
                     <span className="text-xs font-label uppercase tracking-widest text-amber-400">
@@ -302,10 +308,11 @@ export const ProgramsPage: React.FC = () => {
                         key={i}
                         className="rounded-xl overflow-hidden aspect-4/3 bg-stone-100 border border-stone-200/60 group relative"
                       >
-                        <img
+                        <ProgressiveImage
                           src={imgUrl}
                           alt={`${currentProgram.titleEn} gallery ${i + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          wrapperClassName="absolute inset-0"
+                          imageClassName="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <span className="text-xs text-white font-label bg-black/60 px-2 py-1 rounded">
@@ -400,37 +407,46 @@ export const ProgramsPage: React.FC = () => {
       {/* Dynamic Banner Carousel for /programs */}
       <BannerCarousel pageRoute="/programs" />
 
+      {dataState.error && (
+        <Container className="pt-8">
+          <ErrorState
+            compact
+            title={isFr ? 'Actualisation partielle' : 'Partial refresh'}
+            description={dataState.error}
+            retryLabel={isFr ? 'Réessayer' : 'Retry'}
+            onRetry={() => void retryData()}
+          />
+        </Container>
+      )}
+
       {/* Hub Hero */}
       <section className="py-16 md:py-20 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-label uppercase tracking-widest font-bold bg-[#FAF6EF] text-[#690C07] border border-[#E2D7C3] mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-[#EFA62B]" />
-            <span>{isFr ? 'Nos 5 Piliers Stratégiques' : 'Our 5 Core Pillars'}</span>
-          </div>
-
-          <AnimatedText
-            as="h1"
-            text={isFr ? 'Des programmes holistiques pour la résilience de l’Est de la RDC' : 'Holistic Programs for Lasting Community Regeneration in Eastern DRC'}
-            className="text-3xl md:text-5xl font-display font-extrabold text-stone-900 tracking-tight leading-tight"
-          />
-
-          <p className="mt-6 text-lg md:text-xl text-stone-600 leading-relaxed">
-            {isFr
+        <Container width="content">
+          <SectionHeader
+            align="center"
+            eyebrow={isFr ? 'Nos 5 piliers stratégiques' : 'Our 5 core pillars'}
+            title={isFr ? 'Des programmes holistiques pour la résilience de l’Est de la RDC' : 'Holistic programs for lasting community regeneration in Eastern DRC'}
+            description={isFr
               ? 'Africa Community Village structure son action autour de cinq axes interdépendants. Dirigés par des jeunes locaux, nos programmes allient savoirs traditionnels et approches novatrices pour un impact pérenne.'
               : 'Africa Community Village operates across five interconnected pillars. Youth-designed and community-rooted, these initiatives combine ancestral wisdom with modern climate and socio-economic solutions.'}
-          </p>
-        </div>
+          />
+        </Container>
       </section>
 
       {/* 5 Pillars Detailed Grid */}
       <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isLoading ? (
+          {isLoading && programs.length === 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <SkeletonCard key={i} variant="program" />
               ))}
             </div>
+          ) : programs.length === 0 ? (
+            <EmptyState
+              title={isFr ? 'Aucun programme publié' : 'No published programs'}
+              description={isFr ? 'Revenez bientôt ou relancez le chargement des données.' : 'Please check back soon or retry loading the data.'}
+            />
           ) : (
             <div className="space-y-16">
               {programs.map((pillar, index) => {
@@ -453,10 +469,11 @@ export const ProgramsPage: React.FC = () => {
                         isEven ? 'order-1' : 'order-1 lg:order-2'
                       }`}
                     >
-                      <img
+                      <ProgressiveImage
                         src={cardImage}
-                        alt={pillar.titleEn}
-                        className="w-full h-full object-cover"
+                        alt={isFr ? pillar.titleFr : pillar.titleEn}
+                        wrapperClassName="absolute inset-0"
+                        imageClassName="h-full w-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 text-white">
                         <span className="text-xs font-label uppercase tracking-widest text-amber-300 font-bold">

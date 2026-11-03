@@ -3,9 +3,60 @@
  * Browser-side controller client for the Next.js Route Handlers.
  */
 
+import type {
+  AdminUser,
+  Article,
+  AuditLog,
+  BannerSlide,
+  ContactSubmission,
+  DashboardStats,
+  Donor,
+  FieldAgent,
+  FieldNote,
+  Founder,
+  GovernanceMember,
+  ImpactStat,
+  MediaItem,
+  Partner,
+  PolicyDocument,
+  ProgramPillar,
+  SiteSettings,
+  TeamMember,
+  Testimonial
+} from '@/types';
+
 const BASE_URL = '/api';
 const REQUEST_START_EVENT = 'acv:request-start';
 const REQUEST_END_EVENT = 'acv:request-end';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+interface PublicListOptions {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+}
+
+function publicQuery(options: PublicListOptions = {}) {
+  const query = new URLSearchParams();
+  if (options.page) query.set('page', String(options.page));
+  if (options.limit) query.set('limit', String(options.limit));
+  if (options.category && options.category !== 'all') query.set('category', options.category);
+  if (options.search) query.set('search', options.search);
+  const value = query.toString();
+  return value ? `?${value}` : '';
+}
 
 function dispatchRequestEvent(name: typeof REQUEST_START_EVENT | typeof REQUEST_END_EVENT): void {
   if (typeof window !== 'undefined') {
@@ -99,7 +150,7 @@ export const api = {
   // Authentication
   auth: {
     async login(email: string, password: string) {
-      const res = await request<{ success: boolean; token: string; user: any }>('/admin/login', {
+      const res = await request<{ success: boolean; token: string; user: AdminUser }>('/admin/login', {
         method: 'POST',
         body: JSON.stringify({ email, password })
       });
@@ -116,19 +167,19 @@ export const api = {
   // Dashboard synchronized analytics
   dashboard: {
     async getStats() {
-      return request<{ success: boolean; data: any }>('/admin/dashboard/stats');
+      return request<ApiResponse<DashboardStats>>('/admin/dashboard/stats');
     }
   },
 
   // File Upload from device (Multer)
   upload: {
-    async uploadFiles(files: File[] | FileList): Promise<{ success: boolean; data: any }> {
+    async uploadFiles(files: File[] | FileList): Promise<ApiResponse<MediaItem | MediaItem[]>> {
       const formData = new FormData();
       Array.from(files).forEach((file) => {
         formData.append('files', file);
       });
 
-      return request<{ success: boolean; data: any }>('/admin/upload', {
+      return request<ApiResponse<MediaItem | MediaItem[]>>('/admin/upload', {
         method: 'POST',
         body: formData
       });
@@ -150,14 +201,14 @@ export const api = {
       return request<{ success: boolean; data: T }>(`/admin/${entity}/${id}`);
     },
 
-    async create<T>(entity: string, data: any) {
+    async create<T, TInput extends object = Partial<T>>(entity: string, data: TInput) {
       return request<{ success: boolean; data: T }>(`/admin/${entity}`, {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
-    async update<T>(entity: string, id: string, data: any) {
+    async update<T, TInput extends object = Partial<T>>(entity: string, id: string, data: TInput) {
       return request<{ success: boolean; data: T }>(`/admin/${entity}/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
@@ -174,60 +225,69 @@ export const api = {
   // Public dynamic queries
   public: {
     async getSettings() {
-      return request<{ success: boolean; data: any }>('/public/settings');
+      return request<ApiResponse<SiteSettings | null>>('/public/settings');
     },
 
     async getBanners(pageRoute?: string) {
       const qs = pageRoute ? `?pageRoute=${encodeURIComponent(pageRoute)}` : '';
-      return request<{ success: boolean; data: any[] }>(`/public/banners${qs}`);
+      return request<ApiResponse<BannerSlide[]>>(`/public/banners${qs}`);
     },
 
-    async getPrograms() {
-      return request<{ success: boolean; data: any[] }>('/public/programs');
+    async getPrograms(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<ProgramPillar>>(`/public/programs${publicQuery(options)}`);
     },
 
-    async getArticles(category?: string) {
-      const qs = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
-      return request<{ success: boolean; data: any[] }>(`/public/articles${qs}`);
+    async getArticles(category?: string, options: Omit<PublicListOptions, 'category'> = {}) {
+      return request<PaginatedApiResponse<Article>>(
+        `/public/articles${publicQuery({ ...options, category })}`
+      );
     },
 
-    async getTeam() {
-      return request<{ success: boolean; data: any[] }>('/public/team');
+    async getTeam(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<TeamMember>>(`/public/team${publicQuery(options)}`);
     },
 
-    async getFounders() {
-      return request<{ success: boolean; data: any[] }>('/public/founders');
+    async getFounders(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<Founder>>(`/public/founders${publicQuery(options)}`);
     },
 
-    async getFieldStaff() {
-      return request<{ success: boolean; data: any[] }>('/public/field-staff');
+    async getFieldStaff(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<FieldAgent>>(`/public/field-staff${publicQuery(options)}`);
     },
 
-    async getGovernance() {
-      return request<{ success: boolean; data: any[] }>('/public/governance');
+    async getGovernance(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<GovernanceMember>>(`/public/governance${publicQuery(options)}`);
     },
 
-    async getPartners() {
-      return request<{ success: boolean; data: any[] }>('/public/partners');
+    async getPartners(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<Partner>>(`/public/partners${publicQuery(options)}`);
     },
 
-    async getTestimonials() {
-      return request<{ success: boolean; data: any[] }>('/public/testimonials');
+    async getTestimonials(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<Testimonial>>(`/public/testimonials${publicQuery(options)}`);
     },
 
-    async getStats() {
-      return request<{ success: boolean; data: any[] }>('/public/stats');
+    async getStats(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<ImpactStat>>(`/public/stats${publicQuery(options)}`);
     },
 
-    async submitContact(data: any) {
-      return request<{ success: boolean; data: any }>('/public/contact', {
+    async getPolicies(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<PolicyDocument>>(`/public/policies${publicQuery(options)}`);
+    },
+
+    async getFieldNotes(options: PublicListOptions = {}) {
+      return request<PaginatedApiResponse<FieldNote>>(`/public/field-notes${publicQuery(options)}`);
+    },
+
+    async submitContact<TInput extends object>(data: TInput) {
+      return request<ApiResponse<ContactSubmission>>('/public/contact', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
 
-    async submitDonation(data: any) {
-      return request<{ success: boolean; data: any }>('/public/donate', {
+    async submitDonation<TInput extends object>(data: TInput) {
+      return request<ApiResponse<Donor>>('/public/donate', {
         method: 'POST',
         body: JSON.stringify(data)
       });

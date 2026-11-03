@@ -387,3 +387,39 @@ export interface AuditLog extends BaseEntity {
   timestamp: string;
   ipAddress?: string;
 }
+
+export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error' | 'empty';
+
+export interface DataRequestState {
+  status: AsyncStatus;
+  error: string | null;
+  updatedAt: number | null;
+}
+
+export interface DashboardStats {
+  counts: {
+    pages: number;
+    programs: number;
+    articles: number;
+    publishedArticles: number;
+    team: number;
+    founders: number;
+    fieldStaff: number;
+    banners: number;
+    activeBanners: number;
+    partners: number;
+    donors: number;
+    totalDonationsUsd: number;
+    media: number;
+    unreadInquiries: number;
+  };
+  translationGaps: {
+    articlesWithoutFr: number;
+    programsWithoutFr: number;
+    bannersWithoutFr: number;
+    totalMissing: number;
+  };
+  recentAuditLogs: AuditLog[];
+  recentDonations: Donor[];
+  recentInquiries: ContactSubmission[];
+}

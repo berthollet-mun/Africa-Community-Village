@@ -19,9 +19,22 @@ import {
   Calendar
 } from 'lucide-react';
 import { SkeletonCard } from '../common/Skeleton';
+import { Container } from '../common/Container';
+import { EmptyState, ErrorState } from '../common/DataState';
+import { ProgressiveImage } from '../common/ProgressiveImage';
 
 export const AboutPage: React.FC = () => {
-  const { currentRoute, navigateTo, language, teamMembers, policies, fieldNotes, isLoading } = useApp();
+  const {
+    currentRoute,
+    navigateTo,
+    language,
+    teamMembers,
+    policies,
+    fieldNotes,
+    isLoading,
+    dataState,
+    retryData
+  } = useApp();
   const t = useTranslation(language);
 
   // Policy modal state
@@ -39,7 +52,7 @@ export const AboutPage: React.FC = () => {
   // Filter field notes
   const filteredFieldNotes = fieldFilter === 'all'
     ? fieldNotes
-    : fieldNotes.filter(n => n.pillar.toLowerCase() === fieldFilter.toLowerCase());
+    : fieldNotes.filter(n => n.pillar?.toLowerCase() === fieldFilter.toLowerCase());
 
   return (
     <div className="w-full flex flex-col space-y-12 lg:space-y-16 pb-20">
@@ -94,6 +107,18 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {dataState.error && (
+        <Container className="-mb-4">
+          <ErrorState
+            compact
+            title={language === 'fr' ? 'Actualisation partielle' : 'Partial refresh'}
+            description={dataState.error}
+            retryLabel={language === 'fr' ? 'Réessayer' : 'Retry'}
+            onRetry={() => void retryData()}
+          />
+        </Container>
+      )}
+
       {/* --- SUBVIEW 1: OUR TEAM --- */}
       {isOurTeam ? (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-16">
@@ -116,12 +141,19 @@ export const AboutPage: React.FC = () => {
             </p>
           </div>
 
+          {!isLoading && teamMembers.length === 0 && (
+            <EmptyState
+              title={language === 'fr' ? 'Équipe en cours de publication' : 'Team profiles are being published'}
+              description={language === 'fr' ? 'Les profils seront de nouveau disponibles très bientôt.' : 'Profiles will be available again shortly.'}
+            />
+          )}
+
           {/* Leadership Section */}
           <div className="space-y-6">
             <h2 className="font-label text-xs uppercase tracking-widest text-[#B45309] font-bold">
               {language === 'fr' ? 'DIRECTION & STRATÉGIE' : 'LEADERSHIP'}
             </h2>
-            {isLoading ? (
+            {isLoading && teamMembers.length === 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <SkeletonCard variant="team" />
                 <SkeletonCard variant="team" />
@@ -140,7 +172,12 @@ export const AboutPage: React.FC = () => {
                         {/* Portrait Card */}
                         <div className="h-56 w-full rounded-xl overflow-hidden bg-stone-100 mb-6 flex items-center justify-center relative">
                           {photo ? (
-                            <img src={photo} alt={displayName} className="w-full h-full object-cover" />
+                            <ProgressiveImage
+                              src={photo}
+                              alt={displayName}
+                              wrapperClassName="absolute inset-0"
+                              imageClassName="h-full w-full object-cover"
+                            />
                           ) : (
                             <div className="w-20 h-20 rounded-2xl bg-[#D97706] text-white font-display font-extrabold text-2xl flex items-center justify-center shadow-lg">
                               {displayName.charAt(0)}
@@ -182,7 +219,12 @@ export const AboutPage: React.FC = () => {
                     <div>
                       <div className="h-44 w-full rounded-lg overflow-hidden bg-stone-100 mb-4 flex items-center justify-center">
                         {photo ? (
-                          <img src={photo} alt={displayName} className="w-full h-full object-cover" />
+                          <ProgressiveImage
+                            src={photo}
+                            alt={displayName}
+                            wrapperClassName="h-full w-full"
+                            imageClassName="h-full w-full object-cover"
+                          />
                         ) : (
                           <div className="w-14 h-14 rounded-xl bg-[#690C07] text-white font-display font-bold text-lg flex items-center justify-center shadow-md">
                             {displayName.charAt(0)}
@@ -354,6 +396,12 @@ export const AboutPage: React.FC = () => {
             </h2>
 
             <div className="space-y-3">
+              {policies.length === 0 && !isLoading && (
+                <EmptyState
+                  title={language === 'fr' ? 'Documents bientôt disponibles' : 'Documents coming soon'}
+                  description={language === 'fr' ? 'La bibliothèque de gouvernance est en cours de mise à jour.' : 'The governance library is currently being updated.'}
+                />
+              )}
               {policies.map((policy) => (
                 <div
                   key={policy.id}
@@ -423,7 +471,12 @@ export const AboutPage: React.FC = () => {
           </div>
 
           {/* Field Notes Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredFieldNotes.length === 0 && !isLoading ? (
+            <EmptyState
+              title={language === 'fr' ? 'Aucune note pour ce filtre' : 'No field notes for this filter'}
+              description={language === 'fr' ? 'Choisissez un autre pilier ou revenez prochainement.' : 'Choose another pillar or check back soon.'}
+            />
+          ) : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFieldNotes.map((note) => (
               <div
                 key={note.id}
@@ -465,7 +518,7 @@ export const AboutPage: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </div>}
         </section>
       ) : (
         /* --- DEFAULT: MAIN ABOUT OVERVIEW / OUR STORY --- */

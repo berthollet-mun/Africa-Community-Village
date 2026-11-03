@@ -17,13 +17,25 @@ const getResourceSchema = z.enum([
   'governance',
   'partners',
   'testimonials',
-  'stats'
+  'stats',
+  'policies',
+  'field-notes'
 ]);
 const postResourceSchema = z.enum(['contact', 'donate']);
+const listQuerySchema = z.object({
+  category: z.string().trim().max(100).optional(),
+  search: z.string().trim().max(200).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(24)
+});
 
 interface RouteContext {
   params: Promise<{ resource: string }>;
 }
+
+const publicCacheHeaders = {
+  'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=900'
+};
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
@@ -31,7 +43,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const resource = getResourceSchema.parse(rawResource);
 
     if (resource === 'settings') {
-      return NextResponse.json({ success: true, data: await publicContentModel.getSettings() });
+      return NextResponse.json(
+        { success: true, data: await publicContentModel.getSettings() },
+        { headers: publicCacheHeaders }
+      );
     }
     if (resource === 'banners') {
       const pageRoute =
@@ -39,12 +54,25 @@ export async function GET(request: NextRequest, context: RouteContext) {
         request.nextUrl.searchParams.get('page') ??
         request.nextUrl.searchParams.get('page_assignment') ??
         undefined;
-      return NextResponse.json({ success: true, data: await publicContentModel.getBanners(pageRoute) });
+      return NextResponse.json(
+        { success: true, data: await publicContentModel.getBanners(pageRoute) },
+        { headers: publicCacheHeaders }
+      );
     }
 
-    const category = request.nextUrl.searchParams.get('category') ?? undefined;
-    const data = await publicContentModel.list(resource as PublicResource, category);
-    return NextResponse.json({ success: true, data });
+    const query = listQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
+    const result = await publicContentModel.list(resource as PublicResource, query);
+    return NextResponse.json(
+      {
+        success: true,
+        data: result.data,
+        total: result.total,
+        page: query.page,
+        limit: query.limit,
+        hasMore: query.page * query.limit < result.total
+      },
+      { headers: publicCacheHeaders }
+    );
   } catch (error) {
     return apiError(error);
   }

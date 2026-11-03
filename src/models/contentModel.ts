@@ -21,11 +21,37 @@ type DbRecord = Record<string, unknown> & { externalId: string; createdAt: Date;
 
 interface CrudDelegate {
   findMany(args?: unknown): Promise<DbRecord[]>;
+  count(args?: unknown): Promise<number>;
   create(args: { data: Record<string, unknown> }): Promise<DbRecord>;
   update(args: { where: { externalId: string }; data: Record<string, unknown> }): Promise<DbRecord>;
   updateMany(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<{ count: number }>;
   deleteMany(args: { where: Record<string, unknown> }): Promise<{ count: number }>;
 }
+
+const searchableFields: Partial<Record<Exclude<ContentEntity, 'siteSettings'>, string[]>> = {
+  pages: ['titleEn', 'titleFr', 'route', 'slug'],
+  banners: ['titleEn', 'titleFr', 'pageRoute'],
+  programs: ['titleEn', 'titleFr', 'slug', 'descriptionEn', 'descriptionFr'],
+  team: ['name', 'roleEn', 'roleFr'],
+  founders: ['name', 'roleEn', 'roleFr'],
+  fieldStaff: ['name', 'roleEn', 'roleFr'],
+  governance: ['name', 'roleEn', 'roleFr'],
+  articles: ['titleEn', 'titleFr', 'slug', 'excerptEn', 'excerptFr', 'category', 'authorName'],
+  media: ['title', 'fileName', 'altTextEn', 'altTextFr'],
+  partners: ['name', 'descriptionEn', 'descriptionFr', 'type'],
+  donors: ['donorName', 'donorEmail', 'pillarAllocation'],
+  testimonials: ['author', 'quoteEn', 'quoteFr', 'location'],
+  stats: ['labelEn', 'labelFr', 'value', 'displayPage'],
+  auditLogs: ['userName', 'userEmail', 'action', 'tableName', 'details'],
+  contactSubmissions: ['name', 'email', 'subject', 'message', 'category'],
+  policies: ['titleEn', 'titleFr', 'contentEn', 'contentFr'],
+  fieldNotes: ['titleEn', 'titleFr', 'captionEn', 'captionFr', 'location', 'pillar']
+};
+
+const statusEntities = new Set<ContentEntity>([
+  'pages', 'programs', 'team', 'founders', 'fieldStaff', 'governance', 'articles',
+  'partners', 'donors', 'testimonials', 'stats', 'contactSubmissions', 'policies', 'fieldNotes'
+]);
 
 const teamCategories = {
   founders: 'Founder',
@@ -357,21 +383,46 @@ export const contentModel = {
   list: listRecords,
 
   async query<T extends DomainRecord>(entity: ContentEntity, query: ContentQuery): Promise<ContentQueryResult<T>> {
-    let items = await listRecords<T>(entity);
+    if (entity === 'siteSettings') {
+      const items = await listSettings<T>();
+      return { data: items, total: items.length };
+    }
+
+    const baseArgs = listArgs(entity) as { where?: Record<string, unknown>; orderBy?: unknown };
+    const filters: Record<string, unknown>[] = [];
+    if (baseArgs.where) filters.push(baseArgs.where);
+
     if (query.search) {
-      const needle = query.search.toLocaleLowerCase();
-      items = items.filter((item) => JSON.stringify(item).toLocaleLowerCase().includes(needle));
+      const fields = searchableFields[entity] ?? [];
+      if (fields.length > 0) {
+        filters.push({ OR: fields.map((field) => ({ [field]: { contains: query.search } })) });
+      }
     }
+
     if (query.category && query.category !== 'all') {
-      items = items.filter((item) => item.category === query.category || item.type === query.category);
+      if (entity === 'articles' || entity === 'contactSubmissions') {
+        filters.push({ category: { contains: query.category } });
+      } else if (entity === 'partners') {
+        filters.push({ type: { contains: query.category } });
+      } else if (entity === 'donors') {
+        filters.push({ donorType: { contains: query.category } });
+      }
     }
-    if (query.status && query.status !== 'all') items = items.filter((item) => item.status === query.status);
-    const total = items.length;
-    if (query.limit) {
-      const start = ((query.page ?? 1) - 1) * query.limit;
-      items = items.slice(start, start + query.limit);
+
+    if (query.status && query.status !== 'all' && statusEntities.has(entity)) {
+      filters.push({ status: query.status });
     }
-    return { data: items, total };
+
+    const where = filters.length === 0 ? undefined : filters.length === 1 ? filters[0] : { AND: filters };
+    const limit = query.limit;
+    const skip = limit ? ((query.page ?? 1) - 1) * limit : undefined;
+    const delegate = delegateFor(entity);
+    const [records, total] = await Promise.all([
+      delegate.findMany({ ...baseArgs, where, skip, take: limit }),
+      delegate.count({ where })
+    ]);
+
+    return { data: records.map((record) => toDomain<T>(record)), total };
   },
 
   async findById<T extends DomainRecord>(entity: ContentEntity, id: string): Promise<T | null> {

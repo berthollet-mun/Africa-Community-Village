@@ -1,6 +1,7 @@
 import { contentModel } from '@/models/contentModel';
 import { logAuditAction } from '@/models/auditModel';
 import type { ContentEntity } from '@/lib/validation';
+import type { ContentQuery, ContentQueryResult } from '@/models/contentModel';
 
 type Item = Record<string, unknown> & { id: string };
 
@@ -13,7 +14,9 @@ const publicResources = {
   governance: { entity: 'governance', status: ['status', 'active'], order: 'order' },
   partners: { entity: 'partners', status: ['status', 'active'], order: 'order' },
   testimonials: { entity: 'testimonials', status: ['status', 'visible'], order: 'order' },
-  stats: { entity: 'stats', status: ['status', 'active'], order: 'order' }
+  stats: { entity: 'stats', status: ['status', 'active'], order: 'order' },
+  policies: { entity: 'policies', status: ['status', 'published'] },
+  'field-notes': { entity: 'fieldNotes', status: ['status', 'published'], order: 'date', descending: true }
 } as const;
 
 export type PublicResource = keyof typeof publicResources;
@@ -55,22 +58,26 @@ export const publicContentModel = {
     return banners.sort((a, b) => compareValues(a.order, b.order));
   },
 
-  async list(resource: PublicResource, category?: string) {
+  async list(
+    resource: PublicResource,
+    query: Pick<ContentQuery, 'category' | 'search' | 'page' | 'limit'> = {}
+  ): Promise<ContentQueryResult<Item>> {
     const config = publicResources[resource];
-    let items = await contentModel.list<Item>(config.entity as ContentEntity);
     const [statusKey, statusValue] = config.status;
-    items = items.filter((item) => item[statusKey] === statusValue);
+    const result = await contentModel.query<Item>(config.entity as ContentEntity, {
+      ...query,
+      status: statusKey === 'status' ? statusValue : undefined
+    });
+    let items = result.data;
 
-    if (resource === 'articles' && category && category !== 'all') {
-      items = items.filter((item) => String(item.category ?? '').toLowerCase().includes(category.toLowerCase()));
-    }
+    if (statusKey !== 'status') items = items.filter((item) => item[statusKey] === statusValue);
     if ('order' in config) {
       items.sort((a, b) => {
         const result = compareValues(a[config.order], b[config.order]);
         return 'descending' in config && config.descending ? -result : result;
       });
     }
-    return items;
+    return { data: items, total: result.total };
   },
 
   async submitContact(data: Record<string, unknown>, ipAddress?: string) {

@@ -4,9 +4,13 @@ import { useTranslation } from '../../translations/translations';
 import { BannerSlide } from '../../types';
 import {
   ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
   Edit3,
   Heart,
-  Compass
+  Compass,
+  Pause,
+  Play
 } from 'lucide-react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { AnimatedText } from '../motion/AnimatedText';
@@ -16,6 +20,9 @@ export interface HeroBannerProps {
   pageRoute?: string;
   fullBleed?: boolean;
 }
+
+const optimizedHeroImage = (url: string) =>
+  url.startsWith('/assets/images/acv_hero_') ? url.replace(/\.jpg$/i, '.webp') : url;
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({
   page = 'home',
@@ -44,7 +51,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     .filter((b) => {
       const isActive = b.isActive !== false && b.active !== false;
       if (!isActive) return false;
-      const bRoute = (b.pageRoute || (b as any).page_assignment || '').toLowerCase();
+      const legacyRoute = (b as BannerSlide & { page_assignment?: string }).page_assignment;
+      const bRoute = (b.pageRoute || legacyRoute || '').toLowerCase();
       const tRoute = targetRoute.toLowerCase();
 
       return (
@@ -69,7 +77,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
   const total = slides.length;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [interactionPaused, setInteractionPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
@@ -80,16 +90,25 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     }
   }, [total, currentIndex]);
 
-  // Autoplay timer (5.5s)
   useEffect(() => {
-    if (total <= 1 || isPaused) return;
+    const updateVisibility = () => setPageVisible(document.visibilityState === 'visible');
+    updateVisibility();
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => document.removeEventListener('visibilitychange', updateVisibility);
+  }, []);
+
+  const autoplayPaused = Boolean(reducedMotion) || interactionPaused || userPaused || !pageVisible;
+
+  // A slower autoplay keeps the hero calm; motion-sensitive visitors start paused.
+  useEffect(() => {
+    if (total <= 1 || autoplayPaused) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
-    }, 5500);
+    }, 8500);
 
     return () => clearInterval(timer);
-  }, [total, isPaused]);
+  }, [total, autoplayPaused]);
 
   const handlePrev = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + total) % total);
@@ -102,7 +121,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   // Touch Swipe Handlers (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
-    setIsPaused(true);
+    setInteractionPaused(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -110,7 +129,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   };
 
   const handleTouchEnd = () => {
-    setIsPaused(false);
+    setInteractionPaused(false);
     if (!touchStartX || !touchEndX) return;
     const distance = touchStartX - touchEndX;
     const minSwipeDistance = 45; // px threshold
@@ -128,8 +147,26 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') handlePrev();
-    if (e.key === 'ArrowRight') handleNext();
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      handlePrev();
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      handleNext();
+    }
+    if (e.key === 'Home') {
+      e.preventDefault();
+      setCurrentIndex(0);
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      setCurrentIndex(total - 1);
+    }
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      setUserPaused((paused) => !paused);
+    }
   };
 
   if (total === 0) return null;
@@ -139,11 +176,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   const subtitle = isFr ? currentSlide.subtitleFr : currentSlide.subtitleEn;
   const ctaText = isFr ? currentSlide.ctaTextFr : currentSlide.ctaTextEn;
   const ctaLink = currentSlide.ctaLink || '/programs';
-  const slideImage =
-    currentSlide.imageUrl ||
-    currentSlide.image ||
-    '/assets/images/acv_hero_youth_community_1792692599382.jpg';
-
   // Badge label by page
   const getBadgeText = () => {
     if (targetRoute === '/' || page === 'home') {
@@ -176,7 +208,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       className={`relative w-full ${
         fullBleed ? 'px-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'
       }`}
-      aria-label="Hero Highlights Carousel"
+      aria-label={isFr ? 'Temps forts d’Africa Community Village' : 'Africa Community Village highlights'}
     >
       <div
         className={`relative w-full overflow-hidden bg-[#18181B] select-none ${
@@ -184,20 +216,30 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             ? 'h-[68vh] min-h-[460px] max-h-[760px] sm:h-[72vh] lg:h-[80vh]'
             : 'h-[60vh] min-h-[440px] max-h-[680px] rounded-2xl sm:rounded-3xl shadow-2xl'
         }`}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
+        onMouseEnter={() => setInteractionPaused(true)}
+        onMouseLeave={() => setInteractionPaused(false)}
+        onFocusCapture={() => setInteractionPaused(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setInteractionPaused(false);
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onKeyDown={handleKeyDown}
         tabIndex={0}
+        role="region"
+        aria-roledescription="carousel"
       >
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {isFr ? `Diapositive ${currentIndex + 1} sur ${total} : ${title}` : `Slide ${currentIndex + 1} of ${total}: ${title}`}
+        </p>
         {/* Background Images with Cross-fade transition */}
         {slides.map((slide, idx) => {
-          const imgUrl =
+          const imgUrl = optimizedHeroImage(
             slide.imageUrl ||
             slide.image ||
-            '/assets/images/acv_hero_youth_community_1792692599382.jpg';
+            '/assets/images/acv_hero_youth_community_1792692599382.webp'
+          );
           const isCurrent = idx === currentIndex;
 
           return (
@@ -211,12 +253,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <img
                 src={imgUrl}
                 alt={isFr ? slide.titleFr : slide.titleEn}
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                fetchPriority={idx === 0 ? 'high' : 'auto'}
+                decoding="async"
                 className={`w-full h-full object-cover transition-transform duration-7000 ease-out ${
                   isCurrent ? 'scale-105' : 'scale-100'
                 }`}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    '/assets/images/acv_hero_youth_community_1792692599382.jpg';
+                    '/assets/images/acv_hero_youth_community_1792692599382.webp';
                 }}
               />
             </motion.div>
@@ -296,21 +341,56 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           </div>
         </div>
 
-        {/* Bottom Pagination Dots (Kept strictly to scroll dots per user request) */}
+        {/* Explicit, keyboard-accessible carousel controls */}
         {total > 1 && (
-          <div className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 bg-black/55 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/20 shadow-xl">
-            {slides.map((_, idx) => (
+          <div className="absolute bottom-4 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-black/60 p-1.5 shadow-xl backdrop-blur-md sm:bottom-6 sm:gap-2">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              aria-label={isFr ? 'Diapositive précédente' : 'Previous slide'}
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <div className="hidden items-center gap-2 sm:flex" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
+              {slides.map((_, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => setCurrentIndex(idx)}
-                className={`transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EFA62B] ${
+                className={`cursor-pointer transition-all duration-300 ${
                   idx === currentIndex
-                    ? 'w-8 sm:w-10 h-2.5 bg-[#EFA62B] rounded-full shadow-sm'
-                    : 'w-2.5 h-2.5 bg-white/50 hover:bg-white/90 rounded-full'
+                    ? 'h-2.5 w-8 rounded-full bg-[#EFA62B] shadow-sm'
+                    : 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/90'
                 }`}
-                aria-label={`Aller à la diapositive ${idx + 1}`}
+                aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
+                aria-current={idx === currentIndex ? 'true' : undefined}
               />
-            ))}
+              ))}
+            </div>
+            <span className="min-w-10 text-center font-label text-[11px] font-bold text-white sm:hidden" aria-hidden="true">
+              {currentIndex + 1}/{total}
+            </span>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              aria-label={isFr ? 'Diapositive suivante' : 'Next slide'}
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <span className="h-5 w-px bg-white/25" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={() => setUserPaused((paused) => !paused)}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              aria-label={userPaused
+                ? (isFr ? 'Reprendre le défilement automatique' : 'Resume autoplay')
+                : (isFr ? 'Mettre le défilement automatique en pause' : 'Pause autoplay')}
+              aria-pressed={userPaused}
+            >
+              {userPaused ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
+            </button>
           </div>
         )}
 

@@ -37,6 +37,7 @@ export const ContactPage: React.FC = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'general' | 'support' | 'partner'>('general');
 
   // Check URL hash on mount or change
@@ -58,6 +59,7 @@ export const ContactPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
+      setFormError(isFr ? 'Veuillez remplir votre nom, votre e-mail et votre message.' : 'Please enter your name, email, and message.');
       toast.warning(
         isFr ? 'Veuillez remplir votre nom, email et message.' : 'Please fill in your name, email, and message.',
         isFr ? 'Champs Incomplets' : 'Missing Fields'
@@ -65,6 +67,7 @@ export const ContactPage: React.FC = () => {
       return;
     }
 
+    setFormError(null);
     setIsSending(true);
     triggerActionLoading(
       isFr ? 'Envoi de votre message...' : 'Transmitting message...',
@@ -102,6 +105,7 @@ export const ContactPage: React.FC = () => {
         message: ''
       });
     } catch (err) {
+      setFormError(isFr ? 'Le message n’a pas pu être envoyé. Vérifiez votre connexion puis réessayez.' : 'The message could not be sent. Check your connection and try again.');
       toast.error(
         isFr ? 'Une erreur est survenue lors de l’envoi. Veuillez réessayer.' : 'Failed to send message. Please retry.',
         isFr ? 'Erreur Réseau' : 'Error'
@@ -312,6 +316,11 @@ export const ContactPage: React.FC = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {formError && (
+                    <div className="rounded-xl border border-[#690C07]/20 bg-[#F9EBEA] p-3 text-sm text-[#690C07]" role="alert" id="contact-form-error">
+                      {formError}
+                    </div>
+                  )}
                   {/* Category Selector */}
                   <div>
                     <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-2">
@@ -347,6 +356,8 @@ export const ContactPage: React.FC = () => {
                       <input
                         type="text"
                         required
+                        aria-invalid={Boolean(formError && !formData.name)}
+                        aria-describedby={formError ? 'contact-form-error' : undefined}
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder={isFr ? 'ex: Berthe Kanyere' : 'e.g. John Doe'}
@@ -361,6 +372,8 @@ export const ContactPage: React.FC = () => {
                       <input
                         type="email"
                         required
+                        aria-invalid={Boolean(formError && !formData.email)}
+                        aria-describedby={formError ? 'contact-form-error' : undefined}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="you@domain.org"
@@ -403,6 +416,8 @@ export const ContactPage: React.FC = () => {
                     </label>
                     <textarea
                       required
+                      aria-invalid={Boolean(formError && !formData.message)}
+                      aria-describedby={formError ? 'contact-form-error' : undefined}
                       rows={5}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}

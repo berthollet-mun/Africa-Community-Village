@@ -137,7 +137,7 @@ export const AdminLoginModal: React.FC = () => {
             /* Login Form */
             <form onSubmit={handleLogin} className="space-y-5">
               {error && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2" role="alert" id="admin-login-error">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -152,6 +152,8 @@ export const AdminLoginModal: React.FC = () => {
                   <input
                     type="email"
                     required
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? 'admin-login-error' : undefined}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green"
@@ -168,6 +170,8 @@ export const AdminLoginModal: React.FC = () => {
                   <input
                     type="password"
                     required
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? 'admin-login-error' : undefined}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-acv-green/20 focus:border-acv-green"

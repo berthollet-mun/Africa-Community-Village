@@ -23,6 +23,7 @@ export const DonatePage: React.FC = () => {
   const [donorEmail, setDonorEmail] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     const requestedAmount = Number(searchParams.get('amount'));
@@ -55,18 +56,21 @@ export const DonatePage: React.FC = () => {
   const handleDonateSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!Number.isFinite(amount) || amount < 5 || amount > 10_000) {
+      setFormError(isFr ? 'Choisissez un montant compris entre 5 et 10 000 USD.' : 'Choose an amount between 5 and 10,000 USD.');
       toast.warning(
         isFr ? 'Choisissez un montant entre 5 et 10 000 USD.' : 'Choose an amount between 5 and 10,000 USD.',
         isFr ? 'Montant invalide' : 'Invalid amount'
       );
       return;
     }
+    setFormError(null);
     setIsProcessing(true);
     try {
       const session = await api.checkout.createSession({ amount, donorName, donorEmail, allocation, anonymous, language });
       window.location.href = session.url;
     } catch (error) {
       const message = error instanceof Error ? error.message : (isFr ? 'Une erreur est survenue.' : 'Something went wrong.');
+      setFormError(message);
       toast.error(message, isFr ? 'Paiement indisponible' : 'Payment unavailable');
       setIsProcessing(false);
     }
@@ -100,6 +104,11 @@ export const DonatePage: React.FC = () => {
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
           <div className="rounded-3xl border border-[#E2D7C3] bg-white p-7 shadow-sm sm:p-10 lg:col-span-7">
             <form onSubmit={handleDonateSubmit} className="space-y-8">
+              {formError && (
+                <div className="rounded-xl border border-[#690C07]/20 bg-[#F9EBEA] p-3 text-sm text-[#690C07]" role="alert" id="donation-form-error">
+                  {formError}
+                </div>
+              )}
               <div>
                 <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-stone-700">{isFr ? '1. Montant du don (USD)' : '1. Donation amount (USD)'}</label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -115,7 +124,7 @@ export const DonatePage: React.FC = () => {
                 </div>
                 <div className="relative mt-3">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-500">$</span>
-                  <input type="number" min="5" max="10000" step="1" inputMode="decimal" placeholder={isFr ? 'Autre montant' : 'Other amount'} value={customAmount} onChange={(event) => setCustomAmount(event.target.value)}
+                  <input type="number" min="5" max="10000" step="1" inputMode="decimal" placeholder={isFr ? 'Autre montant' : 'Other amount'} value={customAmount} onChange={(event) => { setCustomAmount(event.target.value); setFormError(null); }} aria-invalid={Boolean(formError && (!Number.isFinite(amount) || amount < 5 || amount > 10000))} aria-describedby={formError ? 'donation-form-error' : undefined}
                     className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3 pl-9 pr-16 text-sm font-bold text-stone-900 outline-none focus:border-[#690C07] focus:ring-2 focus:ring-[#690C07]/15" />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">USD</span>
                 </div>

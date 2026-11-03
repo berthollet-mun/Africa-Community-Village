@@ -25,9 +25,14 @@ import { BrandLogo } from '../common/BrandLogo';
 import { AnimatedText } from '../motion/AnimatedText';
 import { AnimatedCard } from '../motion/AnimatedCard';
 import { CountUpText } from '../motion/CountUpText';
+import { Container } from '../common/Container';
+import { SectionHeader } from '../common/SectionHeader';
+import { ImpactMetric } from '../common/ImpactMetric';
+import { StoryCard } from '../common/StoryCard';
+import { ErrorState } from '../common/DataState';
 
 export const HomePage: React.FC = () => {
-  const { language, navigateTo, programs, blogPosts, isLoading } = useApp();
+  const { language, navigateTo, programs, blogPosts, isLoading, dataState, retryData } = useApp();
   const t = useTranslation(language);
 
   const [selectedDonation, setSelectedDonation] = useState<number>(50);
@@ -78,43 +83,33 @@ export const HomePage: React.FC = () => {
         <BannerCarousel pageRoute="/" fullBleed={true} />
       </section>
 
+      {dataState.error && (
+        <Container className="-mb-8 lg:-mb-14">
+          <ErrorState
+            compact
+            title={language === 'fr' ? 'Actualisation partielle' : 'Partial refresh'}
+            description={dataState.error}
+            retryLabel={language === 'fr' ? 'Réessayer' : 'Retry'}
+            onRetry={() => void retryData()}
+          />
+        </Container>
+      )}
+
       {/* 2. 4 TRUST INDICATORS RIBBON with Stagger */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-6 lg:-mt-10 relative z-30">
-        <StaggerContainer className="bg-white rounded-2xl shadow-xl border border-stone-200/80 p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y lg:divide-y-0 lg:divide-x divide-stone-100">
-          <StaggerItem className="space-y-1 sm:px-4">
-            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tabular-nums">
-              <CountUpText value={t.home.kpi1Value} />
-            </p>
-            <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
-              {t.home.kpi1Label}
-            </p>
-          </StaggerItem>
-          <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
-            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#690C07] tabular-nums">
-              <CountUpText value={t.home.kpi2Value} />
-            </p>
-            <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
-              {t.home.kpi2Label}
-            </p>
-          </StaggerItem>
-          <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
-            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#0E7490] tabular-nums">
-              <CountUpText value={t.home.kpi3Value} />
-            </p>
-            <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
-              {t.home.kpi3Label}
-            </p>
-          </StaggerItem>
-          <StaggerItem className="space-y-1 sm:px-4 pt-4 lg:pt-0">
-            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[#EFA62B] tabular-nums">
-              <CountUpText value={t.home.kpi4Value} />
-            </p>
-            <p className="text-xs sm:text-sm text-[#3F493F] font-medium">
-              {t.home.kpi4Label}
-            </p>
-          </StaggerItem>
+      <Container as="section" className="relative z-30 -mt-6 lg:-mt-10">
+        <StaggerContainer className="grid grid-cols-2 gap-6 rounded-[1.5rem] border border-stone-200/80 bg-white p-6 shadow-xl sm:p-8 lg:grid-cols-4">
+          {[
+            [t.home.kpi1Value, t.home.kpi1Label],
+            [t.home.kpi2Value, t.home.kpi2Label],
+            [t.home.kpi3Value, t.home.kpi3Label],
+            [t.home.kpi4Value, t.home.kpi4Label]
+          ].map(([value, label], index) => (
+            <StaggerItem key={label}>
+              <ImpactMetric index={index} value={<CountUpText value={value} />} label={label} />
+            </StaggerItem>
+          ))}
         </StaggerContainer>
-      </section>
+      </Container>
 
       {/* 3. WHO WE ARE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -178,20 +173,12 @@ export const HomePage: React.FC = () => {
 
       {/* 5. FIVE PILLARS, ONE COMMUNITY MODEL */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="space-y-4 max-w-3xl mb-10">
-          <div className="inline-flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-[#0E7490] rotate-45 inline-block"></span>
-            <span className="font-label text-xs uppercase tracking-widest text-[#0E7490] font-bold">
-              {t.home.pillarsKicker}
-            </span>
-          </div>
-
-          <AnimatedText as="h2" text={t.home.pillarsTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight" />
-
-          <p className="text-sm sm:text-base text-[#3F493F] leading-relaxed">
-            {t.home.pillarsSubtitle}
-          </p>
-        </div>
+        <SectionHeader
+          className="mb-10"
+          eyebrow={t.home.pillarsKicker}
+          title={t.home.pillarsTitle}
+          description={t.home.pillarsSubtitle}
+        />
 
         {/* 5 Pillars with Skeleton Loading & Stagger Reveal */}
         {isLoading && programs.length === 0 ? (
@@ -337,20 +324,12 @@ export const HomePage: React.FC = () => {
 
       {/* 7. RECENT STORIES FROM THE FIELD */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="space-y-3 max-w-2xl mb-10">
-          <div className="inline-flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-[#D97706] rotate-45 inline-block"></span>
-            <span className="font-label text-xs uppercase tracking-widest text-[#D97706] font-bold">
-              {t.home.recentStoriesKicker}
-            </span>
-          </div>
-
-          <AnimatedText as="h2" text={t.home.recentStoriesTitle} className="font-display font-extrabold text-3xl sm:text-4xl text-[#18181B] tracking-tight" />
-
-          <p className="text-sm sm:text-base text-[#3F493F]">
-            {t.home.recentStoriesSubtitle}
-          </p>
-        </div>
+        <SectionHeader
+          className="mb-10"
+          eyebrow={t.home.recentStoriesKicker}
+          title={t.home.recentStoriesTitle}
+          description={t.home.recentStoriesSubtitle}
+        />
 
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {blogPosts.slice(0, 3).map((post) => {
@@ -359,47 +338,16 @@ export const HomePage: React.FC = () => {
 
             return (
               <StaggerItem key={post.id}>
-                <AnimatedCard className="bg-white rounded-2xl overflow-hidden border border-stone-200/80 flex flex-col justify-between h-full group">
-                  <div>
-                    <div className="h-48 w-full overflow-hidden bg-stone-900 relative">
-                      <img
-                        src={post.imageUrl}
-                        alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                        loading="lazy"
-                      />
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-label font-bold text-[#18181B] shadow-xs">
-                        {post.category}
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 text-xs text-[#6F7A6E] mb-2 font-label">
-                        <span>{post.publishedDate}</span>
-                        <span>·</span>
-                        <span>{post.readTime}</span>
-                      </div>
-
-                      <h3 className="font-display font-bold text-lg text-[#18181B] mb-2 leading-snug group-hover:text-[#690C07] transition-colors">
-                        {title}
-                      </h3>
-
-                      <p className="text-xs sm:text-sm text-[#3F493F] leading-relaxed line-clamp-3">
-                        {excerpt}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-6 pt-0">
-                    <button
-                      onClick={() => navigateTo('/blog')}
-                      className="inline-flex items-center gap-1.5 text-xs font-label font-bold text-[#690C07] hover:text-[#520905] group/link active:scale-95 transition-all cursor-pointer"
-                    >
-                      <span>{t.common.readMore}</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </AnimatedCard>
+                <StoryCard
+                  image={post.imageUrl || post.image || '/assets/aistudio/8_5185b9b0.PNG'}
+                  alt={title}
+                  eyebrow={post.category}
+                  title={title}
+                  excerpt={excerpt}
+                  meta={[post.publishedDate, post.readTime].filter(Boolean).join(' · ')}
+                  actionLabel={t.common.readMore}
+                  onAction={() => navigateTo('/blog')}
+                />
               </StaggerItem>
             );
           })}
