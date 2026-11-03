@@ -22,7 +22,7 @@ export const seedUsers: AdminUser[] = [
   {
     id: 'user_super_admin',
     name: 'Berthollet Munihire',
-    email: 'bertholletmunihire@gmail.com',
+    email: 'bwiraelie95@gmail.com',
     role: 'super-admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     status: 'active',

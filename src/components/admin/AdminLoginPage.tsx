@@ -114,7 +114,7 @@ export const AdminLoginPage: React.FC = () => {
                     aria-describedby={error ? 'admin-page-login-error' : undefined}
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
-                    placeholder="admin@africacommunityvillage.org"
+                    placeholder="bwiraelie95@gmail.com"
                     className="h-14 w-full rounded-2xl border border-stone-300 bg-stone-50 pl-12 pr-4 text-base text-stone-950 outline-hidden transition focus:border-[#690C07] focus:bg-white focus:ring-4 focus:ring-[#690C07]/10"
                   />
                 </div>
