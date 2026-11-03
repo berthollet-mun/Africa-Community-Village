@@ -205,7 +205,7 @@ export const AdminDashboard: React.FC = () => {
   const pendingActions = unreadMessages + draftArticles + inactiveBanners;
 
   return (
-    <div className="bg-[#F3EDE1] min-h-screen flex flex-col font-sans">
+    <div className="acv-admin-shell bg-[#F3EDE1] min-h-screen flex flex-col font-sans">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#232826] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs font-label uppercase tracking-wider font-bold animate-fade-in border border-[#EFA62B]/50">
@@ -216,7 +216,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Top Admin Header */}
       <header className="bg-[#232826] text-white border-b border-stone-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1920px] px-3 sm:px-5 lg:px-7 2xl:px-10">
           <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
             <div className="flex items-center gap-2 sm:gap-4 overflow-hidden min-w-0">
               <button
@@ -261,7 +261,7 @@ export const AdminDashboard: React.FC = () => {
               <button
                 onClick={() => {
                   logoutAdmin();
-                  navigateTo('/');
+                  navigateTo('/admin/login');
                 }}
                 className="p-1.5 sm:p-2 rounded-lg bg-stone-800 hover:bg-rose-900 text-stone-300 hover:text-white transition-colors cursor-pointer shrink-0"
                 title={isFr ? 'Déconnexion' : 'Log Out'}
@@ -274,8 +274,8 @@ export const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 flex-1 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="mx-auto w-full max-w-[1920px] flex-1 px-3 py-5 sm:px-5 sm:py-7 lg:px-7 2xl:px-10">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:gap-8">
           <AdminNavigation
             activeTab={activeTab}
             onChange={setActiveTab}
@@ -303,7 +303,7 @@ export const AdminDashboard: React.FC = () => {
 
 
           {/* Main Content Workspace */}
-          <main className="lg:col-span-9 space-y-6">
+          <main className="min-w-0 space-y-6">
             {/* 1. OVERVIEW DASHBOARD */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
@@ -1357,7 +1357,7 @@ export const AdminDashboard: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="space-y-4 max-w-xl">
+                <div className="max-w-4xl space-y-5">
                   <div>
                     <label className="block text-xs font-label uppercase font-bold text-stone-700 mb-1.5">
                       {isFr ? 'Adresse physique du siège' : 'Headquarters Address'}
@@ -1507,7 +1507,7 @@ export const AdminDashboard: React.FC = () => {
       {/* EDIT BANNER MODAL WITH LIVE PREVIEW & DEVICE FILE UPLOAD */}
       {editingBanner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 max-h-[92vh] overflow-y-auto space-y-6 shadow-2xl border border-stone-200">
+          <div className="bg-white rounded-3xl max-w-5xl w-full p-6 md:p-10 max-h-[92vh] overflow-y-auto space-y-6 shadow-2xl border border-stone-200">
             <div className="flex items-center justify-between pb-4 border-b border-stone-100">
               <div>
                 <span className="text-[10px] font-label font-bold uppercase tracking-widest text-[#D97706]">
@@ -1804,7 +1804,7 @@ export const AdminDashboard: React.FC = () => {
       {/* EDIT ARTICLE MODAL */}
       {editingArticle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto space-y-6">
+          <div className="bg-white rounded-3xl max-w-5xl w-full p-6 md:p-10 max-h-[90vh] overflow-y-auto space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-stone-100">
               <h3 className="text-lg font-bold font-display text-stone-900">
                 {isFr ? 'Rédiger / Modifier un Article' : 'Edit Article Dispatch'}
@@ -1931,7 +1931,7 @@ export const AdminDashboard: React.FC = () => {
       {/* EDIT TEAM MEMBER MODAL */}
       {editingTeam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto space-y-6">
+          <div className="bg-white rounded-3xl max-w-4xl w-full p-6 md:p-10 max-h-[90vh] overflow-y-auto space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-stone-100">
               <h3 className="text-lg font-bold font-display text-stone-900">
                 {isFr ? 'Modifier la Fiche Membre' : 'Edit Team Profile'}

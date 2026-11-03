@@ -12,6 +12,7 @@ import { RouteContentSkeleton } from './components/common/Skeleton';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { AdminLoginModal } from './components/admin/AdminLoginModal';
+import { AdminLoginPage } from './components/admin/AdminLoginPage';
 import { AnimatePresence } from 'motion/react';
 import { MotionSystem } from './components/motion/MotionSystem';
 
@@ -68,12 +69,9 @@ const AppContent: React.FC = () => {
       );
     } else {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center font-sans text-[#232826] bg-[#232826] p-4 relative">
+        <div className="min-h-screen font-sans text-[#232826] bg-[#232826]">
           <PageProgressBar />
-          <Suspense fallback={<RouteContentSkeleton route={currentRoute} />}>
-            <AdminDashboard />
-          </Suspense>
-          <AdminLoginModal />
+          <AdminLoginPage />
         </div>
       );
     }

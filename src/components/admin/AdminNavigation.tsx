@@ -110,7 +110,7 @@ export const AdminNavigation: React.FC<AdminNavigationProps> = ({ activeTab, onC
   };
 
   return (
-    <aside className="lg:col-span-3" aria-label={isFr ? 'Navigation de l’administration' : 'Admin navigation'}>
+    <aside className="min-w-0" aria-label={isFr ? 'Navigation de l’administration' : 'Admin navigation'}>
       <div className="sticky top-20 space-y-1 rounded-3xl border border-stone-200/90 bg-white p-3.5 shadow-xs">
         <button
           type="button"
