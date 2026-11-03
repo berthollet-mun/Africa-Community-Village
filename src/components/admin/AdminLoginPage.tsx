@@ -11,7 +11,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { BrandLogo } from '../common/BrandLogo';
 
 export const AdminLoginPage: React.FC = () => {
   const { language, loginAdmin, navigateTo } = useApp();
@@ -51,72 +50,32 @@ export const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#232826] text-white">
-      <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true">
-        <div className="absolute -left-32 top-16 h-96 w-96 rounded-full bg-[#690C07]/45 blur-3xl" />
-        <div className="absolute -right-24 bottom-0 h-[28rem] w-[28rem] rounded-full bg-[#14798B]/25 blur-3xl" />
-        <div className="absolute inset-0 bg-chevron-pattern opacity-60" />
-      </div>
-
-      <div className="relative mx-auto grid min-h-screen w-full max-w-[1720px] lg:grid-cols-[minmax(0,0.9fr)_minmax(560px,0.75fr)]">
-        <section className="hidden flex-col justify-between px-10 py-12 lg:flex xl:px-16 xl:py-16">
+    <main className="min-h-screen bg-[#F3EDE1] px-4 py-10 text-[#232826] sm:px-6 sm:py-14">
+      <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full items-center justify-center sm:min-h-[calc(100vh-7rem)]">
+        <div className="w-full max-w-[620px]">
           <button
             type="button"
             onClick={() => navigateTo('/')}
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 font-label text-xs font-bold uppercase tracking-wider text-stone-200 backdrop-blur-sm hover:border-[#EFA62B]/70 hover:text-white"
+            className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-2.5 font-label text-xs font-extrabold uppercase tracking-wider text-stone-700 shadow-sm hover:border-[#690C07]/40 hover:bg-[#FAF6EF] hover:text-[#690C07]"
           >
             <ArrowLeft className="h-4 w-4" />
             {isFr ? 'Retour au site public' : 'Back to public site'}
           </button>
 
-          <div className="max-w-2xl pb-12">
-            <div className="mb-8 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white p-1 shadow-2xl">
-              <BrandLogo size={112} sizes="80px" className="h-full w-full rounded-xl object-contain" priority />
-            </div>
-            <p className="mb-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-[#EFA62B]">
-              Africa Community Village
-            </p>
-            <h1 className="max-w-xl font-display text-4xl font-extrabold leading-tight text-white xl:text-6xl">
-              {isFr ? 'Pilotez les contenus qui font vivre la communauté.' : 'Manage the stories that move the community forward.'}
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-8 text-stone-300 xl:text-lg">
-              {isFr
-                ? 'Un espace sécurisé pour publier les actualités, gérer les programmes, suivre les messages et administrer les équipes ACV.'
-                : 'A secure workspace to publish updates, manage programs, follow inquiries, and administer ACV teams.'}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 text-sm text-stone-400">
-            <ShieldCheck className="h-5 w-5 text-[#EFA62B]" />
-            <span>{isFr ? 'Accès réservé aux administrateurs autorisés' : 'Restricted to authorized administrators'}</span>
-          </div>
-        </section>
-
-        <section className="flex min-h-screen items-center justify-center p-4 sm:p-8 lg:bg-[#F3EDE1] lg:p-10 xl:p-16">
-          <div className="w-full max-w-[660px] overflow-hidden rounded-[2rem] border border-white/15 bg-white text-[#232826] shadow-2xl lg:border-stone-200">
+          <div className="w-full overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-2xl shadow-stone-900/10">
             <div className="border-b border-stone-100 bg-[#FAF6EF] px-6 py-6 sm:px-10 sm:py-8">
-              <div className="flex items-start justify-between gap-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#690C07] text-white shadow-lg shadow-[#690C07]/20">
-                    <LockKeyhole className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="font-label text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#690C07]">
-                      {isFr ? 'Back-office sécurisé' : 'Secure back office'}
-                    </p>
-                    <h2 className="mt-1 font-display text-2xl font-extrabold text-stone-950 sm:text-3xl">
-                      {isFr ? 'Connexion administrateur' : 'Administrator login'}
-                    </h2>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#690C07] text-white shadow-lg shadow-[#690C07]/20">
+                  <LockKeyhole className="h-6 w-6" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => navigateTo('/')}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 hover:border-[#690C07]/30 hover:bg-white hover:text-[#690C07] lg:hidden"
-                  aria-label={isFr ? 'Retour au site public' : 'Back to public site'}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
+                <div>
+                  <p className="font-label text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#690C07]">
+                    {isFr ? 'Back-office sécurisé' : 'Secure back office'}
+                  </p>
+                  <h2 className="mt-1 font-display text-2xl font-extrabold text-stone-950 sm:text-3xl">
+                    {isFr ? 'Connexion administrateur' : 'Administrator login'}
+                  </h2>
+                </div>
               </div>
             </div>
 
@@ -206,8 +165,8 @@ export const AdminLoginPage: React.FC = () => {
               </div>
             </form>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 };
