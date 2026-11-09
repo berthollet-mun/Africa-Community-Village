@@ -203,6 +203,13 @@ export const AdminDashboard: React.FC = () => {
     (banner) => banner.active === false || banner.isActive === false
   ).length;
   const pendingActions = unreadMessages + draftArticles + inactiveBanners;
+  const selectedInternalBanner =
+    bannerPageFilter !== 'all' && bannerPageFilter !== '/'
+      ? banners.find((banner) => {
+          const route = (banner.pageRoute || (banner as BannerSlide & { page_assignment?: string }).page_assignment || '').toLowerCase();
+          return route === bannerPageFilter.toLowerCase();
+        })
+      : undefined;
 
   return (
     <div className="acv-admin-shell bg-[#F3EDE1] min-h-screen flex flex-col font-sans">
@@ -538,12 +545,16 @@ export const AdminDashboard: React.FC = () => {
                     </h2>
                     <p className="text-xs text-stone-500 mt-0.5">
                       {isFr
-                        ? 'Chaque page principale dispose d’un carrousel immersif auto-play avec transitions fluides, navigation tactile et textes bilingues.'
-                        : 'Every main page features an immersive autoplay carousel inspired by the Mwali & Skinere design with full bilingual control.'}
+                        ? 'La page d’accueil accepte jusqu’à 8 slides. Chaque page interne utilise une seule bannière de couverture bilingue.'
+                        : 'The homepage accepts up to 8 slides. Each internal page uses one bilingual cover banner.'}
                     </p>
                   </div>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      if (selectedInternalBanner) {
+                        setEditingBanner(selectedInternalBanner);
+                        return;
+                      }
                       setEditingBanner({
                         id: `banner_${Date.now()}`,
                         pageRoute: bannerPageFilter !== 'all' ? bannerPageFilter : '/',
@@ -559,12 +570,16 @@ export const AdminDashboard: React.FC = () => {
                         order: banners.length + 1,
                         active: true,
                         isActive: true
-                      })
-                    }
+                      });
+                    }}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-[#690C07] hover:bg-[#520905] text-white text-xs font-label uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>{isFr ? 'Créer une Bannière' : 'Add Banner Slide'}</span>
+                    {selectedInternalBanner ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    <span>
+                      {selectedInternalBanner
+                        ? (isFr ? 'Modifier la Bannière' : 'Edit Page Banner')
+                        : (isFr ? 'Créer une Bannière' : 'Add Banner Slide')}
+                    </span>
                   </button>
                 </div>
 

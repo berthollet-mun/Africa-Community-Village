@@ -64,6 +64,8 @@ html {
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background-color: #F3EDE1;
+  background-image: radial-gradient(circle at 8% 4%, rgba(239, 166, 43, 0.08), transparent 24rem);
+  background-attachment: fixed;
   color: #232826;
   overflow-x: hidden;
 }
@@ -79,7 +81,7 @@ body {
   }
 
   .acv-page-header {
-    min-height: 15.5rem;
+    min-height: 18rem;
   }
 
   :where(button, a, input, select, textarea, summary, [role='button']) {
@@ -89,13 +91,13 @@ body {
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .acv-page-header {
-    min-height: 17rem;
+    min-height: 20rem;
   }
 }
 
 @media (min-width: 1024px) {
   .acv-page-header {
-    min-height: 18rem;
+    min-height: 20rem;
   }
 }
 

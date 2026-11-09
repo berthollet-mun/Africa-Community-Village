@@ -56,28 +56,28 @@ export const Header: React.FC = () => {
   return (
     <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 ${
       isScrolled
-        ? 'border-[#E2D7C3] bg-[#F3EDE1]/96 shadow-[0_12px_32px_-22px_rgba(35,40,38,0.55)]'
-        : 'border-transparent bg-[#F3EDE1]/72 shadow-none'
+        ? 'border-[#E2D7C3] bg-white/96 shadow-[0_12px_32px_-22px_rgba(35,40,38,0.55)]'
+        : 'border-[#E2D7C3]/70 bg-white/92 shadow-none'
     }`}>
       {/* Main Nav Bar */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
         {/* Zone 1: Brand Wordmark & Logo */}
         <button
           onClick={() => navigateTo('/')}
           className="flex items-center gap-2.5 sm:gap-3.5 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#690C07] rounded-xl p-1 transition-transform duration-200 active:scale-98 min-w-0 shrink"
         >
           {/* Enhanced high-contrast, large logo badge for high visibility */}
-          <div className="relative w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full bg-white ring-2 ring-[#690C07]/35 shadow-sm flex items-center justify-center p-0.5 shrink-0 overflow-hidden group-hover:ring-[#690C07] group-hover:shadow-md transition-all duration-200">
+          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white ring-1 ring-[#690C07]/25 shadow-sm flex items-center justify-center p-0.5 shrink-0 overflow-hidden group-hover:ring-[#690C07] group-hover:shadow-md transition-all duration-200">
             <BrandLogo
               alt="Africa Community Village Logo (ACV)"
               priority
               size={96}
               sizes="(max-width: 640px) 44px, 56px"
-              className="w-full h-full object-contain rounded-full"
+              className="w-full h-full object-contain"
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-display font-extrabold text-sm sm:text-lg md:text-xl text-[#232826] tracking-tight leading-tight group-hover:text-[#690C07] transition-colors truncate">
+            <span className="font-display font-extrabold text-sm sm:text-base md:text-lg text-[#232826] tracking-tight leading-tight group-hover:text-[#690C07] transition-colors truncate">
               Africa Community Village
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -85,7 +85,7 @@ export const Header: React.FC = () => {
                 ACV
               </span>
               <span className="text-[10px] text-stone-400">·</span>
-              <span className="font-label text-[10px] sm:text-[11px] text-[#14798B] font-bold tracking-wider uppercase truncate">
+              <span className="font-label text-[10px] text-[#14798B] font-bold tracking-wider uppercase truncate">
                 Goma, DRC
               </span>
             </div>
@@ -317,14 +317,14 @@ export const Header: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-68px)] bg-black/40 backdrop-blur-xs sm:h-[calc(100dvh-74px)] lg:hidden"
+              className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-64px)] bg-black/40 backdrop-blur-xs sm:h-[calc(100dvh-72px)] lg:hidden"
             />
             <motion.div
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-68px)] overflow-y-auto border-b border-[#E2D7C3] bg-[#F3EDE1] px-5 pb-6 pt-4 shadow-2xl sm:h-[calc(100dvh-74px)] lg:hidden"
+              className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-64px)] overflow-y-auto border-b border-[#E2D7C3] bg-white px-5 pb-6 pt-4 shadow-2xl sm:h-[calc(100dvh-72px)] lg:hidden"
             >
               <div className="acv-mobile-menu flex flex-col space-y-1">
                 {/* Mobile Drawer Brand Header for clear visibility */}

@@ -157,7 +157,7 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Programs (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
-            <span className="font-label text-xs uppercase tracking-widest text-[#690C07] font-bold block">
+            <span className="font-label text-xs uppercase tracking-widest text-[#EFA62B] font-bold block">
               {t.footer.programs}
             </span>
             <ul className="space-y-2 text-sm text-neutral-300">

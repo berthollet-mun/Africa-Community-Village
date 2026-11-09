@@ -53,15 +53,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     })
     .sort((a, b) => a.order - b.order);
 
-  // Homepage first shows its dedicated slides, then reuses existing ACV visuals
-  // to reach a professional ten-slide editorial sequence without duplicating content.
+  // The homepage is the only multi-slide hero. It uses at most eight slides,
+  // all explicitly assigned to the homepage by the administrator.
   const homeBanners = activeBanners.filter((banner) => {
     const legacyRoute = (banner as BannerSlide & { page_assignment?: string }).page_assignment;
     const route = (banner.pageRoute || legacyRoute || '').toLowerCase();
     return route === '/' || route === 'home' || route === 'all';
   });
-  const supportingBanners = activeBanners.filter((banner) => !homeBanners.includes(banner));
-  const slides: BannerSlide[] = [...homeBanners, ...supportingBanners].slice(0, 10);
+  const slides: BannerSlide[] = homeBanners.slice(0, 8);
 
   const total = slides.length;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -201,8 +200,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       <div
         className={`relative w-full overflow-hidden bg-[#18181B] select-none ${
           fullBleed
-            ? 'h-[68vh] min-h-[460px] max-h-[760px] sm:h-[72vh] lg:h-[80vh]'
-            : 'h-[60vh] min-h-[440px] max-h-[680px] rounded-2xl sm:rounded-3xl shadow-2xl'
+            ? 'h-[66vh] min-h-[440px] max-h-[700px] sm:h-[70vh]'
+            : 'h-[62vh] min-h-[430px] max-h-[650px] rounded-[1.5rem] border border-white/30 shadow-[0_28px_80px_-38px_rgba(35,40,38,0.8)] sm:rounded-[2rem]'
         }`}
         onMouseEnter={() => setInteractionPaused(true)}
         onMouseLeave={() => setInteractionPaused(false)}
@@ -267,14 +266,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         {/* Multi-layered Warm Cinematic Scrim (Seamless fade with no cut-off line) */}
         <div className="absolute inset-0 z-20 bg-gradient-to-r from-black/90 via-black/60 via-45% to-transparent to-90% pointer-events-none"></div>
         <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/90 via-black/40 via-40% to-transparent pointer-events-none"></div>
-        <div className="absolute inset-0 z-20 bg-[#690C07]/10 mix-blend-overlay pointer-events-none"></div>
+        <div className="absolute inset-0 z-20 bg-[#690C07]/22 mix-blend-multiply pointer-events-none"></div>
 
         {/* Content Container */}
-        <div className="relative z-30 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 flex flex-col justify-end pb-12 sm:pb-16 lg:pb-20">
+        <div className="relative z-30 w-full h-full max-w-7xl mx-auto px-5 sm:px-9 lg:px-14 flex flex-col justify-end pb-14 sm:pb-16 lg:pb-18">
           <div className="max-w-3xl space-y-3 sm:space-y-5">
             {/* Category / Pillar Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 w-fit shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-[#EFA62B] animate-pulse"></span>
               <span className="font-label text-[11px] sm:text-[13px] uppercase font-bold tracking-widest text-amber-200">
                 {getBadgeText()}
               </span>
@@ -285,7 +284,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               as="h1"
               text={title}
               delay={0.12}
-              className="font-display font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-[1.14] sm:leading-[1.08] text-balance drop-shadow-md"
+              className="max-w-3xl font-display font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[3.7rem] text-white tracking-tight leading-[1.08] text-balance drop-shadow-md"
             />
 
             {/* Subtitle */}
